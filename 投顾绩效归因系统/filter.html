@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>组合智能筛选 - 投顾绩效归因系统</title>
+<style>
+  :root {
+    --bg: #f7f8fa; --surface: #fff; --surface-muted: #f8fafc; --bg-hover: #f1f4f9;
+    --border: #e5e7eb; --border-strong: #d0d7e2;
+    --brand: #2563eb; --brand-soft: #eef2ff; --brand-strong: #2563eb;
+    --text: #1f2937; --text-muted: #6b7280; --text-caption: #9ca3af;
+    --pos: #dc2626; --neg: #16a34a; --danger: #dc2626;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --radius: 6px; --radius-card: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+  .header { padding: 14px 24px; border-bottom: 1px solid var(--border);
+    background: var(--surface); position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 12px; }
+  .header .bar { width: 4px; height: 20px; background: var(--brand); border-radius: 2px; }
+  .header .title { font-size: 17px; font-weight: 700; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 20px 24px 48px; }
+  .module-subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
+
+  .filter-panel { background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-card); padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .panel-title { font-size: 14px; font-weight: 600; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px; }
+  .panel-title::before { content:""; width:3px; height:14px; background: var(--brand); border-radius:2px; }
+  .help-icon { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px;
+    border-radius:50%; border:1px solid var(--text-caption); color:var(--text-caption);
+    font-size:11px; font-weight:600; cursor:help; position:relative; flex-shrink:0; margin-left:4px; }
+  .help-icon:hover { border-color: var(--brand); color: var(--brand); }
+  .help-tooltip { display:none; position:absolute; top:24px; left:0; background:#1f2937; color:#f8fafc;
+    padding:10px 14px; border-radius:var(--radius); font-size:12px; font-weight:400; line-height:1.8;
+    width:330px; z-index:100; box-shadow:0 6px 16px rgba(0,0,0,.2); cursor:default; }
+  .help-tooltip::before { content:""; position:absolute; top:-5px; left:6px; transform:rotate(45deg);
+    width:8px; height:8px; background:#1f2937; }
+  .help-icon:hover .help-tooltip { display:block; }
+  .help-tooltip .tip-title { font-weight:600; margin-bottom:4px; color:#93c5fd; }
+  .help-tooltip .tip-row { color:#e2e8f0; opacity:.95; }
+  .help-tooltip .tip-label { color:#93c5fd; }
+
+  .cat { border: 1px solid var(--border-strong); border-radius: var(--radius-card); margin-bottom: 12px; overflow: hidden; }
+  .cat-name { background: var(--surface-muted); padding: 8px 14px; font-size: 12px; font-weight: 600;
+    color: var(--text-muted); border-bottom: 1px solid var(--border); }
+  .metric-row { display: flex; align-items: center; gap: 10px; padding: 8px 14px; flex-wrap: wrap;
+    border-bottom: 1px solid #eef0f3; }
+  .metric-row:last-child { border-bottom: none; }
+  .metric-row .chk { width: 15px; height: 15px; accent-color: var(--brand); cursor: pointer; flex-shrink: 0; }
+  .metric-row .m-label { font-size: 13px; min-width: 120px; }
+  .metric-row .select-box { padding: 4px 8px; border: 1px solid var(--border); border-radius: var(--radius);
+    font-size: 12px; background: var(--surface); color: var(--text); width: 92px; font-family: inherit; }
+  .input-box { padding: 5px 8px; border: 1px solid var(--border); border-radius: var(--radius);
+    font-size: 12px; width: 86px; color: var(--text); font-family: inherit; outline: none; }
+  .input-box:focus, .select-box:focus { border-color: var(--brand); }
+  .range-sep { font-size: 12px; color: var(--text-caption); }
+  .unit-hint { font-size: 12px; color: var(--text-caption); width: 14px; }
+
+  .action-bar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .apply-btn { background: var(--brand); color: #fff; border: none; padding: 8px 22px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .apply-btn:hover { opacity: .92; }
+  .reset-btn { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border);
+    padding: 8px 16px; border-radius: var(--radius); font-size: 14px; cursor: pointer; font-family: inherit; }
+  .reset-btn:hover { background: var(--bg-hover); }
+
+  .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .results-count { font-size: 14px; font-weight: 500; }
+  .results-count span { color: var(--brand); }
+  .sort-indicator { font-size: 12px; color: var(--text-muted); background: var(--surface);
+    padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border); }
+
+  .tbl-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card);
+    overflow-x: auto; box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+  thead th { background: var(--surface-muted); padding: 12px 14px; text-align: left; font-weight: 600;
+    color: var(--text-muted); font-size: 12px; border-bottom: 1px solid var(--border); }
+  thead th.sortable { cursor: pointer; user-select: none; letter-spacing: .02em; }
+  thead th.sortable:hover { color: var(--brand); }
+  thead th .arr { font-size: 10px; margin-left: 3px; color: var(--brand); }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid #eef0f3; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-hover); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: var(--pos); } .neg { color: var(--neg); }
+  .empty-state { text-align: center; padding: 48px 16px; color: var(--text-caption); font-size: 14px; }
+  .detail-link { color: var(--brand); font-weight: 600; text-decoration: none; }
+  .detail-link:hover { text-decoration: underline; }
+
+  body.loading-on { } 
+</style>
+<script src="api.js"></script>
+</head>
+<body>
+<div class="header">
+  <div class="bar"></div>
+  <div class="title">组合智能筛选</div>
+</div>
+
+<div class="wrap">
+  <div class="module-subtitle">通过指标阈值筛选符合条件的投顾组合，辅助客户推荐决策</div>
+
+  <div class="filter-panel">
+    <div class="panel-title">
+      指标筛选
+      <span class="help-icon">?<span class="help-tooltip">
+        <div class="tip-title">指标计算口径</div>
+        <div class="tip-row"><span class="tip-label">收益率、超额收益率、胜率、年化波动率、最大回撤率、换手率</span>：可选 3M/6M/1Y/YTD/成立以来</div>
+        <div class="tip-row"><span class="tip-label">成立以来年化收益率</span>：固定为成立以来</div>
+        <div class="tip-row"><span class="tip-label">卡玛比率、夏普比率、索提诺比率、信息比率</span>：固定为近一年</div>
+        <div class="tip-row"><span class="tip-label">勾选多个指标</span>：多指标间为 AND 逻辑，需同时满足；勾选后点击「应用筛选」。</div>
+      </span></span>
+    </div>
+
+    <div id="filterRows"></div>
+
+    <div class="action-bar">
+      <button class="reset-btn" id="resetBtn">重置</button>
+      <button class="apply-btn" id="applyBtn">应用筛选</button>
+    </div>
+  </div>
+
+  <div class="results-header">
+    <div class="results-count" id="resultsCount"></div>
+    <div class="sort-indicator" id="sortIndicator"></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead id="resultsHead"></thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+    <div class="empty-state" id="resultsEmpty" style="display:none;">没有符合条件的投顾组合，请调整筛选条件</div>
+  </div>
+</div>
+
+<script>
+// ---- 指标定义（对齐 PRD §7.3） ----
+const METRIC_KEYS = ['return','excess_return','win_rate','annualized_return','volatility','max_drawdown','calmar','sharpe','sortino','information','turnover'];
+const METRICS = {
+  return:            { name:'收益率',             category:'收益类',     supportRange:true,  isPercent:true },
+  excess_return:     { name:'超额收益率',         category:'收益类',     supportRange:true,  isPercent:true },
+  win_rate:          { name:'胜率',               category:'收益类',     supportRange:true,  isPercent:true },
+  annualized_return: { name:'成立以来年化收益率', category:'收益类',     supportRange:false, isPercent:true },
+  volatility:        { name:'年化波动率',         category:'风险类',     supportRange:true,  isPercent:true },
+  max_drawdown:      { name:'最大回撤率',         category:'风险类',     supportRange:true,  isPercent:true },
+  calmar:            { name:'卡玛比率',           category:'风险调整类', supportRange:false, isPercent:false },
+  sharpe:            { name:'夏普比率',           category:'风险调整类', supportRange:false, isPercent:false },
+  sortino:           { name:'索提诺比率',         category:'风险调整类', supportRange:false, isPercent:false },
+  information:       { name:'信息比率',           category:'风险调整类', supportRange:false, isPercent:false },
+  turnover:          { name:'换手率',             category:'交易类',     supportRange:true,  isPercent:true },
+};
+const RANGES = [
+  { value:'3M',  label:'3M' }, { value:'6M',  label:'6M' },
+  { value:'1Y',  label:'1Y' }, { value:'YTD', label:'YTD' },
+  { value:'SINCE_INCEPTION', label:'成立以来' },
+];
+const CATEGORIES = ['收益类','风险类','风险调整类','交易类'];
+const DEFAULT_RANGE = '1Y';   // PRD：区间下拉默认近一年
+
+let PORTFOLIOS = [];          // {inner_id, portfolio, advisor, branch, intervals}
+let sortMetric = 'return', sortRange = DEFAULT_RANGE, sortDir = 'desc';
+let userSorted = false;       // 用户是否已显式点击列头排序列
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtPct = (v, d=2) => v==null || !isFinite(v) ? '—' : (v>=0?'+':'') + (v*100).toFixed(d) + '%';
+const fmtNum = (v, d=2) => v==null || !isFinite(v) ? '—' : v.toFixed(d);
+
+// ---- 指标值取值 ----
+function metricVal(p, key, range){
+  const iv = p.intervals || {};
+  const g = r => (iv[r] || {});
+  switch (key) {
+    case 'return': return g(range).period_return;
+    case 'excess_return': return g(range).excess_return;
+    case 'win_rate': return g(range).win_rate;
+    case 'annualized_return': return g('SINCE_INCEPTION').annual_return;
+    case 'volatility': return g(range).volatility;
+    case 'max_drawdown': return g(range).max_drawdown;
+    case 'calmar': return g('1Y').calmar;
+    case 'sharpe': return g('1Y').sharpe;
+    case 'sortino': return g('1Y').sortino;
+    case 'information': return g('1Y').info_ratio;
+    case 'turnover': return g(range).turnover;
+    default: return null;
+  }
+}
+
+// ---- 构建筛选面板（按分类分组） ----
+function buildFilterPanel(){
+  const wrap = document.getElementById('filterRows');
+  wrap.innerHTML = CATEGORIES.map(cat => {
+    const rows = METRIC_KEYS.filter(k => METRICS[k].category === cat).map(k => {
+      const m = METRICS[k];
+      const rangeSel = m.supportRange
+        ? '<select class="select-box range-sel" data-key="'+k+'" style="width:96px;">' +
+          RANGES.map(r => '<option value="'+r.value+'"'+(r.value===DEFAULT_RANGE?' selected':'')+'>'+r.label+'</option>').join('') +
+          '</select>'
+        : '';
+      const fixedHint = (!m.supportRange && ['calmar','sharpe','sortino','information'].includes(k)) ? '<span class="unit-hint" style="width:auto;">近1年</span>'
+        : (!m.supportRange && k==='annualized_return') ? '<span class="unit-hint" style="width:auto;">成立以来</span>' : '';
+      return '<div class="metric-row" data-key="'+k+'">' +
+        '<input type="checkbox" class="chk" data-key="'+k+'">' +
+        '<span class="m-label">'+m.name+'</span>' +
+        rangeSel + fixedHint +
+        '<input class="input-box min-input" data-key="'+k+'" placeholder="下限">' +
+        '<span class="range-sep">~</span>' +
+        '<input class="input-box max-input" data-key="'+k+'" placeholder="上限">' +
+        '<span class="unit-hint">'+(m.isPercent?'%':'')+'</span>' +
+        '</div>';
+    }).join('');
+    return '<div class="cat"><div class="cat-name">'+cat+'</div>'+rows+'</div>';
+  }).join('');
+}
+
+// ---- 读取当前筛选条件 ----
+function getConditions(){
+  const conds = [];
+  METRIC_KEYS.forEach(k => {
+    const row = document.querySelector('.metric-row[data-key="'+k+'"]');
+    if (!row) return;
+    const chk = row.querySelector('.chk');
+    if (!chk.checked) return;
+    const rangeEl = row.querySelector('.range-sel');
+    const range = rangeEl ? rangeEl.value : null;
+    const min = row.querySelector('.min-input').value.trim();
+    const max = row.querySelector('.max-input').value.trim();
+    if (min === '' && max === '') return;   // 勾选但未填值 → 视为无条件，跳过
+    conds.push({ key:k, range, min: min===''?null:parseFloat(min), max: max===''?null:parseFloat(max) });
+  });
+  return conds;
+}
+
+// ---- 筛选 + 排序 ----
+function applyFilter(){
+  const conds = getConditions();
+  // 过滤：百分比指标阈值（用户输入如 30=30%）需除以 100 转成与指标值一致的小数口径
+  let list = PORTFOLIOS.filter(p => conds.every(c => {
+    const isPct = METRICS[c.key].isPercent;
+    const v = metricVal(p, c.key, c.range);
+    if (v == null || !isFinite(v)) return true;   // 指标缺失不参与
+    if (c.min !== null){ const lo = isPct ? c.min/100 : c.min; if (v < lo) return false; }
+    if (c.max !== null){ const hi = isPct ? c.max/100 : c.max; if (v > hi) return false; }
+    return true;
+  }));
+
+  // 默认排序：用户未点击列头时，按第一个筛选指标降序；未勾选指标按收益率(近一年)降序
+  if (!userSorted){
+    if (conds.length){ sortMetric = conds[0].key; sortRange = METRICS[conds[0].key].supportRange ? conds[0].range : null; sortDir = 'desc'; }
+    else { sortMetric = 'return'; sortRange = DEFAULT_RANGE; sortDir = 'desc'; }
+  }
+
+  const dir = sortDir === 'desc' ? -1 : 1;
+  list = list.slice().sort((a,b) => {
+    const va = metricVal(a, sortMetric, sortRange), vb = metricVal(b, sortMetric, sortRange);
+    if (va==null || !isFinite(va) || vb==null || !isFinite(vb)) return 0;
+    return (va - vb) * dir;
+  });
+  renderResults(list, conds);
+}
+
+function renderResults(list, conds){
+  const m = METRICS[sortMetric];
+  const rangeLbl = m.supportRange ? (sortRange || DEFAULT_RANGE) : '';
+  document.getElementById('resultsCount').innerHTML = '符合条件组合 <span>'+list.length+'</span> / 共 '+PORTFOLIOS.length+' 个';
+  document.getElementById('sortIndicator').textContent =
+    '按 '+m.name+(rangeLbl?'('+rangeLbl+')':'')+' '+(sortDir==='desc'?'高→低':'低→高');
+
+  // 展示列：勾选指标；未勾选时展示收益率(近一年)列
+  const cols = conds.length ? conds.map(c => ({ key:c.key, range:c.range }))
+                            : [{ key:'return', range:DEFAULT_RANGE }];
+
+  const thead = document.getElementById('resultsHead');
+  let head = '<tr><th style="width:44px;">排名</th><th>组合名称</th><th>投顾姓名</th>';
+  cols.forEach(c => {
+    const cm = METRICS[c.key];
+    const lbl = cm.name + (cm.supportRange ? '(' + (c.range || '') + ')' : (['calmar','sharpe','sortino','information'].includes(c.key) ? '(近1年)' : (c.key==='annualized_return'?'(成立以来)':'')));
+    const active = (c.key === sortMetric) ? ' class="sortable active"' : ' class="sortable"';
+    const arr = (c.key === sortMetric) ? (sortDir==='desc'?'▼':'▲') : '';
+    head += '<th'+active+' class="num" data-sort="'+c.key+'" data-range="'+(c.range||'')+'">'+lbl+'<span class="arr">'+arr+'</span></th>';
+  });
+  head += '<th>查看详情</th></tr>';
+  thead.innerHTML = head;
+
+  const tbody = document.getElementById('resultsBody');
+  document.getElementById('resultsEmpty').style.display = list.length ? 'none' : '';
+  if (!list.length){ tbody.innerHTML=''; return; }
+
+  tbody.innerHTML = list.map((p, i) => {
+    const numCls = (v, isPct) => {
+      if (v==null || !isFinite(v)) return '';
+      return (isPct ? v>=0 : v>=0) ? 'pos' : 'neg';
+    };
+    let cells = '<td class="num" style="text-align:center;color:var(--text-caption);">'+(i+1)+'</td>' +
+      '<td class="col-header" style="font-weight:600;">'+esc(p.portfolio)+'</td>' +
+      '<td>'+esc(p.advisor)+'</td>';
+    cols.forEach(c => {
+      const cm = METRICS[c.key];
+      const v = metricVal(p, c.key, c.range);
+      const txt = (v==null||!isFinite(v)) ? '—' : (cm.isPercent ? fmtPct(v) : fmtNum(v));
+      const cls = (v!=null&&isFinite(v)) ? (v>=0?'pos':'neg') : '';
+      cells += '<td class="num '+cls+'">'+txt+'</td>';
+    });
+    cells += '<td><a class="detail-link" href="portfolio.html?id='+encodeURIComponent(p.inner_id)+'" target="_self">查看详情</a></td>';
+    return '<tr>'+cells+'</tr>';
+  }).join('');
+}
+
+// ---- 列头排序 ----
+document.getElementById('resultsHead').addEventListener('click', e => {
+  const th = e.target.closest('th.sortable');
+  if (!th) return;
+  const key = th.dataset.sort;
+  const range = th.dataset.range || null;
+  userSorted = true;
+  if (key === sortMetric) sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+  else { sortMetric = key; sortRange = range || (METRICS[key].supportRange ? DEFAULT_RANGE : null); sortDir = 'desc'; }
+  applyFilter();
+});
+
+// ---- 重置 ----
+document.getElementById('resetBtn').addEventListener('click', () => {
+  METRIC_KEYS.forEach(k => {
+    const row = document.querySelector('.metric-row[data-key="'+k+'"]');
+    if (!row) return;
+    row.querySelector('.chk').checked = false;
+    const rs = row.querySelector('.range-sel'); if (rs) rs.value = DEFAULT_RANGE;
+    row.querySelector('.min-input').value = '';
+    row.querySelector('.max-input').value = '';
+  });
+  userSorted = false;
+  sortMetric='return'; sortRange=DEFAULT_RANGE; sortDir='desc';
+  applyFilter();
+});
+document.getElementById('applyBtn').addEventListener('click', applyFilter);
+
+// ---- 初始化 ----
+(async function init(){
+  buildFilterPanel();
+  try {
+    const pf = await (await fetch('/api/portfolios')).json();
+    const data = await Promise.all(pf.map(async p => {
+      try {
+        const rep = await fetch('/api/portfolio/'+encodeURIComponent(p.inner_id)+'/indicators', { cache:'no-store' });
+        const json = await rep.json();
+        return { inner_id:p.inner_id, portfolio:p.portfolio, advisor:p.advisor, branch:p.branch, intervals:(json && json.intervals)||{} };
+      } catch(e){ return { inner_id:p.inner_id, portfolio:p.portfolio, advisor:p.advisor, branch:p.branch, intervals:{} }; }
+    }));
+    PORTFOLIOS = data;
+  } catch(e){ PORTFOLIOS = []; }
+  applyFilter();
+})();
+</script>
+</body>
+</html>

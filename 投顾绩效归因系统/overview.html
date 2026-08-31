@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>投顾绩效归因系统 - 数据总览</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #f7f8fa; --card: #fff; --border: #e5e7eb;
+    --primary: #2563eb; --primary-subtle: #eff6ff;
+    --text: #1f2937; --muted: #6b7280; --red: #dc2626; --green: #16a34a;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-hover: 0 4px 12px rgba(37,99,235,.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+  .header { padding: 16px 24px; border-bottom: 1px solid var(--border);
+    background: var(--card); position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; }
+  .header .bar { width: 4px; height: 20px; background: var(--primary); border-radius: 2px; }
+  .header .date { font-size: 12px; font-weight: 400; color: var(--muted);
+    background: #f1f4f9; padding: 2px 10px; border-radius: 10px; }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 20px 24px 40px; }
+  .section-title { font-size: 15px; font-weight: 600; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content:''; width:3px; height:16px; background:var(--primary); border-radius:2px; }
+  .section-title .date { font-size: 12px; font-weight: 400; color: var(--muted);
+    background: #f1f4f9; padding: 2px 10px; border-radius: 10px; }
+  .section { margin-bottom: 28px; }
+  .card-group { display: grid; gap: 14px; }
+  .card-group.scale { grid-template-columns: repeat(3, 1fr); }
+  .card-group.returns { grid-template-columns: repeat(3, 1fr); }
+  .stat-card { background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 20px; box-shadow: var(--shadow);
+    transition: box-shadow .2s, transform .2s; }
+  .stat-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+  .stat-card .label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .stat-card .value { font-size: 26px; font-weight: 700; letter-spacing: -.5px; }
+  .stat-card .value .unit { font-size: 14px; font-weight: 400; color: var(--muted); margin-left: 4px; }
+  .stat-card .value.hl { color: var(--primary); }
+  .stat-card .value.warn { color: var(--red); }
+  .stat-card .value.neg { color: var(--green); }
+  .stat-card .value.pos { color: var(--red); }
+  .stat-card .sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  /* 卡片内嵌迷你图（左文字右曲线） */
+  .stat-card.split { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .stat-card.split .spark-left { flex: 0 0 auto; }
+  .stat-card.split .spark-box { flex: 1 1 auto; height: 56px; min-width: 120px; }
+  .stat-card.sparkline-full .spark-box { height: 72px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; margin-bottom: 28px; }
+  .panel { background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow); padding: 18px 20px; }
+  .panel-title { font-size: 14px; font-weight: 600; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px; }
+  .rank-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rank-table thead th { text-align: left; padding: 8px 10px; color: var(--muted);
+    font-weight: 500; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .rank-table tbody td { padding: 9px 10px; border-bottom: 1px solid #f1f4f9; }
+  .rank-table tbody tr:hover td { background: var(--primary-subtle); }
+  .rank-num { display:inline-flex; align-items:center; justify-content:center;
+    width:22px; height:22px; border-radius:50%; font-size:12px; font-weight:600;
+    background:#f1f4f9; color:var(--muted); }
+  .rank-num.top1 { background:#fef3c7; color:#d97706; }
+  .rank-num.top2 { background:#e5e7eb; color:#6b7280; }
+  .rank-num.top3 { background:#fed7aa; color:#c2410c; }
+  .return-pos { color: var(--red); font-weight: 600; }
+  .return-neg { color: var(--green); font-weight: 600; }
+  #calmarChart { height: 400px; width: 100%; }
+  .placeholder { text-align: center; color: var(--muted); padding: 40px 0; font-size: 13px; }
+  .style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .donut-item { background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow); padding: 14px 12px 10px; text-align: center; }
+  .donut-item .donut-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .donut-item .donut-chart { height: 130px; width: 100%; cursor: pointer; }
+  .donut-item .donut-summary { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+  .donut-item .donut-summary .tag { display: inline-block; background: var(--primary-subtle);
+    color: var(--primary); padding: 1px 6px; border-radius: 4px; margin: 1px; font-size: 10px;
+    cursor: pointer; transition: background .15s; }
+  .donut-item .donut-summary .tag:hover { background: var(--primary); color: #fff; }
+  .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+    width: 100%; height: 100%; background: rgba(0,0,0,.35);
+    align-items: center; justify-content: center; }
+  .modal-overlay.active { display: flex; }
+  .modal-box { background: var(--card); border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.18);
+    width: 420px; max-height: 70vh; overflow: hidden; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px 12px; border-bottom: 1px solid var(--border); }
+  .modal-header h3 { font-size: 15px; font-weight: 600; color: var(--text); }
+  .modal-close { width: 26px; height: 26px; border: none; background: #f1f4f9;
+    border-radius: 50%; cursor: pointer; font-size: 14px; color: var(--text);
+    display: flex; align-items: center; justify-content: center; transition: background .15s; }
+  .modal-close:hover { background: #e2e8f0; }
+  .modal-body { padding: 12px 20px 16px; overflow-y: auto; max-height: calc(70vh - 56px); }
+  .modal-body table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .modal-body th { text-align: left; padding: 6px 8px; color: var(--muted);
+    font-weight: 500; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .modal-body td { padding: 7px 8px; border-bottom: 1px solid #f1f4f9; }
+  .modal-body .count-badge { display: inline-block; background: var(--primary-subtle);
+    color: var(--primary); font-size: 11px; padding: 0 8px; border-radius: 8px; margin-left: 6px; }
+  @media (max-width: 1000px) { .style-grid { grid-template-columns: repeat(2, 1fr); } }
+  .err { text-align:center; color:var(--red); padding: 60px; font-size: 15px; }
+  @media (max-width: 1000px) {
+    .two-col { grid-template-columns: 1fr; }
+    .card-group.returns { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+<script src="api.js"></script>
+</head>
+<body>
+<header class="header">
+  <span class="bar"></span>
+  数据总览
+  <span class="date" id="asOf"></span>
+</header>
+<div class="wrap" id="wrap">
+  <div id="loadMsg" class="placeholder">正在加载真实数据…</div>
+</div>
+
+<!-- 六维风格下钻 Modal -->
+<div class="modal-overlay" id="styleModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="styleModalTitle"></h3>
+      <button class="modal-close" id="styleModalClose" title="关闭">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="styleModalBody"></div>
+  </div>
+</div>
+
+<script>
+const fmtPct = (v, d=2) => (v==null) ? '—' : ((v*100).toFixed(d)+'%');
+const fmtSigned = (v, d=2) => (v==null) ? '—' : ((v>=0?'+':'')+(v*100).toFixed(d)+'%');
+const fmtAmt = (v) => (v==null||isNaN(v)) ? '—' : Number(v).toLocaleString('zh-CN', {maximumFractionDigits:0});
+const esc = s => { const d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; };
+
+async function main() {
+  const wrap = document.getElementById('wrap');
+  let o;
+  try {
+    o = await (await fetch('/api/overview')).json();
+  } catch(e) {
+    wrap.innerHTML = '<div class="err">后端数据加载失败，请确认服务已启动（python -m uvicorn app:app --port 8000）</div>';
+    return;
+  }
+  document.getElementById('asOf').textContent = '截至 ' + o.as_of;
+
+  const mdd = o.ytd.max_drawdown_portfolio;
+  wrap.innerHTML = `
+    <div class="section">
+      <div class="section-title">业务规模</div>
+      <div class="card-group scale">
+        <div class="stat-card"><div class="label">投顾数量</div><div class="value">${o.scale.advisor_count}<span class="unit">人</span></div></div>
+        <div class="stat-card"><div class="label">投顾组合数量</div><div class="value">${o.scale.portfolio_count}<span class="unit">个</span></div></div>
+        <div class="stat-card"><div class="label">总资产</div><div class="value">${fmtAmt(o.scale.total_assets)}<span class="unit">万元</span></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">总体收益情况<span class="date">YTD</span></div>
+      <div class="card-group returns">
+        <div class="stat-card split"><div class="spark-left"><div class="label">收益率中位数</div><div class="value ${o.ytd.return_median===0?'hl':(o.ytd.return_median>0?'pos':'neg')}">${fmtPct(o.ytd.return_median)}</div></div><div class="spark-box" id="sparkReturn"></div></div>
+        <div class="stat-card split"><div class="spark-left"><div class="label">年化波动率中位数</div><div class="value">${fmtPct(o.ytd.volatility_median)}</div></div><div class="spark-box" id="sparkVol"></div></div>
+        <div class="stat-card split"><div class="spark-left"><div class="label">最大回撤中位数</div><div class="value neg">${fmtPct(o.ytd.max_drawdown_median)}</div></div><div class="spark-box" id="sparkMdd"></div></div>
+      </div>
+      ${mdd ? `<div class="stat-card split sparkline-full" style="margin-top:14px;"><div class="spark-left"><div class="label">最大回撤组合</div><div class="value neg">${fmtPct(mdd.max_drawdown)}</div><div class="sub">${esc(mdd.portfolio)} · ${esc(mdd.advisor)}</div></div><div class="spark-box" id="sparkMddCurve"></div></div>` : ''}
+    </div>
+
+    <div class="section two-col">
+      <div class="panel">
+        <div class="panel-title">收益率排行<span class="date">YTD</span></div>
+        <table class="rank-table">
+          <thead><tr><th>排名</th><th>投顾姓名</th><th>组合名称</th><th>收益率</th></tr></thead>
+          <tbody>${o.ranking.map(r=>{
+            let c='rank-num'; if(r.rank===1)c+=' top1'; else if(r.rank===2)c+=' top2'; else if(r.rank===3)c+=' top3';
+            return `<tr><td><span class="${c}">${r.rank}</span></td><td>${esc(r.advisor)}</td><td><a href="detail.html?id=${encodeURIComponent(r.inner_id)}" title="查看计算详情" style="color:var(--primary);text-decoration:none;">${esc(r.portfolio)}</a></td><td class="${r.return>=0?'return-pos':'return-neg'}">${fmtSigned(r.return)}</td></tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Calmar 气泡图<span class="date">近一年</span></div>
+        <div id="calmarChart"></div>
+      </div>
+    </div>
+
+    <div class="section" id="styleSection">
+      <div class="section-title">六维风格标签分布<span class="date">近6个月</span></div>
+      <div style="font-size:12px;color:var(--muted);margin:-4px 0 14px 11px;">基于近六个月投顾交易与持仓数据测算</div>
+      <div class="style-grid" id="styleGrid"></div>
+    </div>
+  `;
+  renderCalmar(o);
+  renderSparks(o);
+  renderStyles();
+}
+
+// 迷你图（类似 Excel sparkline）：仅显示曲线，隐藏坐标轴/图例/提示
+function _spark(id, xData, yData, opts = {}) {
+  const dom = document.getElementById(id);
+  if (!dom) return;
+  const chart = echarts.init(dom);
+  const lineColor = opts.color || '#2563eb';
+  // 在高亮索引处作点状标注：外圈发光圆环（线同色半透明），内圈白色
+  const markPoint = [];
+  if (opts.index != null && opts.index >= 0 && opts.index < yData.length && yData[opts.index] != null) {
+    const cx = xData[opts.index], cy = yData[opts.index];
+    markPoint.push(                                        // 外圈发光圆环（线同色）
+      { coord: [cx, cy], symbolSize: (opts.size || 12) + 6, symbolKeepAspect: true,
+        itemStyle: { color: lineColor + '40', borderColor: lineColor, borderWidth: 1.5 } },
+      { coord: [cx, cy], symbolSize: opts.size || 12,       // 内圈白色
+        itemStyle: { color: '#ffffff', borderColor: lineColor, borderWidth: 2 } },
+    );
+  }
+  chart.setOption({
+    grid: { left: 2, right: 2, top: 4, bottom: 2, containLabel: false },
+    xAxis: { type: 'category', show: false, data: xData, boundaryGap: false },
+    yAxis: { type: 'value', show: false, scale: true, min: opts.min, max: opts.max },
+    tooltip: { show: false },
+    series: [{
+      type: 'line', data: yData, smooth: false, symbol: 'none',
+      lineStyle: { width: 1.6, color: lineColor },
+      areaStyle: { color: lineColor + '22' },
+      markPoint: { symbol: 'circle', label: { show: false }, animation: false, data: markPoint },
+    }],
+  });
+  window.addEventListener('resize', () => chart.resize());
+}
+
+function renderSparks(o) {
+  const dist = o.distribution || {};
+  // 各指标组合间分布（升序），在中位数位置标注
+  const cfg = [
+    ['sparkReturn', 'return'],
+    ['sparkVol', 'volatility'],
+    ['sparkMdd', 'max_drawdown'],
+  ];
+  cfg.forEach(([id, key]) => {
+    const arr = dist[key] || [];
+    if (!arr.length) return;
+    // arr 已按值升序，中位数即排序数组中间位置
+    const medIdx = Math.floor(arr.length / 2);
+    const y = arr.map(d => d.value * 100);
+    const x = arr.map(d => d.name);
+    _spark(id, x, y, { index: medIdx, color: '#2563eb' });
+  });
+  // 最大回撤组合：YTD 历史回撤曲线，最大回撤点标注
+  const mc = o.mdd_curve;
+  if (mc) {
+    const x = mc.dates;
+    const y = mc.drawdown.map(v => v == null ? null : v * 100);
+    const valid = y.filter(v => v != null && !Number.isNaN(v));
+    const mMin = valid.length ? Math.min.apply(null, valid) : -5;
+    _spark('sparkMddCurve', x, y, { index: mc.trough_idx, color: '#16a34a', min: mMin * 1.1, max: 0 });
+  }
+}
+
+function medianOf(vals) {
+  if (!vals.length) return null;
+  const sorted = vals.slice().sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+function renderCalmar(o) {
+  const chart = echarts.init(document.getElementById('calmarChart'));
+  const data = o.calmar_bubble.map(d => ({
+    value: [d.annual_return*100, d.max_drawdown*100, d.calmar],
+    name: d.advisor + ' - ' + d.portfolio
+  }));
+  chart.setOption({
+    tooltip: { trigger:'item', formatter: p => {
+      const d=p.data; return `<strong>${d.name}</strong><br/>年化收益率: ${d.value[0].toFixed(2)}%<br/>最大回撤: ${d.value[1].toFixed(2)}%<br/>卡玛比率: ${d.value[2]==null?'—':d.value[2].toFixed(3)}`;
+    }},
+    grid: { left: 60, right: 30, top: 20, bottom: 50 },
+    xAxis: { name:'年化收益率(%)', nameLocation:'center', nameGap:30,
+      nameTextStyle:{color:'#64748b',fontSize:12},
+      axisLine:{lineStyle:{color:'#e2e8f0'}}, splitLine:{lineStyle:{color:'#f1f4f9'}} },
+    yAxis: { name:'最大回撤(%)', nameLocation:'center', nameGap:40,
+      nameTextStyle:{color:'#64748b',fontSize:12},
+      axisLine:{lineStyle:{color:'#e2e8f0'}}, splitLine:{lineStyle:{color:'#f1f4f9'}} },
+    series: [{ type:'scatter', data,
+      symbolSize: v => Math.max(8, Math.min(50, Math.abs(v[2])*12)),
+      emphasis:{focus:'series'},
+      itemStyle:{ color: d => {
+        const calmar = d.value[2]; const norm = Math.min(1, Math.max(0,(calmar-0.1)/3.5));
+        const r = Math.round(37+norm*30), g=Math.round(99+(1-norm)*50), b=Math.round(235-(1-norm)*100);
+        return `rgb(${r},${g},${b})`;
+      }} }]
+  });
+  window.addEventListener('resize', ()=>chart.resize());
+}
+
+// ---------- 六维风格标签圆环图组（对齐 demo） ----------
+const STYLE_META = {
+  risk:        '风险特征',
+  turnover:    '换手率',
+  style:       '投资风格',
+  mktcap:      '市值',
+  concentration:'集中度',
+  sector:      '板块特征',
+};
+const colorPalette = ['#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe'];
+const esc2 = s => { const d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; };
+
+// 每个组合的六维标签（用于下钻）
+let stylePortfolios = [];
+function portfoliosByTag(dim, tag) {
+  return stylePortfolios.filter(p => p[dim] === tag);
+}
+
+// Modal 下钻
+const styleModal = document.getElementById('styleModal');
+const styleModalTitle = document.getElementById('styleModalTitle');
+const styleModalBody = document.getElementById('styleModalBody');
+const styleModalClose = document.getElementById('styleModalClose');
+function openStyleModal(dimTitle, tag, list) {
+  styleModalTitle.innerHTML = dimTitle + ' - ' + tag + ' <span class="count-badge">' + list.length + ' 个组合</span>';
+  styleModalBody.innerHTML = list.length === 0 ? '<p style="color:var(--muted);">暂无数据</p>' :
+    '<table><thead><tr><th>投顾姓名</th><th>组合名称</th></tr></thead><tbody>' +
+    list.map(p => '<tr><td>' + esc2(p.advisor) + '</td><td style="color:var(--text)">' + esc2(p.portfolio) + '</td></tr>').join('') +
+    '</tbody></table>';
+  styleModal.classList.add('active');
+}
+
+async function renderStyles() {
+  const grid = document.getElementById('styleGrid');
+  if (!grid) return;
+  let s;
+  try { s = await (await fetch('/api/styles')).json(); }
+  catch (e) { grid.innerHTML = '<div class="placeholder">风格接口暂不可用</div>'; return; }
+  const portfolios = s.portfolios || [];
+  stylePortfolios = portfolios.map(p => ({ advisor: p.advisor, portfolio: p.portfolio, ...(p.labels || {}) }));
+
+  Object.keys(STYLE_META).forEach(dim => {
+    const cnt = s.dimensions[dim] || {};
+    const entries = Object.entries(cnt);
+    const wrapper = document.createElement('div');
+    wrapper.className = 'donut-item';
+    wrapper.innerHTML = `
+      <div class="donut-title">${STYLE_META[dim]}</div>
+      <div class="donut-chart" id="donut_${dim}"></div>
+      <div class="donut-summary">${entries.map(([k, v]) => `<span class="tag" data-dim="${dim}" data-tag="${esc2(k)}">${esc2(k)} ${v}</span>`).join('')}</div>
+    `;
+    grid.appendChild(wrapper);
+
+    const chartDom = wrapper.querySelector('.donut-chart');
+    const chart = echarts.init(chartDom);
+    chart.setOption({
+      tooltip: { trigger: 'item', formatter: p => esc2(p.name) + ': ' + p.value + ' 个组合' },
+      series: [{
+        type: 'pie',
+        radius: ['48%', '72%'],
+        avoidLabelOverlap: false,
+        padAngle: 1,
+        itemStyle: { borderRadius: 3 },
+        label: {
+          show: true, position: 'outside',
+          formatter: p => p.percent < 8 ? '' : p.name,
+          fontSize: 10, color: '#64748b',
+        },
+        labelLine: { show: true, length: 6, length2: 4, smooth: true },
+        data: entries.map(([k, v], i) => ({ name: k, value: v, itemStyle: { color: colorPalette[i % colorPalette.length] } })),
+        emphasis: { itemStyle: { shadowBlur: 6, shadowColor: 'rgba(0,0,0,.12)' } },
+      }],
+    });
+
+    // 点击圆环扇区 -> 下钻
+    chart.on('click', params => openStyleModal(STYLE_META[dim], params.name, portfoliosByTag(dim, params.name)));
+    // 点击标签 -> 下钻
+    wrapper.querySelectorAll('.tag').forEach(el => {
+      el.addEventListener('click', () => openStyleModal(STYLE_META[dim], el.dataset.tag, portfoliosByTag(dim, el.dataset.tag)));
+    });
+
+    new ResizeObserver(() => chart.resize()).observe(chartDom);
+  });
+}
+main();
+
+// Modal 关闭
+styleModalClose.onclick = () => styleModal.classList.remove('active');
+styleModal.onclick = (e) => { if (e.target === styleModal) styleModal.classList.remove('active'); };
+</script>
+</body>
+</html>

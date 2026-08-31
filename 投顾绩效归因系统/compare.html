@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自选投顾对比 - 投顾绩效归因系统</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #f7f8fa; --bg-card: #fff; --bg-elev: #fafbfc; --bg-hover: #f1f4f9;
+    --border: #e5e7eb; --border-soft: #eef0f3;
+    --accent: #2563eb; --accent-soft: #eff6ff;
+    --text: #1f2937; --text-mute: #6b7280; --text-dim: #9ca3af;
+    --pos: #dc2626; --neg: #16a34a;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+  .header { padding: 14px 24px; border-bottom: 1px solid var(--border);
+    background: var(--bg-card); position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 12px; }
+  .header .bar { width: 4px; height: 20px; background: var(--accent); border-radius: 2px; }
+  .header .title { font-size: 17px; font-weight: 700; }
+  .header .date { font-size: 12px; color: var(--text-mute); background: #f1f4f9;
+    padding: 2px 10px; border-radius: 10px; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 20px 24px 48px; }
+
+  /* 选择区 */
+  .selector-card { background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px; }
+  .selector-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .selector-head h2 { font-size: 17px; font-weight: 700; }
+  .selector-head .hint { font-size: 12px; color: var(--text-mute); }
+  .search-wrap { position: relative; }
+  .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+  .search-wrap input { width: 100%; padding: 10px 12px 10px 38px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .dropdown { position: absolute; top: 46px; left: 0; right: 0; z-index: 50;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.12); max-height: 320px; overflow: auto; display: none; }
+  .dropdown.open { display: block; }
+  .dropdown-item { display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 14px; cursor: pointer; border-bottom: 1px solid var(--border-soft); gap: 12px; }
+  .dropdown-item:last-child { border-bottom: none; }
+  .dropdown-item:hover { background: var(--bg-hover); }
+  .dropdown-item.disabled { opacity: .45; cursor: not-allowed; }
+  .di-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .di-name { font-weight: 600; font-size: 14px; }
+  .di-sub { font-size: 12px; color: var(--text-mute); }
+  .selected-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; min-height: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px 7px 10px;
+    border-radius: 24px; background: #f3f5f9; border: 1px solid var(--border); font-size: 13px; }
+  .chip .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .chip .x { cursor: pointer; color: var(--text-dim); font-size: 15px; line-height: 1; width: 16px;
+    height: 16px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+  .chip .x:hover { color: var(--neg); background: rgba(220,38,38,.12); }
+
+  /* 区块导航 */
+  .section-nav { position: sticky; top: 60px; z-index: 90; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 12px; padding: 8px; margin-bottom: 16px;
+    display: flex; gap: 6px; overflow-x: auto; box-shadow: var(--shadow); }
+  .section-nav::-webkit-scrollbar { height: 0; }
+  .nav-pill { white-space: nowrap; padding: 8px 16px; border-radius: 8px; font-size: 13px;
+    color: var(--text-mute); cursor: pointer; border: 1px solid transparent; transition: all .2s;
+    text-decoration: none; font-family: inherit; }
+  .nav-pill:hover { color: var(--text); background: var(--bg-hover); }
+  .nav-pill.active { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+  .nav-num { font-size: 11px; opacity: .6; margin-right: 4px; }
+
+  /* 占位 */
+  .placeholder { background: var(--bg-card); border: 1px dashed var(--border); border-radius: 12px;
+    padding: 72px 24px; text-align: center; color: var(--text-mute); }
+  .placeholder .ico { font-size: 48px; margin-bottom: 16px; opacity: .5; }
+  .placeholder p { font-size: 15px; }
+  .placeholder .sub { font-size: 13px; color: var(--text-dim); margin-top: 6px; }
+
+  /* 对比区 */
+  .compare-area { display: none; }
+  .compare-area.active { display: block; animation: fadeUp .4s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  section.block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 26px; margin-bottom: 20px; box-shadow: var(--shadow); scroll-margin-top: 130px; }
+  .block-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+  .block-num { font-weight: 700; font-size: 20px; color: var(--accent); opacity: .5; min-width: 36px; }
+  .block-head h3 { font-size: 17px; font-weight: 600; }
+  .block-head .rule { flex: 1; height: 1px; background: linear-gradient(90deg,var(--border),transparent); }
+  .block-head .date-tag { font-size: 12px; color: var(--text-mute); font-weight: 400; white-space: nowrap; }
+
+  /* 表格 */
+  .tbl-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border-soft); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--bg-elev); padding: 12px 14px; text-align: left; font-weight: 600;
+    color: var(--text-mute); font-size: 12px; border-bottom: 1px solid var(--border);
+    white-space: nowrap; }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border-soft); white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background .15s; }
+  tbody tr:hover { background: var(--bg-hover); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: var(--pos); } .neg { color: var(--neg); }
+  .col-header { font-weight: 600; }
+  .tag-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
+
+  /* 筛选 */
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+  .filter-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg-elev); color: var(--text-mute); font-size: 12px; cursor: pointer;
+    font-family: inherit; transition: all .2s; }
+  .filter-btn:hover { color: var(--text); border-color: var(--accent); }
+  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+
+  /* 图表 */
+  .chart-box { position: relative; width: 100%; }
+  .chart-box.h380 { height: 380px; } .chart-box.h420 { height: 420px; } .chart-box.h460 { height: 460px; }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; justify-content: center; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-mute); }
+  .legend-item .swatch { width: 14px; height: 3px; border-radius: 2px; }
+
+  /* 月度热力 */
+  .monthly-tbl td.cell { text-align: right; font-variant-numeric: tabular-nums; font-size: 12.5px; }
+  .monthly-tbl td.cell-pos { color: var(--pos); }
+  .monthly-tbl td.cell-neg { color: var(--neg); }
+  .monthly-tbl th { min-width: 58px; text-align: center; }
+  .monthly-tbl td { text-align: right; }
+
+  /* 重仓持股 */
+  .holdings-tbl td { vertical-align: middle; padding: 11px 12px; }
+  .holdings-tbl th { vertical-align: middle; }
+  .holdings-tbl th.group-head { padding: 12px 8px; border-right: 1px solid var(--border); }
+  .holdings-tbl th.group-head:last-of-type { border-right: none; }
+  .holdings-tbl th.sub-head { padding: 9px 8px; font-size: 11.5px; font-weight: 500; color: var(--text-dim); background: var(--bg-elev); }
+  .holdings-tbl th.rank-head { background: var(--bg-elev); width: 52px; }
+  .holdings-tbl td.rank { width: 52px; text-align: center; color: var(--text-dim); font-size: 12px; font-weight: 500; background: var(--bg-elev); }
+  .holdings-tbl td.name { font-weight: 600; }
+</style>
+<script src="api.js"></script>
+</head>
+<body>
+<div class="header">
+  <div class="bar"></div>
+  <div class="title">自选投顾对比</div>
+  <div class="date" id="asOfDate">--</div>
+</div>
+
+<div class="wrap">
+  <!-- 选择区 -->
+  <div class="selector-card">
+    <div class="selector-head">
+      <h2>选择对比组合</h2>
+      <span class="hint">搜索并选择 2–5 个投顾组合进行对比</span>
+    </div>
+    <div class="search-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="输入组合名称 / 投顾姓名 / 营业部搜索…" autocomplete="off">
+      <div class="dropdown" id="dropdown"></div>
+    </div>
+    <div class="selected-chips" id="chips"></div>
+  </div>
+
+  <!-- 占位 -->
+  <div class="placeholder" id="placeholder">
+    <div class="ico">◈</div>
+    <p>请至少选择 2 个投顾组合开始对比</p>
+    <p class="sub">最多可同时对比 5 个组合</p>
+  </div>
+
+  <!-- 对比区 -->
+  <div class="compare-area" id="compareArea">
+    <nav class="section-nav" id="sectionNav"></nav>
+
+    <section class="block" id="sec-1">
+      <div class="block-head"><span class="block-num serif">01</span><h3>投顾资料</h3><div class="rule"></div></div>
+      <div class="tbl-wrap"><table id="tblInfo"><thead></thead><tbody></tbody></table></div>
+    </section>
+
+    <section class="block" id="sec-2">
+      <div class="block-head">
+        <span class="block-num">02</span><h3>净值曲线对比</h3><div class="rule"></div>
+        <div class="filters" id="navFilters">
+          <button class="filter-btn" data-range="3M">3M</button>
+          <button class="filter-btn" data-range="6M">6M</button>
+          <button class="filter-btn" data-range="1Y">1Y</button>
+          <button class="filter-btn" data-range="YTD">YTD</button>
+          <button class="filter-btn active" data-range="SINCE_INCEPTION">成立以来</button>
+        </div>
+      </div>
+      <div class="chart-box h420" id="chartNav"></div>
+      <div class="chart-legend" id="legendNav"></div>
+    </section>
+
+    <section class="block" id="sec-3">
+      <div class="block-head">
+        <span class="block-num">03</span><h3>业绩表现对比</h3><div class="rule"></div>
+        <div class="filters" id="perfFilters">
+          <button class="filter-btn" data-range="3M">3M</button>
+          <button class="filter-btn" data-range="6M">6M</button>
+          <button class="filter-btn" data-range="1Y">1Y</button>
+          <button class="filter-btn" data-range="YTD">YTD</button>
+          <button class="filter-btn active" data-range="SINCE_INCEPTION">成立以来</button>
+        </div>
+        <div class="filters" id="perfBenchmarkFilter" style="margin-left:0;">
+          <button class="filter-btn active" data-benchmark="hs300">沪深300</button>
+          <button class="filter-btn" data-benchmark="zz800">中证800</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table id="tblPerf"><thead></thead><tbody></tbody></table></div>
+      <p style="font-size:12px;color:var(--text-mute);margin-top:10px;">注：前5项指标随时间筛选切换；卡玛比率、夏普比率、索提诺比率、信息比率固定为近一年数值。</p>
+    </section>
+
+    <section class="block" id="sec-4">
+      <div class="block-head"><span class="block-num">04</span><h3>月度收益率</h3><div class="rule"></div></div>
+      <div class="tbl-wrap"><table id="tblMonthly" class="monthly-tbl"><thead></thead><tbody></tbody></table></div>
+    </section>
+
+    <section class="block" id="sec-5">
+      <div class="block-head">
+        <span class="block-num">05</span><h3>回撤曲线</h3><div class="rule"></div>
+        <div class="filters" id="ddFilters">
+          <button class="filter-btn" data-range="3M">3M</button>
+          <button class="filter-btn" data-range="6M">6M</button>
+          <button class="filter-btn" data-range="1Y">1Y</button>
+          <button class="filter-btn" data-range="YTD">YTD</button>
+          <button class="filter-btn active" data-range="SINCE_INCEPTION">成立以来</button>
+        </div>
+      </div>
+      <div class="chart-box h380" id="chartDrawdown"></div>
+      <div class="chart-legend" id="legendDd"></div>
+    </section>
+
+    <section class="block" id="sec-6">
+      <div class="block-head"><span class="block-num">06</span><h3>行业配置</h3><div class="rule"></div><span class="date-tag" id="indDate">截至 --</span></div>
+      <div class="chart-box h460" id="chartIndustry"></div>
+      <div style="margin-top:18px;"><div class="tbl-wrap"><table id="tblIndustry"><thead></thead><tbody></tbody></table></div></div>
+    </section>
+
+    <section class="block" id="sec-7">
+      <div class="block-head"><span class="block-num">07</span><h3>重仓持股</h3><div class="rule"></div><span class="date-tag" id="holdDate">截至 --</span></div>
+      <div class="tbl-wrap"><table id="tblHoldings" class="holdings-tbl"><thead></thead><tbody></tbody></table></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const RANGE_LABEL = { '3M':'近3月', '6M':'近6月', '1Y':'近1年', 'YTD':'今年以来', 'SINCE_INCEPTION':'成立以来' };
+const ADV_COLORS = ['#2563eb', '#16a34a', '#f59e0b', '#8b5cf6', '#ef4444'];
+let POOL = [];                 // /api/portfolios
+let selected = [];             // [{idx, color, data}]
+let charts = {};
+let currentRange = 'SINCE_INCEPTION';
+let currentPerfRange = 'SINCE_INCEPTION';
+let currentDdRange = 'SINCE_INCEPTION';
+let currentBenchmark = 'hs300';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmtPct(v, d=2){ if (v==null || !isFinite(v)) return '—'; return (v*100).toFixed(d)+'%'; }
+function fmtNum(v, d=3){ if (v==null || !isFinite(v)) return '—'; return v.toFixed(d); }
+function makeChart(id){
+  const dom = document.getElementById(id);
+  if (!dom) return null;
+  const inst = charts[id];
+  // 实例仍存在且绑定同一 DOM 节点时复用，让 ECharts 对数据/区间/基准切换做平滑动画过渡
+  if (inst && (!inst.isDisposed || !inst.isDisposed()) && inst.getDom && inst.getDom() === dom) return inst;
+  if (inst) { try { inst.dispose(); } catch (e) {} }
+  charts[id] = echarts.init(dom);
+  return charts[id];
+}
+
+// ---- 数据加载 ----
+async function loadData(p){
+  const base = '/api/portfolio/' + encodeURIComponent(p.inner_id);
+  const [nav, attr, ind] = await Promise.all([
+    fetch(base + '/nav').then(r => r.json()),
+    fetch(base + '/attribution').then(r => r.json()),
+    fetch(base + '/indicators').then(r => r.json()),
+  ]);
+  return {
+    inner_id: p.inner_id, portfolio: p.portfolio, advisor: p.advisor, branch: p.branch,
+    dates: nav.dates, port_cum: nav.portfolio_cum,
+    bench_hs300: nav.bench_hs300_cum, bench_zz800: nav.bench_zz800_cum,
+    monthly: attr.monthly || [],
+    industry: attr.industry || [],
+    holdings: attr.holdings || [],
+    drawdown: attr.drawdown || {},
+    intervals: (ind && ind.intervals) || {},
+    as_of: attr.as_of || nav.dates[nav.dates.length-1],
+  };
+}
+
+// ---- 投顾选择 ----
+const searchInput = document.getElementById('searchInput');
+const dropdown = document.getElementById('dropdown');
+const chipsEl = document.getElementById('chips');
+
+function renderDropdown(filter=''){
+  if (selected.length >= 5){
+    dropdown.innerHTML = '<div class="dropdown-item disabled"><div class="di-left"><span class="di-name" style="color:var(--text-dim)">已达对比上限（5个），请先移除部分组合</span></div></div>';
+    dropdown.classList.add('open'); return;
+  }
+  const f = filter.trim().toLowerCase();
+  const items = POOL.map((a,i)=>{ a._i=i; return a; })
+    .filter(a => !f || a.portfolio.toLowerCase().includes(f) || a.advisor.toLowerCase().includes(f) || a.branch.toLowerCase().includes(f))
+    .filter(a => !selected.find(s => s.idx === a._i));
+  if (!items.length){
+    dropdown.innerHTML = '<div class="dropdown-item disabled"><div class="di-left"><span class="di-name" style="color:var(--text-dim)">无匹配结果</span></div></div>';
+    dropdown.classList.add('open'); return;
+  }
+  dropdown.innerHTML = items.map(a =>
+    '<div class="dropdown-item" data-idx="'+a._i+'">' +
+      '<div class="di-left"><span class="di-name">'+esc(a.portfolio)+'</span>' +
+      '<span class="di-sub">'+esc(a.advisor)+' · '+esc(a.branch)+'</span></div>' +
+    '</div>').join('');
+  dropdown.classList.add('open');
+  dropdown.querySelectorAll('.dropdown-item[data-idx]').forEach(el => {
+    el.addEventListener('click', () => {
+      addAdvisor(parseInt(el.dataset.idx, 10));
+      searchInput.value = '';
+      dropdown.classList.remove('open');
+    });
+  });
+}
+searchInput.addEventListener('focus', () => renderDropdown(searchInput.value));
+searchInput.addEventListener('input', () => renderDropdown(searchInput.value));
+document.addEventListener('click', e => { if (!e.target.closest('.search-wrap')) dropdown.classList.remove('open'); });
+
+async function addAdvisor(idx){
+  if (selected.length >= 5 || selected.find(s => s.idx === idx)) return;
+  const color = ADV_COLORS[selected.length];
+  const item = { idx, color, data: null };
+  selected.push(item);
+  renderChips();
+  updateCompare();
+  // 异步加载数据（占位，加载后若未移除则渲染）
+  const p = POOL[idx];
+  try {
+    const data = await loadData(p);
+    item.data = data;
+  } catch(e) { item.data = { error: '数据加载失败' }; }
+  renderChips();
+  if (selected.length >= 2) renderAll();
+}
+function removeAdvisor(idx){
+  selected = selected.filter(s => s.idx !== idx);
+  selected.forEach((s, i) => s.color = ADV_COLORS[i]);
+  renderChips();
+  updateCompare();
+}
+function renderChips(){
+  chipsEl.innerHTML = selected.map(s =>
+    '<span class="chip"><span class="dot" style="background:'+s.color+'"></span>'+esc(_label(s))+
+    (s.data?'':'<em style="font-size:11px;color:var(--text-dim);font-style:normal;">加载中…</em>')+
+    '<span class="x" data-idx="'+s.idx+'">×</span></span>').join('');
+  chipsEl.querySelectorAll('.x').forEach(el => el.addEventListener('click', () => removeAdvisor(parseInt(el.dataset.idx, 10))));
+}
+function _label(s){ return s.data ? s.data.portfolio : (POOL[s.idx] ? POOL[s.idx].portfolio : ''); }
+
+function updateCompare(){
+  const ok = selected.length >= 2;
+  document.getElementById('placeholder').style.display = ok ? 'none' : 'block';
+  document.getElementById('compareArea').classList.toggle('active', ok);
+  if (ok){
+    buildSectionNav();
+    if (selected.every(s => s.data)) renderAll();
+  }
+}
+
+const SEC_DEFS = [
+  ['sec-1','投顾资料'],['sec-2','净值曲线'],['sec-3','业绩表现'],['sec-4','月度收益'],
+  ['sec-5','回撤曲线'],['sec-6','行业配置'],['sec-7','重仓持股']
+];
+function buildSectionNav(){
+  const nav = document.getElementById('sectionNav');
+  nav.innerHTML = SEC_DEFS.map(([id,label],i) =>
+    '<a class="nav-pill" href="#'+id+'"><span class="nav-num">'+String(i+1).padStart(2,'0')+'</span>'+label+'</a>').join('');
+  const pills = nav.querySelectorAll('.nav-pill');
+  pills.forEach(p => p.addEventListener('click', () => {
+    pills.forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+  }));
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting){
+      pills.forEach(x => x.classList.toggle('active', x.getAttribute('href') === '#'+e.target.id));
+    }});
+  }, { rootMargin: '-160px 0px -70% 0px' });
+  SEC_DEFS.forEach(([id]) => { const el = document.getElementById(id); if (el) obs.observe(el); });
+}
+
+// ---- 渲染 ----
+function renderAll(){
+  if (!selected.every(s => s.data)) return;
+  const ref = selected.find(s => s.data && s.data.as_of);
+  if (ref && ref.data.as_of) document.getElementById('asOfDate').textContent = '数据截至 ' + ref.data.as_of;
+  const iDate = ref ? ref.data.as_of : '';
+  document.getElementById('indDate').textContent = '截至 ' + (iDate || '--');
+  document.getElementById('holdDate').textContent = '截至 ' + (iDate || '--');
+  renderInfoTable();
+  renderLegend('legendNav'); renderLegend('legendDd');
+  _drawNav();
+  renderPerfTable();
+  renderMonthlyTable();
+  _drawDrawdown();
+  _drawIndustry();
+  renderHoldings();
+}
+
+function renderInfoTable(){
+  const thead = document.getElementById('tblInfo').querySelector('thead');
+  const tbody = document.getElementById('tblInfo').querySelector('tbody');
+  thead.innerHTML = '<tr><th>组合名称</th><th>投顾姓名</th><th>所属营业部</th><th class="num">成立以来累计收益</th></tr>';
+  tbody.innerHTML = selected.map(s => {
+    const d = s.data || {};
+    const cum = d.port_cum ? d.port_cum[d.port_cum.length-1] : null;
+    return '<tr>' +
+      '<td><span class="tag-dot" style="background:'+s.color+'"></span><span class="col-header">'+esc(d.portfolio||'')+'</span></td>' +
+      '<td>'+esc(d.advisor||'')+'</td>' +
+      '<td>'+esc(d.branch||'')+'</td>' +
+      '<td class="num '+(cum!=null?(cum>=0?'pos':'neg'):'')+'">'+fmtPct(cum)+'</td>' +
+      '</tr>';
+  }).join('');
+}
+
+// 区间切片（index）
+function _sliceStart(dates, range){
+  const N = dates.length;
+  const startMap = { '3M': Math.max(0, N-63), '6M': Math.max(0, N-126), '1Y': Math.max(0, N-252) };
+  let start = startMap[range];
+  if (range === 'SINCE_INCEPTION') start = 0;
+  if (range === 'YTD'){ const y = String(new Date().getFullYear());
+    for (let i=0;i<N;i++){ if ((dates[i]||'').slice(0,4) === y){ start = i; break; } } }
+  return Math.max(0, start);
+}
+
+// ---- 02 净值曲线 ----
+function renderLegend(id){
+  document.getElementById(id).innerHTML = selected.map(s =>
+    '<span class="legend-item"><span class="swatch" style="background:'+s.color+'"></span>'+esc(s.data?s.data.portfolio:'')+'</span>').join('');
+}
+function _drawNav(){
+  const dom = document.getElementById('chartNav');
+  if (!dom) return;
+  const has = selected.filter(s => s.data && s.data.port_cum);
+  if (!has.length){ dom.innerHTML=''; return; }
+  const base = has.reduce((a,b) => (a.data.port_cum.length >= b.data.port_cum.length) ? a : b);
+  const dates = base.data.dates;
+  const startIdx = _sliceStart(dates, currentRange);
+  const fDates = dates.slice(startIdx);
+  const chart = makeChart('chartNav');
+  const series = has.map(s => {
+    const off = dates.length - s.data.dates.length;
+    const data = fDates.map((d, j) => {
+      const li = startIdx + j - off;
+      if (li >= 0 && li < s.data.port_cum.length) return s.data.port_cum[li];
+      return null;
+    });
+    return { name: s.data.portfolio, type:'line', data, showSymbol:false, smooth:true,
+      lineStyle:{ width:2, color:s.color }, itemStyle:{ color:s.color }, connectNulls:true };
+  });
+  chart.setOption({
+    textStyle:{ fontFamily:'inherit' },
+    tooltip:{ trigger:'axis', valueFormatter: v => (v==null?'-':(v*100).toFixed(2)+'%') },
+    legend:{ show:false },
+    grid:{ left:60, right:20, top:20, bottom:34 },
+    xAxis:{ type:'category', data:fDates, boundaryGap:false, axisLabel:{ color:'#64748b', fontSize:11 }, axisLine:{ lineStyle:{ color:'#e2e8f0' } }, axisTick:{ show:false } },
+    yAxis:{ type:'value', scale:true, name:'累计收益率', nameTextStyle:{ color:'#64748b', fontSize:11 }, axisLabel:{ color:'#64748b', fontSize:11, formatter:v=>(v*100).toFixed(2)+'%' }, splitLine:{ lineStyle:{ color:'#f1f4f9' } } },
+    series: series,
+  }, true);
+  chart.resize();
+}
+
+// ---- 05 回撤曲线 ----
+function _drawDrawdown(){
+  const dom = document.getElementById('chartDrawdown');
+  if (!dom) return;
+  const has = selected.filter(s => s.data && s.data.drawdown && s.data.drawdown.dates && s.data.drawdown.dates.length);
+  if (!has.length){ dom.innerHTML='<div class="placeholder">暂无回撤数据</div>'; return; }
+  const base = has.reduce((a,b) => (a.data.drawdown.dates.length >= b.data.drawdown.dates.length) ? a : b);
+  const dates = base.data.drawdown.dates;
+  const startIdx = _sliceStart(dates, currentDdRange);
+  const fDates = dates.slice(startIdx);
+  const chart = makeChart('chartDrawdown');
+  const series = has.map(s => {
+    const dd = s.data.drawdown;
+    const off = dates.length - dd.dates.length;
+    const data = fDates.map((d, j) => {
+      const li = startIdx + j - off;
+      if (li >= 0 && li < dd.drawdown.length && dd.drawdown[li] != null) return dd.drawdown[li]*100;
+      return null;
+    });
+    return { name: s.data.portfolio, type:'line', data, showSymbol:false, smooth:true,
+      lineStyle:{ width:1.8, color:s.color }, itemStyle:{ color:s.color },
+      areaStyle:{ color:s.color+'1a' }, connectNulls:true };
+  });
+  chart.setOption({
+    tooltip:{ trigger:'axis', valueFormatter: v => (v==null?'-':v.toFixed(2)+'%') },
+    legend:{ show:false },
+    grid:{ left:55, right:20, top:20, bottom:34 },
+    xAxis:{ type:'category', data:fDates, boundaryGap:false, axisLabel:{ color:'#64748b', fontSize:11 }, axisLine:{ lineStyle:{ color:'#e2e8f0' } }, axisTick:{ show:false } },
+    yAxis:{ type:'value', max:1, axisLabel:{ color:'#64748b', fontSize:11, formatter:v=>v+'%' }, splitLine:{ lineStyle:{ color:'#f1f4f9' } }, axisLine:{ show:false } },
+    series: series,
+  }, true);
+  chart.resize();
+}
+
+// ---- 03 业绩表现 ----
+function calcRangeMetrics(dates, port, bench, startIdx){
+  const n = dates.length;
+  const sub = range => range.slice(Math.min(range.length-1, startIdx), range.length);
+  const sP = sub(port), sB = (bench||[]).slice();
+  const sBB = bench ? bench.slice(Math.min(bench.length-1, startIdx), bench.length) : [];
+  if (sP.length < 2) return { ret:0, excessRet:0, vol:0, maxDD:0, winRate:0 };
+  const ret = (sP[sP.length-1] - sP[0]) / (1 + sP[0]);
+  let benchRet = 0;
+  if (sBB.length >= 2) benchRet = (sBB[sBB.length-1] - sBB[0]) / (1 + sBB[0]);
+  const r = [];
+  for (let i=1;i<sP.length;i++) if (sP[i]!=null && sP[i-1]!=null) r.push((sP[i]-sP[i-1])/(1+sP[i-1]));
+  const mean = r.reduce((a,b)=>a+b,0)/r.length;
+  const variance = r.length>1 ? r.reduce((a,b)=>a+(b-mean)**2,0)/(r.length-1) : 0;
+  const vol = Math.sqrt(variance)*Math.sqrt(252);
+  let peak = sP[0], maxDD = 0;
+  for (const nv of sP){ if (nv==null) continue; if (nv>peak) peak=nv; const d=(nv-peak)/(1+peak); if (d<maxDD) maxDD=d; }
+  let win=0; for (let i=1;i<sP.length;i++) if (sP[i]>sP[i-1]) win++;
+  const winRate = r.length ? win/r.length : 0;
+  return { ret, excessRet: ret - benchRet, vol, maxDD, winRate };
+}
+function renderPerfTable(){
+  const thead = document.getElementById('tblPerf').querySelector('thead');
+  const tbody = document.getElementById('tblPerf').querySelector('tbody');
+  const metrics = [
+    ['收益率', d => null, true],
+    ['超额收益率', d => null, true],
+    ['年化波动率', d => null, true],
+    ['最大回撤率', d => null, true],
+    ['胜率', d => null, true],
+    ['成立以来年化收益率', d => d.intervals && d.intervals['SINCE_INCEPTION'] ? d.intervals['SINCE_INCEPTION'].annual_return : null, true],
+    ['卡玛比率', d => d.intervals && d.intervals['1Y'] ? d.intervals['1Y'].calmar : null, false],
+    ['夏普比率', d => d.intervals && d.intervals['1Y'] ? d.intervals['1Y'].sharpe : null, false],
+    ['索提诺比率', d => d.intervals && d.intervals['1Y'] ? d.intervals['1Y'].sortino : null, false],
+    ['信息比率', d => d.intervals && d.intervals['1Y'] ? d.intervals['1Y'].info_ratio : null, false],
+  ];
+  thead.innerHTML = '<tr><th>组合名称</th>' + metrics.map(m=>'<th class="num">'+m[0]+'</th>').join('') + '</tr>';
+
+  // 区间指标（前5项）
+  const rms = selected.map(s => {
+    const d = s.data;
+    if (!d || !d.port_cum) return null;
+    const benchKey = currentBenchmark === 'hs300' ? 'bench_hs300' : 'bench_zz800';
+    return calcRangeMetrics(d.dates, d.port_cum, d[benchKey], _sliceStart(d.dates, currentPerfRange));
+  });
+  // 最优值（前5项取大者）
+  const bests = metrics.map((m, i) => {
+    const vals = selected.map((s, j) => i < 5 ? (rms[j] ? rms[j][['ret','excessRet','vol','maxDD','winRate'][i]] : null) : m[1](s.data));
+    return Math.max(...vals.filter(v => v!=null && isFinite(v)));
+  });
+  tbody.innerHTML = selected.map((s, j) => {
+    const d = s.data || {};
+    let cells = '<td><span class="tag-dot" style="background:'+s.color+'"></span><span class="col-header">'+esc(d.portfolio||'')+'</span></td>';
+    metrics.forEach((m, i) => {
+      let v;
+      if (i < 5){ v = rms[j] ? rms[j][['ret','excessRet','vol','maxDD','winRate'][i]] : null; }
+      else { v = m[1](d); }
+      const cls = v!=null && v>=0 ? 'pos' : (v!=null && v<0 ? 'neg' : '');
+      const mark = (v!=null && v===bests[i]) ? ' style="font-weight:700"' : '';
+      const txt = (v==null || !isFinite(v)) ? '—' : (m[2] ? fmtPct(v) : fmtNum(v, 3));
+      // 最大回撤/胜率用特殊位数
+      const isDD = i===3, isWR = i===4;
+      const txt2 = (v==null || !isFinite(v)) ? '—' : (isDD ? (v*100).toFixed(2)+'%' : isWR ? (v*100).toFixed(1)+'%' : m[2] ? (v*100).toFixed(2)+'%' : v.toFixed(3));
+      cells += '<td class="num '+cls+'"'+mark+'>'+txt2+'</td>';
+    });
+    return '<tr>'+cells+'</tr>';
+  }).join('');
+}
+
+// ---- 04 月度收益率（近12自然月） ----
+function renderMonthlyTable(){
+  const thead = document.getElementById('tblMonthly').querySelector('thead');
+  const tbody = document.getElementById('tblMonthly').querySelector('tbody');
+  const ref = selected.find(s => s.data && s.data.monthly.length);
+  if (!ref){ thead.innerHTML=''; tbody.innerHTML='<tr><td class="empty">暂无月度数据</td></tr>'; return; }
+  // 取近12个月标签（按 year|month 排序）
+  const monthly = ref.data.monthly.map(m => ({ key: m.year + '-' + String(parseInt(String(m.month).split('-')[1],10)).padStart(2,'0'), y:m.year, mo:parseInt(String(m.month).split('-')[1],10), p:m.portfolio }));
+  monthly.sort((a,b) => a.y-b.y || a.mo-b.mo);
+  const last12 = monthly.slice(-12);
+  thead.innerHTML = '<tr><th>组合名称</th>' + last12.map(m => '<th class="num">'+m.y+'.'+String(m.mo).padStart(2,'0')+'</th>').join('') + '</tr>';
+  tbody.innerHTML = selected.map(s => {
+    const d = s.data || {};
+    const map = {};
+    (d.monthly||[]).forEach(m => map[m.year+'-'+parseInt(String(m.month).split('-')[1],10)] = m.portfolio);
+    const cells = last12.map(m => {
+      const v = map[m.y+'-'+m.mo];
+      if (v==null || !isFinite(v)) return '<td class="cell">—</td>';
+      const cls = v>=0 ? 'cell-pos' : 'cell-neg';
+      return '<td class="cell '+cls+'">'+(v>=0?'+':'')+(v*100).toFixed(2)+'%</td>';
+    }).join('');
+    return '<tr><td class="col-header">'+esc(d.portfolio||'')+'</td>'+cells+'</tr>';
+  }).join('');
+}
+
+// ---- 06 行业配置 ----
+function _drawIndustry(){
+  const dom = document.getElementById('chartIndustry');
+  if (!dom) return;
+  const has = selected.filter(s => s.data && s.data.industry && s.data.industry.length);
+  if (!has.length){ dom.innerHTML=''; document.getElementById('tblIndustry').innerHTML=''; return; }
+  const indSet = new Set();
+  has.forEach(s => s.data.industry.forEach(x => indSet.add(x.name)));
+  const inds = [...indSet];
+  const palette = ['#f5b942','#38bdf8','#c084fc','#34d399','#fb7185','#a3e635','#fbbf24','#60a5fa','#f472b6','#4ade80','#facc15','#22d3ee','#e879f9'];
+  const chart = makeChart('chartIndustry');
+  const series = inds.map((ind, i) => ({
+    name: ind, type:'bar', stack:'c',
+    data: has.map(s => { const f = s.data.industry.find(x=>x.name===ind); return f ? f.value : 0; }),
+    itemStyle:{ color: palette[i % palette.length] }, barMaxWidth: 80,
+  }));
+  chart.setOption({
+    tooltip:{ trigger:'axis', valueFormatter: v => (v==null?'-':v.toFixed(1)+'%') },
+    legend:{ type:'scroll', bottom:0, textStyle:{ fontFamily:'inherit', fontSize:11, color:'#334155' }, itemWidth:10, itemHeight:10 },
+    grid:{ left:50, right:20, top:20, bottom:56 },
+    xAxis:{ type:'category', data: has.map(s=>s.data.portfolio), axisLabel:{ fontSize:12, color:'#334155' }, axisLine:{ lineStyle:{ color:'#e2e8f0' } }, axisTick:{ show:false } },
+    yAxis:{ type:'value', max:100, axisLabel:{ color:'#64748b', fontSize:11, formatter:v=>v+'%' }, splitLine:{ lineStyle:{ color:'#f1f4f9' } }, axisLine:{ show:false } },
+    series,
+  }, true);
+  chart.resize();
+
+  // 表格：横向各组合，纵向各行业（按最大权重排序）
+  const thead = document.getElementById('tblIndustry').querySelector('thead');
+  const tbody = document.getElementById('tblIndustry').querySelector('tbody');
+  thead.innerHTML = '<tr><th>行业</th>' + has.map(s => '<th class="num">'+esc(s.data.portfolio)+'</th>').join('') + '</tr>';
+  const sortedInd = inds.slice().sort((a,b) => {
+    const ma = Math.max(...has.map(s => (s.data.industry.find(x=>x.name===a)||{}).value || 0));
+    const mb = Math.max(...has.map(s => (s.data.industry.find(x=>x.name===b)||{}).value || 0));
+    return mb - ma;
+  });
+  tbody.innerHTML = sortedInd.map(ind =>
+    '<tr><td>'+esc(ind)+'</td>' + has.map(s => {
+      const f = s.data.industry.find(x=>x.name===ind);
+      return '<td class="num">'+(f?f.value.toFixed(1)+'%':'—')+'</td>';
+    }).join('') + '</tr>').join('');
+}
+
+// ---- 07 重仓持股（二级表头） ----
+function renderHoldings(){
+  const thead = document.getElementById('tblHoldings').querySelector('thead');
+  const tbody = document.getElementById('tblHoldings').querySelector('tbody');
+  const row1 = '<tr><th class="rank-head" rowspan="2">排名</th>' +
+    selected.map(s => '<th class="group-head" colspan="3"><span class="tag-dot" style="background:'+s.color+'"></span>'+esc(s.data?s.data.portfolio:'')+'</th>').join('') + '</tr>';
+  const sub = selected.map(() => '<th class="sub-head">个股名称</th><th class="sub-head">持仓占比</th><th class="sub-head">收益率</th>').join('');
+  thead.innerHTML = row1 + '<tr>'+sub+'</tr>';
+  const rows = [];
+  for (let i=0;i<10;i++){
+    let cells = '<td class="rank">'+String(i+1).padStart(2,'0')+'</td>';
+    for (const s of selected){
+      const d = s.data || {};
+      const h = (d.holdings||[])[i];
+      if (!h){ cells += '<td class="name">—</td><td class="num">—</td><td class="num">—</td>'; }
+      else {
+        const rp = h.return_pct;
+        const rc = rp!=null && rp>=0 ? 'pos' : (rp!=null && rp<0 ? 'neg' : '');
+        cells += '<td class="name">'+esc(h.name)+'</td>' +
+          '<td class="num">'+(h.weight!=null?(h.weight*100).toFixed(2)+'%':'—')+'</td>' +
+          '<td class="num '+rc+'">'+(rp==null?'—':(rp>=0?'+':'')+(rp*100).toFixed(1)+'%')+'</td>';
+      }
+    }
+    rows.push('<tr>'+cells+'</tr>');
+  }
+  tbody.innerHTML = rows.join('');
+}
+
+// ---- 事件 ----
+document.getElementById('navFilters').addEventListener('click', e => {
+  const b = e.target.closest('.filter-btn'); if (!b) return;
+  document.querySelectorAll('#navFilters .filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+  currentRange = b.dataset.range; _drawNav();
+});
+document.getElementById('perfFilters').addEventListener('click', e => {
+  const b = e.target.closest('.filter-btn'); if (!b) return;
+  document.querySelectorAll('#perfFilters .filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+  currentPerfRange = b.dataset.range; renderPerfTable();
+});
+document.getElementById('ddFilters').addEventListener('click', e => {
+  const b = e.target.closest('.filter-btn'); if (!b) return;
+  document.querySelectorAll('#ddFilters .filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+  currentDdRange = b.dataset.range; _drawDrawdown();
+});
+document.getElementById('perfBenchmarkFilter').addEventListener('click', e => {
+  const b = e.target.closest('.filter-btn'); if (!b || b.classList.contains('active')) return;
+  document.querySelectorAll('#perfBenchmarkFilter .filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+  currentBenchmark = b.dataset.benchmark; renderPerfTable();
+});
+window.addEventListener('resize', () => Object.values(charts).forEach(cg => { if (cg) cg.resize(); }));
+
+// ---- 初始化 ----
+(async function init(){
+  try {
+    POOL = await (await fetch('/api/portfolios')).json();
+  } catch(e) { POOL = []; }
+  searchInput.disabled = false;
+})();
+</script>
+</body>
+</html>

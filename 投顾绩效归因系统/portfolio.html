@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>组合详情 - 投顾绩效归因系统</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #f7f8fa; --card: #fff; --border: #e5e7eb;
+    --primary: #2563eb; --primary-subtle: #eff6ff;
+    --text: #1f2937; --muted: #6b7280; --red: #dc2626; --green: #16a34a;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+  .header { padding: 14px 24px; border-bottom: 1px solid var(--border);
+    background: var(--card); position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 12px; }
+  .header .bar { width: 4px; height: 20px; background: var(--primary); border-radius: 2px; }
+  .header .title { font-size: 17px; font-weight: 700; }
+  .header .date { font-size: 12px; color: var(--muted); background: #f1f4f9;
+    padding: 2px 10px; border-radius: 10px; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 20px 24px 48px; }
+
+  /* 返回 */
+  .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--primary);
+    text-decoration: none; font-size: 13px; margin-bottom: 14px; }
+  .back-link:hover { text-decoration: underline; }
+
+  /* 列表 */
+  .list-card { background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
+  .list-search { padding: 14px 18px; border-bottom: 1px solid var(--border);
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .list-search input { border: 1px solid var(--border); border-radius: 6px;
+    padding: 7px 12px; font-size: 13px; width: 260px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { text-align: left; padding: 10px 16px; color: var(--muted); font-weight: 500;
+    border-bottom: 1px solid var(--border); font-size: 12px; }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid #f1f4f9; font-size: 14px; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover td { background: var(--primary-subtle); }
+  .row-index { color: var(--muted); }
+  .link { color: var(--primary); font-weight: 600; }
+  .empty { text-align: center; color: var(--muted); padding: 40px 0; font-size: 13px; }
+
+  /* 详情卡片 */
+  .detail-wrap { display: none; }
+  .detail-wrap.show { display: block; }
+  .info-bar { background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow); padding: 20px 24px; margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+  .info-bar .name { font-size: 20px; font-weight: 700; }
+  .info-bar .advisor { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .info-bar .tag-info { font-size: 12px; color: var(--muted); background: #f1f4f9;
+    padding: 3px 10px; border-radius: 10px; }
+
+  .section { margin-bottom: 16px; }
+  .section-title { font-size: 15px; font-weight: 600; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content:''; width:3px; height:16px; background:var(--primary); border-radius:2px; }
+  .panel { background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow); padding: 18px 20px; }
+
+  /* 风格标签 */
+  .dim-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+  .dim-tag-pill { display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--card); font-size: 13px; }
+  .dim-tag-pill .lbl { color: var(--muted); }
+  .dim-tag-pill .val { color: var(--primary); font-weight: 600; }
+
+  /* 业绩明细 */
+  .perf-controls { display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px;
+    overflow: hidden; background: var(--card); }
+  .seg button { border: none; background: none; padding: 7px 15px; font-size: 13px;
+    color: var(--muted); cursor: pointer; }
+  .seg button.active { background: var(--primary-subtle); color: var(--primary); font-weight: 600; }
+  .perf-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+  @media (max-width: 900px) { .perf-layout { grid-template-columns: 1fr; } }
+  .inception-card { margin-bottom: 14px; }
+  .inception-label { font-size: 12px; color: var(--muted); }
+  .inception-value { font-size: 30px; font-weight: 700; color: var(--primary);
+    letter-spacing: -.5px; margin-top: 2px; }
+  .incare-card { background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow); padding: 16px 18px;
+    display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+  .incare-label { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .incare-value { font-size: 34px; font-weight: 700; color: var(--primary);
+    letter-spacing: -.5px; line-height: 1; }
+  .incare-value .unit { font-size: 15px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+  .incare-src { font-size: 11px; color: var(--muted); }
+  .perf-group { margin-bottom: 16px; }
+  .perf-group-title { font-size: 12px; color: var(--muted); font-weight: 600;
+    margin-bottom: 8px; }
+  .perf-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .perf-item { background: #f8fafc; border: 1px solid #eef2f7; border-radius: 6px;
+    padding: 10px 12px; }
+  .perf-item .pl { font-size: 12px; color: var(--muted); }
+  .perf-item .pv { font-size: 17px; font-weight: 600; margin-top: 2px; }
+  .pv.pos { color: var(--red); } .pv.neg { color: var(--green); }
+
+  .perf-chart-card { background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow); padding: 14px 16px;
+    display: flex; flex-direction: column; min-height: 100%; }
+  .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+  .chart-body { flex: 1; min-height: 300px; }
+  #perfChart { height: 100%; width: 100%; }
+
+  .err { text-align: center; color: var(--red); padding: 60px; font-size: 15px; }
+
+  /* 投顾画像 */
+  .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 900px) { .profile-grid { grid-template-columns: 1fr; } }
+  .profile-card { background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow); padding: 16px 18px; }
+  .profile-card .pc-head { font-size: 13px; font-weight: 600; color: var(--primary);
+    margin-bottom: 8px; display:flex; align-items:center; gap:6px; }
+  .profile-card .pc-summary { font-size: 12px; color: var(--muted); line-height: 1.6;
+    border-left: 3px solid var(--primary-subtle); padding: 4px 0 8px 10px; margin-bottom: 8px; }
+  .profile-card ul { list-style: none; }
+  .profile-card li { display: flex; justify-content: space-between; gap: 10px;
+    padding: 7px 0; border-bottom: 1px dashed var(--border); font-size: 13px; }
+  .profile-card li:last-child { border-bottom: none; }
+  .profile-card li .pl { color: var(--muted); flex-shrink: 0; }
+  .profile-card li .pv { font-weight: 600; text-align: right; }
+  .profile-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .profile-tag { font-size: 12px; padding: 5px 11px; border-radius: 14px;
+    background: var(--primary-subtle); color: var(--primary); font-weight: 600; }
+  .profile-tag .td { color: var(--muted); font-weight: 500; margin-left: 8px; }
+  .profile-conclusion { display: flex; gap: 12px; align-items: flex-start;
+    background: var(--primary-subtle); border: 1px solid #dbeafe; border-radius: 8px;
+    padding: 14px 16px; }
+  .profile-conclusion .cl-label { font-weight: 700; color: var(--primary);
+    flex-shrink: 0; font-size: 13px; padding-top: 1px; }
+  .profile-conclusion .cl-text { font-size: 13px; line-height: 1.7; color: var(--text); }
+</style>
+<script src="api.js"></script>
+</head>
+<body>
+<header class="header">
+  <span class="bar"></span>
+  <span class="title">组合详情</span>
+  <span class="date" id="asOf"></span>
+</header>
+
+<div class="wrap">
+  <!-- 组合列表 -->
+  <div id="listWrap">
+    <div class="list-card">
+      <div class="list-search">
+        <input id="searchInput" type="text" placeholder="搜索组合名称 / 投顾姓名…">
+      </div>
+      <table>
+        <thead><tr>
+          <th style="width:60px;">序号</th>
+          <th style="cursor:pointer;" id="thBranch">营业部</th>
+          <th style="cursor:pointer;" id="thAdvisor">投顾姓名</th>
+          <th style="cursor:pointer;" id="thPortfolio">组合名称</th>
+          <th style="cursor:pointer;" id="thInception">成立时间</th>
+        </tr></thead>
+        <tbody id="listBody"></tbody>
+      </table>
+      <div id="listEmpty" class="empty" style="display:none;">暂无匹配组合</div>
+    </div>
+  </div>
+
+  <!-- 详情 -->
+  <div class="detail-wrap" id="detailWrap">
+    <a href="javascript:;" class="back-link" id="backBtn">← 返回列表</a>
+    <div class="info-bar">
+      <div>
+        <div class="name" id="dName"></div>
+        <div class="advisor" id="dAdvisor"></div>
+      </div>
+      <div style="text-align:right;">
+        <div class="tag-info" id="dBranch"></div>
+        <div class="tag-info" style="margin-top:6px;" id="dRange"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">六维风格标签<span class="date"></span></div>
+      <div class="dim-tags" id="dimTags"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">业绩明细</div>
+      <div class="panel">
+        <div class="perf-controls">
+          <div class="seg" id="periodSeg">
+            <button data-p="3M">3月</button>
+            <button data-p="6M">6月</button>
+            <button data-p="1Y">1年</button>
+            <button data-p="YTD">YTD</button>
+            <button data-p="SINCE_INCEPTION" class="active">成立以来</button>
+          </div>
+          <div class="seg" id="benchSeg">
+            <button data-b="hs300" class="active">沪深300</button>
+            <button data-b="zz800">中证800</button>
+          </div>
+        </div>
+        <div class="perf-layout">
+          <div>
+            <div class="incare-card">
+              <div class="incare-label">成立以来年化收益率</div>
+              <div class="incare-value" id="incepAnnual"><span class="unit">%</span></div>
+              <div class="incare-src">投资组合成立至今的年化收益</div>
+            </div>
+            <div class="perf-group">
+              <div class="perf-group-title">区间核心指标（<span id="perfPeriodLabel">近3月</span>）</div>
+              <div class="perf-grid" id="coreGrid"></div>
+            </div>
+            <div class="perf-group">
+              <div class="perf-group-title">近一年风险调整收益</div>
+              <div class="perf-grid" id="riskGrid"></div>
+            </div>
+          </div>
+          <div class="perf-chart-card">
+            <div class="chart-title">收益曲线（<span id="chartBmLabel">沪深300</span>）</div>
+            <div class="chart-body"><div id="perfChart"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">投顾画像</div>
+      <div id="profileBlock">
+        <div class="profile-grid" id="profileGrid"></div>
+        <div style="margin-top:14px;"><div class="profile-conclusion" id="profileConclusion" style="display:none;"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const esc = s => { const d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; };
+const fmtPct = (v,d=2) => (v==null?'—':((v*100).toFixed(d)+'%'));
+const fmtSigned = (v,d=2) => (v==null?'—':((v>=0?'+':'')+(v*100).toFixed(d)+'%'));
+const fmtRatio = (v,d=3) => (v==null?'—':v.toFixed(d));
+
+const PERIOD_LABEL = { '3M':'近3月', '6M':'近6月', '1Y':'近1年', 'YTD':'今年以来', 'SINCE_INCEPTION':'成立以来' };
+const BENCH_LABEL = { hs300:'沪深300', zz800:'中证800' };
+const DIM_META = { risk:'风险特征', turnover:'换手率', style:'投资风格',
+  mktcap:'市值偏好', concentration:'集中度', sector:'板块特征' };
+
+let periods = null;      // 该组合的各区间指标
+let allPortfolios = [];
+let chart = null;
+let bench = 'hs300';
+let curPeriod = 'SINCE_INCEPTION';
+
+async function main() {
+  const asOf = document.getElementById('asOf');
+  try {
+    const o = await (await fetch('/api/overview')).json();
+    if (o && o.as_of) asOf.textContent = '截至 ' + o.as_of;
+  } catch(e) {}
+
+  // 加载风格标签（供详情页展示）
+  let styles = { portfolios: [] };
+  try { styles = await (await fetch('/api/styles')).json(); } catch(e){}
+
+  // 加载组合列表
+  let list;
+  try {
+    list = await (await fetch('/api/portfolios')).json();
+  } catch(e) {
+    document.getElementById('listBody').parentElement.innerHTML =
+      '<div class="empty">数据加载失败，请确认服务已启动。</div>';
+    return;
+  }
+  allPortfolios = list;
+  const metaByPid = {};
+  (styles.portfolios || []).forEach(p => { metaByPid[p.inner_id] = p.labels || {}; });
+  renderList(list, metaByPid);
+
+  // 支持 URL 参数 ?id=组合X 直接进入详情（供组合智能筛选等模块跳转）
+  const qs = new URLSearchParams(window.location.search);
+  const pidFromUrl = qs.get('id');
+  if (pidFromUrl && list.some(p => p.inner_id === pidFromUrl)) {
+    showDetail(pidFromUrl);
+  }
+}
+
+function renderList(list, metaByPid) {
+  const tbody = document.getElementById('listBody');
+  const empty = document.getElementById('listEmpty');
+  let sortDir = 'asc';     // 成立时间排序方向
+  let sortActive = false;
+  function draw(filter) {
+    let rows = list.filter(p =>
+      !filter ||
+      String(p.portfolio).toLowerCase().includes(filter) ||
+      String(p.advisor).toLowerCase().includes(filter) ||
+      String(p.branch || '').toLowerCase().includes(filter));
+    if (sortActive) {
+      rows = rows.slice().sort((a, b) => {
+        const da = a.inception || '', db = b.inception || '';
+        return sortDir === 'asc' ? da.localeCompare(db) : db.localeCompare(da);
+      });
+    }
+    tbody.innerHTML = rows.map((p, idx) => {
+      const labels = metaByPid[p.inner_id] || {};
+      return '<tr data-pid="' + esc(p.inner_id) + '">' +
+        '<td class="row-index">' + (idx + 1) + '</td>' +
+        '<td>' + esc(p.branch || '—') + '</td>' +
+        '<td>' + esc(p.advisor) + '</td>' +
+        '<td class="link">' + esc(p.portfolio) + '</td>' +
+        '<td>' + esc(p.inception || '—') + '</td>' +
+        '</tr>';
+    }).join('');
+    empty.style.display = rows.length ? 'none' : 'block';
+  }
+  const thInc = document.getElementById('thInception');
+  thInc.addEventListener('click', () => {
+    sortActive = true;
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    thInc.textContent = '成立时间 ' + (sortDir === 'asc' ? '↑' : '↓');
+    draw(document.getElementById('searchInput').value.trim().toLowerCase());
+  });
+  draw('');
+  document.getElementById('searchInput').addEventListener('input', e => draw(e.target.value.trim().toLowerCase()));
+  tbody.addEventListener('click', e => {
+    const tr = e.target.closest('tr[data-pid]');
+    if (tr) showDetail(tr.getAttribute('data-pid'));
+  });
+}
+
+async function showDetail(pid) {
+  // 基本信息 + 区间指标
+  let d;
+  try {
+    d = await (await fetch('/api/portfolio/' + encodeURIComponent(pid) + '/indicators')).json();
+  } catch(e) {
+    alert('该组合数据加载失败');
+    return;
+  }
+  // 风格标签
+  let styles = { portfolios: [] };
+  try { styles = await (await fetch('/api/styles')).json(); } catch(e){}
+  const myLabels = ((styles.portfolios || []).find(p => p.inner_id === pid) || {}).labels || {};
+
+  periods = d.intervals || {};
+  document.getElementById('listWrap').style.display = 'none';
+  const dw = document.getElementById('detailWrap');
+  dw.classList.add('show');
+  window.scrollTo(0, 0);
+
+  document.getElementById('dName').textContent = d.portfolio;
+  document.getElementById('dAdvisor').textContent = '投顾：' + d.advisor;
+  document.getElementById('dBranch').textContent = '营业部：' + (d.branch || '—');
+
+  // 风格标签
+  const dimTags = document.getElementById('dimTags');
+  dimTags.innerHTML = Object.keys(DIM_META).map(k =>
+    '<div class="dim-tag-pill"><span class="lbl">' + DIM_META[k] + '</span>' +
+    '<span class="val">' + esc(myLabels[k] || '—') + '</span></div>').join('');
+
+  // 成立以来年化
+  const incep = periods['SINCE_INCEPTION'] || {};
+  document.getElementById('incepAnnual').textContent =
+    (incep.annual_return == null ? '—' : (incep.annual_return * 100).toFixed(2));
+
+  // 事件绑定
+  document.getElementById('periodSeg').addEventListener('click', e => {
+    const p = e.target.dataset.p; if (!p) return;
+    document.querySelectorAll('#periodSeg button').forEach(b => b.classList.toggle('active', b.dataset.p === p));
+    curPeriod = p;
+    renderCoreGrid(p);
+    renderCurve(pid);
+  });
+  document.getElementById('benchSeg').addEventListener('click', e => {
+    const b = e.target.dataset.b; if (!b) return;
+    bench = b;
+    document.querySelectorAll('#benchSeg button').forEach(btn => btn.classList.toggle('active', btn.dataset.b === b));
+    document.getElementById('chartBmLabel').textContent = BENCH_LABEL[b];
+    renderCurve(pid);
+  });
+
+  renderCoreGrid('SINCE_INCEPTION');
+  renderRiskGrid();
+  renderCurve(pid);
+  renderProfile(pid);
+}
+
+async function renderProfile(pid) {
+  const grid = document.getElementById('profileGrid');
+  const concl = document.getElementById('profileConclusion');
+  let p;
+  try {
+    p = await (await fetch('/api/portfolio/' + encodeURIComponent(pid) + '/profile')).json();
+  } catch(e) { grid.innerHTML = ''; concl.style.display='none'; return; }
+  const card = (title, mod) =>
+    '<div class="profile-card">' +
+      '<div class="pc-head">' + esc(title) + '</div>' +
+      '<div class="pc-summary">' + esc(mod.summary || '') + '</div>' +
+      '<ul>' + (mod.items || []).map(([k,v]) =>
+        '<li><span class="pl">' + esc(k) + '</span><span class="pv">' + esc(v) + '</span></li>'
+      ).join('') + '</ul>' +
+    '</div>';
+  grid.innerHTML =
+    card('收益能力', p.income || {}) +
+    card('持仓风格', p.style || {}) +
+    card('交易&调仓', p.trade || {});
+  const tags = (p.behavior_tags || []).map(t =>
+    '<span class="profile-tag">' + esc(t.label) + '<span class="td">' + esc(t.desc) + '</span></span>'
+  ).join('');
+  if (tags) {
+    grid.innerHTML += '<div class="profile-card" style="grid-column:1/-1;">' +
+      '<div class="pc-head">性格 &amp; 行为标签</div>' +
+      '<div class="profile-tags">' + tags + '</div>' +
+    '</div>';
+  }
+  if (p.conclusion) {
+    concl.style.display = '';
+    concl.innerHTML = '<span class="cl-label">画像总结</span>' +
+      '<span class="cl-text">' + esc(p.conclusion) + '</span>';
+  }
+}
+
+function renderCoreGrid(periodKey) {
+  const m = periods[periodKey] || {};
+  const items = [
+    ['区间收益率', m.period_return, fmtSigned, 'pos'],
+    ['年化波动率', m.volatility, fmtPct, ''],
+    ['最大回撤率', m.max_drawdown, fmtPct, 'neg'],
+    ['胜率', m.win_rate, fmtPct, '', true],
+  ];
+  document.getElementById('perfPeriodLabel').textContent = PERIOD_LABEL[periodKey];
+  document.getElementById('coreGrid').innerHTML = items.map(([label, v, fmt, cls, isWin]) => {
+    let valCls = (v != null ? cls : '');
+    let valTxt = fmt(v);
+    if (isWin && v == null) { valCls = ''; valTxt = '清仓交易笔数不足'; }
+    return '<div class="perf-item"><div class="pl">' + label + '</div>' +
+      '<div class="pv ' + valCls + '">' + valTxt + '</div></div>';
+  }).join('');
+}
+
+function renderRiskGrid() {
+  const m = periods['1Y'] || {};
+  const items = [
+    ['夏普比率', m.sharpe, fmtRatio],
+    ['卡玛比率', m.calmar, fmtRatio],
+    ['索提诺比率', m.sortino, fmtRatio],
+    ['信息比率', m.info_ratio, fmtRatio],
+  ];
+  document.getElementById('riskGrid').innerHTML = items.map(([label, v, fmt]) =>
+    '<div class="perf-item"><div class="pl">' + label + '</div>' +
+    '<div class="pv">' + fmt(v) + '</div></div>').join('');
+}
+
+async function renderCurve(pid) {
+  let nav;
+  try {
+    nav = await (await fetch('/api/portfolio/' + encodeURIComponent(pid) + '/nav')).json();
+  } catch(e) { return; }
+  // 按所选时段截取
+  const N = nav.dates.length;
+  let start = 0;
+  if (curPeriod === '3M') start = Math.max(0, N - (3 * 21));
+  else if (curPeriod === '6M') start = Math.max(0, N - (6 * 21));
+  else if (curPeriod === '1Y') start = Math.max(0, N - (21 * 12));
+  else if (curPeriod === 'YTD') { // 从今年年初第一个交易日开始（今年 = 当前系统年份）
+    const year = String(new Date().getFullYear());
+    for (let i = 0; i < N; i++) { if ((nav.dates[i] || '').slice(0, 4) === year) { start = i; break; } }
+  }
+  const slice = idx => idx.slice(start);
+  const dates = nav.dates.slice(start);
+
+  const bmCum = bench === 'hs300' ? nav.bench_hs300_cum : nav.bench_zz800_cum;
+  const exKey = bench === 'hs300' ? 'excess_hs300' : 'excess_zz800';
+  const exCum = nav[exKey];
+
+  const dom = document.getElementById('perfChart');
+  if (!chart) chart = echarts.init(dom);
+  chart.setOption({
+    tooltip: { trigger: 'axis',
+      valueFormatter: v => (v == null ? '-' : (v * 100).toFixed(2) + '%') },
+    legend: { data: ['组合收益', '基准收益', '超额收益'], top: 0 },
+    grid: { left: 60, right: 20, top: 34, bottom: 46 },
+    xAxis: { type: 'category', data: dates,
+      axisLabel: { color: '#64748b', fontSize: 11 }, axisLine: { lineStyle: { color: '#e2e8f0' } } },
+    yAxis: { type: 'value', scale: true, name: '累计收益率',
+      axisLabel: { color: '#64748b', fontSize: 11, formatter: v => (v * 100).toFixed(2) + '%' },
+      splitLine: { lineStyle: { color: '#f1f4f9' } } },
+    series: [
+      { name: '组合收益', type: 'line', data: slice(nav.portfolio_cum), showSymbol: false,
+        lineStyle: { width: 2, color: '#2563eb' }, itemStyle: { color: '#2563eb' } },
+      { name: '基准收益', type: 'line', data: slice(bmCum), showSymbol: false,
+        lineStyle: { width: 1.5, color: '#94a3b8' }, itemStyle: { color: '#94a3b8' } },
+      { name: '超额收益', type: 'line', data: slice(exCum), showSymbol: false,
+        lineStyle: { width: 1.5, color: '#f59e0b' }, itemStyle: { color: '#f59e0b' } },
+    ],
+  });
+  chart.resize();
+}
+
+// 返回列表
+document.getElementById('backBtn').addEventListener('click', () => {
+  document.getElementById('detailWrap').classList.remove('show');
+  document.getElementById('listWrap').style.display = '';
+  window.scrollTo(0, 0);
+});
+
+main();
+</script>
+</body>
+</html>

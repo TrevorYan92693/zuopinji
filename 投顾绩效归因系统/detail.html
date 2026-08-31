@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>计算详情 - 投顾绩效归因系统</title>
+<style>
+  :root {
+    --bg: #f7f8fa; --card: #fff; --border: #e5e7eb;
+    --primary: #2563eb; --primary-subtle: #eff6ff;
+    --text: #1f2937; --muted: #6b7280; --red: #dc2626; --green: #16a34a;
+    --shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+  .header { padding: 16px 24px; border-bottom: 1px solid var(--border);
+    background: var(--card); position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .header .back { color: var(--muted); text-decoration: none; font-size: 14px;
+    padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; }
+  .header .back:hover { background: #f1f4f9; }
+  .header .title { font-size: 17px; font-weight: 700; }
+  .header .sub { font-size: 13px; color: var(--muted); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 20px 24px 40px; }
+  .toolbar { display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px;
+    overflow: hidden; background: var(--card); }
+  .seg button { border: none; background: none; padding: 7px 16px; font-size: 13px;
+    color: var(--muted); cursor: pointer; }
+  .seg button.active { background: var(--primary-subtle); color: var(--primary); font-weight: 600; }
+  .page-info { font-size: 12px; color: var(--muted); }
+  .table-card { background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
+  .table-scroll { overflow: auto; max-height: calc(100vh - 200px); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+  thead th { position: sticky; top: 0; background: #f9fafb; z-index: 1;
+    padding: 9px 12px; text-align: right; color: var(--muted); font-weight: 600;
+    border-bottom: 1px solid var(--border); font-size: 12px; }
+  thead th:first-child { text-align: left; }
+  tbody td { padding: 8px 12px; text-align: right; border-bottom: 1px solid #f1f4f9; }
+  tbody td:first-child { text-align: left; color: var(--muted); }
+  tbody tr:hover td { background: var(--primary-subtle); }
+  .pos { color: var(--red); font-weight: 600; }
+  .neg { color: var(--green); font-weight: 600; }
+  .bench-col { color: #64748b; }
+  .pager { display: flex; align-items: center; justify-content: flex-end;
+    gap: 10px; padding: 10px 16px; border-top: 1px solid var(--border); font-size: 13px; }
+  .pager button { border: 1px solid var(--border); background: var(--card);
+    padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text); }
+  .pager button:disabled { opacity: .4; cursor: not-allowed; }
+  .pager select { border: 1px solid var(--border); padding: 5px 8px; border-radius: 6px; font-size: 13px; }
+  .err { text-align: center; color: var(--red); padding: 60px; font-size: 15px; }
+  .meta { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+</style>
+<script src="api.js"></script>
+</head>
+<body>
+<header class="header">
+  <a class="back" href="overview.html">← 返回数据总览</a>
+  <span class="title" id="pageTitle">计算详情</span>
+  <span class="sub" id="pageSub"></span>
+</header>
+<div class="wrap">
+  <div class="selector" id="selector" style="display:none;margin-bottom:14px;padding:14px 16px;background:#fff;border:1px solid var(--border);border-radius:8px;">
+    <label style="font-size:13px;color:var(--muted);margin-right:10px;">选择组合：</label>
+    <select id="selPortfolio" style="padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;"></select>
+  </div>
+  <div class="meta" id="meta"></div>
+  <div class="toolbar">
+    <div class="seg" id="benchSeg">
+      <button data-b="hs300" class="active">沪深300</button>
+      <button data-b="zz800">中证800</button>
+    </div>
+    <div class="page-info" id="pageInfo"></div>
+  </div>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>日期</th>
+          <th>每日净值</th>
+          <th>日收益率</th>
+          <th>累计收益率</th>
+          <th class="bench-col" id="benchHead">基准累计收益率（沪深300）</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="pager">
+      <span class="page-info">每页</span>
+      <select id="pageSize">
+        <option value="50">50 行</option>
+        <option value="100" selected>100 行</option>
+        <option value="200">200 行</option>
+        <option value="500">500 行</option>
+        <option value="all">全部</option>
+      </select>
+      <button id="prevBtn">上一页</button>
+      <span id="pageNum"></span>
+      <button id="nextBtn">下一页</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const esc = s => { const d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; };
+const fmtNav = v => (v==null?'—':v.toFixed(4));
+const fmtPct = (v,d=2) => (v==null?'—':((v>=0?'+':'')+(v*100).toFixed(d)+'%'));
+
+const BENCH_HEAD = { hs300: '基准累计收益率（沪深300）', zz800: '基准累计收益率（中证800）' };
+
+// 解析 URL ?id=组合XX
+const params = new URLSearchParams(location.search);
+let innerId = params.get('id');
+
+let daily = null;          // 接口原始数据
+let rows = [];             // 组装后的行
+let bench = 'hs300';       // 当前基准
+let page = 1;
+let pageSize = 100;
+
+async function main() {
+  if (!innerId) {
+    // 无 id 参数：加载组合列表供选择
+    document.getElementById('pageTitle').textContent = '计算详情';
+    document.querySelector('.toolbar').style.display = 'none';
+    document.querySelector('.table-card').style.display = 'none';
+    const sel = document.getElementById('selector');
+    sel.style.display = 'block';
+    const select = document.getElementById('selPortfolio');
+    try {
+      const list = await (await fetch('/api/portfolios')).json();
+      select.innerHTML = '<option value="">—— 请选择组合 ——</option>' +
+        list.map(p => '<option value="' + esc(p.inner_id) + '">' + esc(p.portfolio) + '（' + esc(p.advisor) + '）</option>').join('');
+      select.addEventListener('change', () => { if (select.value) location.href = 'detail.html?id=' + encodeURIComponent(select.value); });
+    } catch(e) {
+      document.querySelector('.wrap').innerHTML = '<div class="err">组合列表加载失败。</div>';
+    }
+    return;
+  }
+  let d;
+  try {
+    d = await (await fetch('/api/portfolio/' + encodeURIComponent(innerId) + '/daily')).json();
+  } catch(e) {
+    document.querySelector('.wrap').innerHTML = '<div class="err">数据加载失败，请确认服务已启动。</div>';
+    return;
+  }
+  daily = d;
+  document.getElementById('pageTitle').textContent = d.portfolio + ' · 计算详情';
+  document.getElementById('pageSub').textContent = '投顾：' + d.advisor + ' ｜ 组合ID：' + d.inner_id;
+  document.getElementById('meta').textContent =
+    '共 ' + d.dates.length + ' 个交易日，区间 ' + d.dates[0] + ' ～ ' + d.dates[d.dates.length-1] +
+    ' ｜ 起始净值 ' + fmtNav(d.nav[0]);
+
+  // 组装行（日收益/累计/基准累计）
+  rows = d.dates.map((date, i) => ({
+    date,
+    nav: d.nav[i],
+    dr: d.daily_return[i],
+    cum: d.cum_return[i],
+    bcum: d['bench_cum_' + bench][i],
+  }));
+
+  // 事件
+  document.getElementById('benchSeg').addEventListener('click', e => {
+    const b = e.target.dataset.b; if (!b) return;
+    bench = b;
+    document.querySelectorAll('#benchSeg button').forEach(btn => btn.classList.toggle('active', btn.dataset.b === b));
+    document.getElementById('benchHead').textContent = BENCH_HEAD[b];
+    rows = daily.dates.map((date, i) => ({
+      date, nav: daily.nav[i], dr: daily.daily_return[i],
+      cum: daily.cum_return[i], bcum: daily['bench_cum_' + b][i],
+    }));
+    page = 1; render();
+  });
+  document.getElementById('pageSize').addEventListener('change', e => {
+    pageSize = e.target.value === 'all' ? Infinity : +e.target.value;
+    page = 1; render();
+  });
+  document.getElementById('prevBtn').onclick = () => { if (page > 1) { page--; render(); } };
+  document.getElementById('nextBtn').onclick = () => { const total = Math.ceil(rows.length / pageSize); if (page < total) { page++; render(); } };
+
+  render();
+}
+
+function render() {
+  const total = Math.ceil(rows.length / pageSize);
+  if (page > total) page = total || 1;
+  const start = (page - 1) * pageSize;
+  const slice = pageSize === Infinity ? rows : rows.slice(start, start + pageSize);
+
+  document.getElementById('tbody').innerHTML = slice.map(r => {
+    const cls = r.dr >= 0 ? 'pos' : 'neg';
+    return `<tr>
+      <td>${r.date}</td>
+      <td>${fmtNav(r.nav)}</td>
+      <td class="${cls}">${fmtPct(r.dr)}</td>
+      <td class="${r.cum>=0?'pos':'neg'}">${fmtPct(r.cum)}</td>
+      <td class="bench-col">${fmtPct(r.bcum)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('pageNum').textContent =
+    '第 ' + page + ' / ' + (total || 1) + ' 页';
+  document.getElementById('pageInfo').textContent = '共 ' + rows.length + ' 行';
+  document.getElementById('prevBtn').disabled = page <= 1;
+  document.getElementById('nextBtn').disabled = page >= total;
+}
+
+main();
+</script>
+</body>
+</html>

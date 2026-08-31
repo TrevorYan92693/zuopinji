@@ -1,0 +1,92 @@
+{
+ "inner_id": "组合09",
+ "portfolio": "中小盘掘金",
+ "advisor": "郑海峰",
+ "branch": "苏州",
+ "intervals": {
+  "1M": {
+   "total_days": 20,
+   "period_return": -0.017178807444978295,
+   "annual_return": null,
+   "volatility": 0.2162683648291764,
+   "max_drawdown": 0.0718308452853231,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": null,
+   "info_ratio": null,
+   "turnover": 0.5014045919755113,
+   "win_rate": null,
+   "excess_return": -0.030246904424651735
+  },
+  "3M": {
+   "total_days": 60,
+   "period_return": -0.12950027907118702,
+   "annual_return": null,
+   "volatility": 0.28372824679672476,
+   "max_drawdown": 0.13874455082435846,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": null,
+   "info_ratio": null,
+   "turnover": 0.30146653006037255,
+   "win_rate": null,
+   "excess_return": -0.06275674063538354
+  },
+  "6M": {
+   "total_days": 120,
+   "period_return": -0.17097103250057608,
+   "annual_return": -0.3254775916270186,
+   "volatility": 0.27235683270734706,
+   "max_drawdown": 0.2027250218566393,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": -1.5458874441278234,
+   "info_ratio": -1.4874704506907588,
+   "turnover": 0.32351953946347384,
+   "win_rate": null,
+   "excess_return": -0.16268443389160936
+  },
+  "1Y": {
+   "total_days": 250,
+   "period_return": -0.07221879800031981,
+   "annual_return": -0.07277499820373201,
+   "volatility": 0.2723532140356754,
+   "max_drawdown": 0.3256926719883498,
+   "sharpe": -0.31567462314753586,
+   "calmar": -0.2639758447092337,
+   "sortino": -0.36599984882813874,
+   "info_ratio": -0.8249022306288392,
+   "turnover": 0.3668242643591028,
+   "win_rate": null,
+   "excess_return": -0.16902803390706134
+  },
+  "YTD": {
+   "total_days": 157,
+   "period_return": -0.24614271614195166,
+   "annual_return": -0.3646144434138485,
+   "volatility": 0.2677251296226986,
+   "max_drawdown": 0.31079414657555227,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": -1.7817959440342424,
+   "info_ratio": -1.5597726634034692,
+   "turnover": 0.3674429225897419,
+   "win_rate": null,
+   "excess_return": -0.22312886419981837
+  },
+  "SINCE_INCEPTION": {
+   "total_days": 386,
+   "period_return": 0.03948464643584635,
+   "annual_return": 0.025603935173214243,
+   "volatility": 0.28073642774541446,
+   "max_drawdown": 0.3256926719883498,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": 0.12486278710225639,
+   "info_ratio": -0.5276020122515626,
+   "turnover": 0.34609281082342164,
+   "win_rate": null,
+   "excess_return": -0.1744084528162352
+  }
+ }
+}

@@ -1,0 +1,92 @@
+{
+ "inner_id": "组合12",
+ "portfolio": "人工智能成长",
+ "advisor": "陈嘉怡",
+ "branch": "武汉",
+ "intervals": {
+  "1M": {
+   "total_days": 20,
+   "period_return": 0.05315017712794702,
+   "annual_return": null,
+   "volatility": 0.30725592884777553,
+   "max_drawdown": 0.06862760111613328,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": null,
+   "info_ratio": null,
+   "turnover": 0.06668613707909389,
+   "win_rate": null,
+   "excess_return": 0.040082080148273656
+  },
+  "3M": {
+   "total_days": 60,
+   "period_return": -0.07462848598021028,
+   "annual_return": null,
+   "volatility": 0.3290825905124668,
+   "max_drawdown": 0.17782368110868166,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": null,
+   "info_ratio": null,
+   "turnover": 0.06509197205614503,
+   "win_rate": null,
+   "excess_return": -0.007884947544406593
+  },
+  "6M": {
+   "total_days": 0,
+   "period_return": null,
+   "annual_return": null,
+   "volatility": null,
+   "max_drawdown": null,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": null,
+   "info_ratio": null,
+   "turnover": 0.0,
+   "win_rate": null,
+   "excess_return": null
+  },
+  "1Y": {
+   "total_days": 0,
+   "period_return": null,
+   "annual_return": null,
+   "volatility": null,
+   "max_drawdown": null,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": null,
+   "info_ratio": null,
+   "turnover": 0.0,
+   "win_rate": null,
+   "excess_return": null
+  },
+  "YTD": {
+   "total_days": 101,
+   "period_return": 0.02391071610824656,
+   "annual_return": 0.06072894092661074,
+   "volatility": 0.3019974546275225,
+   "max_drawdown": 0.17782368110868166,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": 0.291500915870424,
+   "info_ratio": 0.07799334052215559,
+   "turnover": 0.1192959617549603,
+   "win_rate": null,
+   "excess_return": 0.0055489631455949255
+  },
+  "SINCE_INCEPTION": {
+   "total_days": 101,
+   "period_return": 0.02391071610824656,
+   "annual_return": 0.06072894092661074,
+   "volatility": 0.3019974546275225,
+   "max_drawdown": 0.17782368110868166,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": 0.291500915870424,
+   "info_ratio": 0.07799334052215559,
+   "turnover": 0.1192959617549603,
+   "win_rate": null,
+   "excess_return": 0.0055489631455949255
+  }
+ }
+}

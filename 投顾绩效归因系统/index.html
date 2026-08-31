@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>投顾绩效归因系统</title>
+<style>
+  :root {
+    --sidebar-w: 260px;
+    --bg: #f7f8fa; --card: #ffffff; --border: #e5e7eb;
+    --accent: #2563eb; --accent-subtle: #eff6ff;
+    --text: #1f2937; --text-muted: #6b7280;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { font-family: -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    color: var(--text); font-size: 14px; line-height: 1.5; }
+
+  /* 侧边栏（对齐 demo） */
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w);
+    background: var(--card); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; z-index: 100;
+  }
+  .sidebar-header { padding: 14px 16px; border-bottom: 1px solid var(--border);
+    font-weight: 700; font-size: 15px; }
+  .sidebar-info { padding: 10px 16px; border-bottom: 1px solid var(--border);
+    font-size: 12px; color: var(--text-muted); }
+  .sidebar-info .update-date { margin-bottom: 6px; }
+  .update-btn { display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 2px; padding: 4px 10px; font-size: 12px;
+    background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+    cursor: pointer; transition: opacity 0.12s; }
+  .update-btn:hover { opacity: 0.88; }
+  .update-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+  .update-status { margin-top: 6px; font-size: 11px; color: var(--text-muted); display: none; }
+  .module-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .module-item { display: flex; align-items: center; padding: 9px 20px; cursor: pointer;
+    transition: background 0.12s; user-select: none; }
+  .module-item:hover { background: #f3f4f6; }
+  .module-item.active { background: var(--accent-subtle); color: var(--accent);
+    border-right: 3px solid var(--accent); }
+  .module-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
+
+  /* 主内容区 */
+  .main { margin-left: var(--sidebar-w); height: 100vh; overflow: hidden; background: var(--bg); }
+  .main iframe { width: 100%; height: 100%; border: 0; display: block; }
+</style>
+<script src="api.js"></script>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-header">投顾绩效归因系统</div>
+  <div class="sidebar-info">
+    <div class="update-date" id="updateDate">上次更新日期：--</div>
+  </div>
+  <div class="module-list" id="moduleList">
+    <div class="module-item active" data-src="overview.html"><span class="module-name">数据总览</span></div>
+    <div class="module-item" data-src="portfolio.html"><span class="module-name">组合详情</span></div>
+    <div class="module-item" data-src="attribution.html"><span class="module-name">组合绩效归因</span></div>
+    <div class="module-item" data-src="compare.html"><span class="module-name">自选投顾对比</span></div>
+    <div class="module-item" data-src="filter.html"><span class="module-name">组合智能筛选</span></div>
+  </div>
+</aside>
+
+<main class="main">
+  <iframe id="contentFrame" src="overview.html"></iframe>
+</main>
+
+<script>
+  const menu = document.getElementById('moduleList');
+  const frame = document.getElementById('contentFrame');
+  const items = Array.from(menu.querySelectorAll('.module-item'));
+
+  function activate(el) {
+    items.forEach(i => i.classList.toggle('active', i === el));
+    if (el.dataset.src) frame.src = el.dataset.src + '?t=' + Date.now();
+  }
+  items.forEach(el => el.addEventListener('click', () => activate(el)));
+
+  // iframe 内部导航（如从筛选页跳转组合详情）后，按实际加载路径同步侧边栏高亮
+  frame.addEventListener('load', () => {
+    let path;
+    try { path = (frame.contentWindow && frame.contentWindow.location.pathname) || ''; }
+    catch (e) { path = (frame.src || '').split('?')[0]; }
+    const match = items.find(it => it.dataset.src === path);
+    if (match) items.forEach(i => i.classList.toggle('active', i === match));
+  });
+
+  // 填充侧栏"上次更新日期"
+  fetch('/api/overview').then(r => r.json()).then(o => {
+    if (o && o.as_of) document.getElementById('updateDate').textContent = '上次更新日期：' + o.as_of;
+  }).catch(() => {});
+</script>
+</body>
+</html>

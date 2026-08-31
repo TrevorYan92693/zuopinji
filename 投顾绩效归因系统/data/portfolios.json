@@ -1,0 +1,86 @@
+[
+ {
+  "inner_id": "组合01",
+  "portfolio": "价值蓝筹精选",
+  "advisor": "张伟",
+  "branch": "上海",
+  "inception": "2025-01-14"
+ },
+ {
+  "inner_id": "组合02",
+  "portfolio": "科技成长先锋",
+  "advisor": "陈晓敏",
+  "branch": "深圳",
+  "inception": "2025-01-06"
+ },
+ {
+  "inner_id": "组合03",
+  "portfolio": "消费白马",
+  "advisor": "李国华",
+  "branch": "杭州",
+  "inception": "2025-01-10"
+ },
+ {
+  "inner_id": "组合04",
+  "portfolio": "医药创新",
+  "advisor": "王莉娜",
+  "branch": "北京",
+  "inception": "2025-01-20"
+ },
+ {
+  "inner_id": "组合05",
+  "portfolio": "周期资源",
+  "advisor": "赵建国",
+  "branch": "徐州",
+  "inception": "2025-01-15"
+ },
+ {
+  "inner_id": "组合06",
+  "portfolio": "新能源崛起",
+  "advisor": "孙婷婷",
+  "branch": "广州",
+  "inception": "2025-01-24"
+ },
+ {
+  "inner_id": "组合07",
+  "portfolio": "高端制造",
+  "advisor": "周志强",
+  "branch": "西安",
+  "inception": "2025-01-08"
+ },
+ {
+  "inner_id": "组合08",
+  "portfolio": "红利低波",
+  "advisor": "吴明",
+  "branch": "福州",
+  "inception": "2025-01-17"
+ },
+ {
+  "inner_id": "组合09",
+  "portfolio": "中小盘掘金",
+  "advisor": "郑海峰",
+  "branch": "苏州",
+  "inception": "2025-01-22"
+ },
+ {
+  "inner_id": "组合10",
+  "portfolio": "均衡配置",
+  "advisor": "黄雅琴",
+  "branch": "南京",
+  "inception": "2025-01-13"
+ },
+ {
+  "inner_id": "组合11",
+  "portfolio": "半导体先锋",
+  "advisor": "刘志远",
+  "branch": "成都",
+  "inception": "2024-08-01"
+ },
+ {
+  "inner_id": "组合12",
+  "portfolio": "人工智能成长",
+  "advisor": "陈嘉怡",
+  "branch": "武汉",
+  "inception": "2026-04-01"
+ }
+]

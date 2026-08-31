@@ -1,0 +1,92 @@
+{
+ "inner_id": "组合05",
+ "portfolio": "周期资源",
+ "advisor": "赵建国",
+ "branch": "徐州",
+ "intervals": {
+  "1M": {
+   "total_days": 20,
+   "period_return": 0.02322777743353595,
+   "annual_return": null,
+   "volatility": 0.16634750065839357,
+   "max_drawdown": 0.0386453941919739,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": null,
+   "info_ratio": null,
+   "turnover": 0.0,
+   "win_rate": null,
+   "excess_return": 0.010159680453862658
+  },
+  "3M": {
+   "total_days": 60,
+   "period_return": 0.02645331409299326,
+   "annual_return": null,
+   "volatility": 0.23157418894612847,
+   "max_drawdown": 0.14271097989230738,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": null,
+   "info_ratio": null,
+   "turnover": 0.035429544078378075,
+   "win_rate": null,
+   "excess_return": 0.09319685252879684
+  },
+  "6M": {
+   "total_days": 120,
+   "period_return": -0.11214392376288605,
+   "annual_return": -0.2210323903824425,
+   "volatility": 0.1985998735302493,
+   "max_drawdown": 0.25984203232135666,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": -1.5162158765463623,
+   "info_ratio": -0.7913740842396614,
+   "turnover": 0.10764774824252485,
+   "win_rate": null,
+   "excess_return": -0.10385732515391927
+  },
+  "1Y": {
+   "total_days": 250,
+   "period_return": 0.23052602385789125,
+   "annual_return": 0.2325698189349099,
+   "volatility": 0.20569269169438062,
+   "max_drawdown": 0.2739813799515639,
+   "sharpe": 1.06649301503065,
+   "calmar": 0.8006741880550111,
+   "sortino": 1.6894589180649369,
+   "info_ratio": 0.62546818407261,
+   "turnover": 0.12902059970875107,
+   "win_rate": null,
+   "excess_return": 0.13371678795114966
+  },
+  "YTD": {
+   "total_days": 157,
+   "period_return": -0.005735343242397989,
+   "annual_return": -0.009189787782913128,
+   "volatility": 0.22540692038572072,
+   "max_drawdown": 0.2739813799515639,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": -0.0586315483433874,
+   "info_ratio": 0.10919518268192731,
+   "turnover": 0.14222668501845773,
+   "win_rate": null,
+   "excess_return": 0.017278508699735413
+  },
+  "SINCE_INCEPTION": {
+   "total_days": 391,
+   "period_return": 0.319151193890728,
+   "annual_return": 0.19544612147307472,
+   "volatility": 0.19395695561705537,
+   "max_drawdown": 0.2739813799515639,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": 1.4593588166986582,
+   "info_ratio": 0.3288209628345993,
+   "turnover": 0.10777623562119515,
+   "win_rate": null,
+   "excess_return": 0.10494151567745791
+  }
+ }
+}

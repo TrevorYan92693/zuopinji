@@ -1,0 +1,92 @@
+{
+ "inner_id": "组合06",
+ "portfolio": "新能源崛起",
+ "advisor": "孙婷婷",
+ "branch": "广州",
+ "intervals": {
+  "1M": {
+   "total_days": 20,
+   "period_return": -0.03034210061475798,
+   "annual_return": null,
+   "volatility": 0.1945159006971332,
+   "max_drawdown": 0.05402142905086532,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": null,
+   "info_ratio": null,
+   "turnover": 0.2891593835915325,
+   "win_rate": null,
+   "excess_return": -0.043410197594431266
+  },
+  "3M": {
+   "total_days": 60,
+   "period_return": -0.10968033068915288,
+   "annual_return": null,
+   "volatility": 0.22858829350722407,
+   "max_drawdown": 0.14401656665006612,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": null,
+   "info_ratio": null,
+   "turnover": 0.2392059688722758,
+   "win_rate": null,
+   "excess_return": -0.04293679225334926
+  },
+  "6M": {
+   "total_days": 120,
+   "period_return": -0.14134542608353423,
+   "annual_return": -0.2738625694281541,
+   "volatility": 0.22759256372423545,
+   "max_drawdown": 0.23897193346276638,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": -1.613007580811557,
+   "info_ratio": -1.3100597763080033,
+   "turnover": 0.30481934062204796,
+   "win_rate": null,
+   "excess_return": -0.13305882747456746
+  },
+  "1Y": {
+   "total_days": 250,
+   "period_return": -0.021084327239490053,
+   "annual_return": -0.021251196806977624,
+   "volatility": 0.2470782149625597,
+   "max_drawdown": 0.2571716043571793,
+   "sharpe": -0.13943437632572378,
+   "calmar": -0.1339619002381352,
+   "sortino": -0.1280762729983833,
+   "info_ratio": -0.6197487502414835,
+   "turnover": 0.33797329950588123,
+   "win_rate": null,
+   "excess_return": -0.11789356314623159
+  },
+  "YTD": {
+   "total_days": 157,
+   "period_return": -0.15080969806550315,
+   "annual_return": -0.23078758812685185,
+   "volatility": 0.22733049131984936,
+   "max_drawdown": 0.23897193346276638,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": -1.4178203680357013,
+   "info_ratio": -1.0091204196538142,
+   "turnover": 0.315155749058556,
+   "win_rate": null,
+   "excess_return": -0.12779584612336975
+  },
+  "SINCE_INCEPTION": {
+   "total_days": 384,
+   "period_return": 0.08709503839035938,
+   "annual_return": 0.05633229065419232,
+   "volatility": 0.24500795044877421,
+   "max_drawdown": 0.2571716043571793,
+   "sharpe": null,
+   "calmar": null,
+   "sortino": 0.3290505642496032,
+   "info_ratio": -0.408750229527796,
+   "turnover": 0.3140795528304185,
+   "win_rate": null,
+   "excess_return": -0.1154472593528336
+  }
+ }
+}

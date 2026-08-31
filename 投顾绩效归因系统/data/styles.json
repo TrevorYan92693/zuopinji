@@ -1,0 +1,186 @@
+{
+ "as_of": "2026-08-28",
+ "dimensions": {
+  "risk": {
+   "均衡型": 6,
+   "进攻型": 6
+  },
+  "turnover": {
+   "低换手": 12
+  },
+  "style": {
+   "价值型": 3,
+   "成长型": 9
+  },
+  "mktcap": {
+   "大盘股": 10,
+   "中盘股": 2
+  },
+  "concentration": {
+   "集中投资": 11,
+   "分散投资": 1
+  },
+  "sector": {
+   "赛道型": 10,
+   "轮动型": 2
+  }
+ },
+ "portfolios": [
+  {
+   "inner_id": "组合01",
+   "portfolio": "价值蓝筹精选",
+   "advisor": "张伟",
+   "labels": {
+    "risk": "均衡型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "赛道型",
+    "style": "价值型",
+    "mktcap": "大盘股"
+   }
+  },
+  {
+   "inner_id": "组合02",
+   "portfolio": "科技成长先锋",
+   "advisor": "陈晓敏",
+   "labels": {
+    "risk": "进攻型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "赛道型",
+    "style": "成长型",
+    "mktcap": "大盘股"
+   }
+  },
+  {
+   "inner_id": "组合03",
+   "portfolio": "消费白马",
+   "advisor": "李国华",
+   "labels": {
+    "risk": "均衡型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "赛道型",
+    "style": "成长型",
+    "mktcap": "大盘股"
+   }
+  },
+  {
+   "inner_id": "组合04",
+   "portfolio": "医药创新",
+   "advisor": "王莉娜",
+   "labels": {
+    "risk": "进攻型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "赛道型",
+    "style": "成长型",
+    "mktcap": "中盘股"
+   }
+  },
+  {
+   "inner_id": "组合05",
+   "portfolio": "周期资源",
+   "advisor": "赵建国",
+   "labels": {
+    "risk": "进攻型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "赛道型",
+    "style": "价值型",
+    "mktcap": "大盘股"
+   }
+  },
+  {
+   "inner_id": "组合06",
+   "portfolio": "新能源崛起",
+   "advisor": "孙婷婷",
+   "labels": {
+    "risk": "进攻型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "赛道型",
+    "style": "成长型",
+    "mktcap": "大盘股"
+   }
+  },
+  {
+   "inner_id": "组合07",
+   "portfolio": "高端制造",
+   "advisor": "周志强",
+   "labels": {
+    "risk": "均衡型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "赛道型",
+    "style": "成长型",
+    "mktcap": "大盘股"
+   }
+  },
+  {
+   "inner_id": "组合08",
+   "portfolio": "红利低波",
+   "advisor": "吴明",
+   "labels": {
+    "risk": "均衡型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "轮动型",
+    "style": "价值型",
+    "mktcap": "大盘股"
+   }
+  },
+  {
+   "inner_id": "组合09",
+   "portfolio": "中小盘掘金",
+   "advisor": "郑海峰",
+   "labels": {
+    "risk": "进攻型",
+    "turnover": "低换手",
+    "concentration": "分散投资",
+    "sector": "赛道型",
+    "style": "成长型",
+    "mktcap": "中盘股"
+   }
+  },
+  {
+   "inner_id": "组合10",
+   "portfolio": "均衡配置",
+   "advisor": "黄雅琴",
+   "labels": {
+    "risk": "均衡型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "轮动型",
+    "style": "成长型",
+    "mktcap": "大盘股"
+   }
+  },
+  {
+   "inner_id": "组合11",
+   "portfolio": "半导体先锋",
+   "advisor": "刘志远",
+   "labels": {
+    "risk": "进攻型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "赛道型",
+    "style": "成长型",
+    "mktcap": "大盘股"
+   }
+  },
+  {
+   "inner_id": "组合12",
+   "portfolio": "人工智能成长",
+   "advisor": "陈嘉怡",
+   "labels": {
+    "risk": "均衡型",
+    "turnover": "低换手",
+    "concentration": "集中投资",
+    "sector": "赛道型",
+    "style": "成长型",
+    "mktcap": "大盘股"
+   }
+  }
+ ]
+}
