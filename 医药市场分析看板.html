@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>医药市场分析看板</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  :root{
+    --blue:#1668dc; --blue-deep:#0e4fa0; --blue-soft:#e8f1fd; --line:#d9e6f7;
+    --ink:#1f2d3d; --sub:#6b7b90; --green:#1a9e64; --red:#d94a4a; --bg:#eef4fb;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Microsoft YaHei",-apple-system,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+  header.topbar{background:linear-gradient(90deg,#0e4fa0,#2f7de0);color:#fff;padding:18px 24px;}
+  header.topbar h1{margin:0;font-size:20px;font-weight:600;letter-spacing:1px;}
+  header.topbar .sub{margin-top:6px;font-size:12px;opacity:.85;line-height:1.5;}
+  nav.tabs{display:flex;gap:8px;background:#fff;border-bottom:1px solid var(--line);padding:0 16px;flex-wrap:wrap;position:sticky;top:0;z-index:20;}
+  nav.tabs button{border:none;background:transparent;padding:13px 18px;font-size:14px;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;font-weight:500;}
+  nav.tabs button.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600;}
+  main{padding:18px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:18px;box-shadow:0 1px 4px rgba(22,104,220,.05);}
+  .card h2{margin:0 0 4px;font-size:16px;color:var(--blue-deep);}
+  .card .desc{margin:0 0 12px;font-size:12px;color:var(--sub);}
+  .card h3{font-size:14px;color:var(--blue-deep);margin:6px 0 8px;}
+  .subtab{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap;}
+  .subtab button{border:1px solid var(--line);background:#fff;padding:7px 16px;border-radius:18px;font-size:13px;color:var(--sub);cursor:pointer;}
+  .subtab button.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .scrollwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:8px;}
+  table{border-collapse:collapse;width:100%;white-space:nowrap;font-size:13px;background:#fff;}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:center;}
+  th{background:var(--blue-soft);color:var(--blue-deep);font-weight:600;}
+  thead th.lv0{font-size:12.5px;}
+  tr.row-region td{background:#f2f7ff;font-weight:700;}
+  tr.row-region td.col-name{color:var(--blue-deep);}
+  tr.row-total td{background:#e6effb;font-weight:800;color:var(--blue-deep);}
+  td.col-name{text-align:left;font-weight:600;color:var(--ink);}
+  tr.city-row td.col-name{padding-left:26px;font-weight:400;color:var(--sub);font-size:12.5px;}
+  td.spark{min-width:90px;}
+  .spark div{width:88px;height:34px;}
+  .num{font-variant-numeric:tabular-nums;}
+  .pos{color:var(--green);font-weight:600;}
+  .neg{color:var(--red);font-weight:600;}
+  .muted{color:#aebccd;}
+  .badge{display:inline-block;font-size:11px;color:var(--blue-deep);background:var(--blue-soft);border-radius:4px;padding:0 5px;margin-left:6px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .box2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .heatbox{height:420px;}
+  footer{font-size:12px;color:var(--sub);text-align:center;padding:18px;border-top:1px solid var(--line);background:#fff;line-height:1.6;}
+  @media(max-width:760px){.box2{grid-template-columns:1fr;} .card{padding:12px;} header.topbar h1{font-size:16px;}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>医药市场分析看板</h1>
+  <div class="sub">市场格局 · 机构保留 · 区域销售达成 ｜ 已按合规要求脱敏：隐藏销售代表姓名与销量绝对值，仅保留份额/率/占比等比率指标</div>
+</header>
+
+<nav class="tabs">
+  <button id="tab0" class="active" onclick="switchTab(0)">市场格局</button>
+  <button id="tab1" onclick="switchTab(1)">机构保留</button>
+  <button id="tab2" onclick="switchTab(2)">区域销售达成</button>
+</nav>
+
+<main>
+  <!-- ==================== Tab1 市场格局 ==================== -->
+  <section id="panel0" class="panel active">
+    <div class="card" id="m1_card">
+      <h2>美托洛尔缓释剂市场 · ZOK份额（2025Q3 城市维度）</h2>
+      <p class="desc">季度数据来源：quarter 字段 = 2024Q3→2025Q3；bu=BU市场份额；dbu=ZOK份额μ vsBU；中标品牌为其MS(wms%)；其他品牌为其MS(oms%)。</p>
+      <div class="scrollwrap"><table id="metro_tbl"></table></div>
+    </div>
+
+    <div class="card">
+      <h2>城市 × 品牌份额矩阵（%）</h2>
+      <p class="desc">多级表头：RC｜城市 ｜ 9大品牌各自市场份额%。按大区分组（北区/东区/中区）。</p>
+      <div class="scrollwrap"><table id="brand_tbl"></table></div>
+    </div>
+
+    <div class="card">
+      <h2>Class 市场份额</h2>
+      <p class="desc">clsrc=按大区汇总，clscity=按城市汇总。列含排名/同比增速/环比增速/Class/MS%/Δ同比/Δ环比/近5季趋势。</p>
+      <div class="box2">
+        <div><h3>按大区（BY RC）</h3><div class="scrollwrap"><table id="clsrc_tbl"></table></div></div>
+        <div><h3>按城市（BY City）</h3><div class="scrollwrap"><table id="clscity_tbl"></table></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2025Q3 城市 × 指标热力图</h2>
+      <p class="desc">4个指标 × 13城市。Beta Blocker MS%、美托洛尔 MS%(in BB)、比索洛尔 MS%(in BB)、比索洛尔 ΔMS%(YoY)。</p>
+      <div class="heatbox" id="heatmap"></div>
+    </div>
+  </section>
+
+  <!-- ==================== Tab2 机构保留 ==================== -->
+  <section id="panel1" class="panel">
+    <div class="card" id="m2_card">
+      <h2>机构保留报告</h2>
+      <p class="desc">ZOK保留报告（D2）与 Crestor保留报告（D3）。代表姓名已脱敏为“代表N”。保留率数值可 &gt;100（盒数留存率为倍数%），照原样显示。总计行加粗置顶。</p>
+      <div class="subtab">
+        <button class="active" onclick="switchKeep(0)">报告A · ZOK保留</button>
+        <button onclick="switchKeep(1)">报告B · Crestor保留</button>
+      </div>
+
+      <div id="repA" class="panel active">
+        <h3>ZOK 机构保留 · RC 层</h3>
+        <div class="scrollwrap"><table id="zok_rc_tbl"></table></div>
+        <h3>ZOK 机构保留 · 代表层（代表名已脱敏）</h3>
+        <div class="scrollwrap"><table id="zok_rep_tbl"></table></div>
+      </div>
+
+      <div id="repB" class="panel">
+        <h3>Crestor 机构保留 · RC 层</h3>
+        <div class="scrollwrap"><table id="cres_rc_tbl"></table></div>
+        <h3>Crestor 机构保留 · 代表层（代表名已脱敏）</h3>
+        <div class="scrollwrap"><table id="cres_rep_tbl"></table></div>
+      </div>
+
+      <p class="desc" style="margin-top:8px">注：ZOK报告（D2）列含上期/当期机构保留率(ra/rb)、BU保留率(bu)、▲vs上期(dpr)、▲vsBU(dbu)、盒数留存率上期(ba)/当期(bb)、▲盒数留存率(bx)；Crestor报告（D3）列含上期(pr)/当期(r3)/BU(bu)、▲vs上期(dpr)、▲vsBU(dbu)、当期盒数保留率(br)、▲盒数保留率(bx)。</p>
+    </div>
+  </section>
+
+  <!-- ==================== Tab3 区域销售达成 ==================== -->
+  <section id="panel2" class="panel">
+    <div class="card">
+      <h2>区域销售达成（DDI）</h2>
+      <p class="desc">两条业务线可切换。列=产品(Total/Crestor/ZOK/Brilinta/XZK)×(贡献con% / 达成at% / 同比yoy%)。达成&gt;100绿、&lt;100红；同比&gt;0绿、&lt;0红。合计行置顶加粗，大区总行加粗，其下属代表行缩进（代表名已脱敏）。</p>
+      <div class="subtab">
+        <button class="active" onclick="switchSubTab('ddi',0)">CHC 大医院</button>
+        <button onclick="switchSubTab('ddi',1)">BBU及县 县域</button>
+      </div>
+      <div id="sub_chc" class="panel active">
+        <h3>CHC（大医院）</h3>
+        <div class="scrollwrap"><table id="chc_tbl"></table></div>
+      </div>
+      <div id="sub_bbu" class="panel">
+        <h3>BBU及县（县域）</h3>
+        <div class="scrollwrap"><table id="bbu_tbl"></table></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>已按合规要求脱敏：隐藏代表姓名与销量绝对值，仅保留贡献/达成/同比等比率指标。<br>数据均内嵌于本文件，未调用外部数据接口。ECharts 由 CDN 加载。</footer>
+
+<script>
+/* ================= 内嵌数据 ================= */
+const D1 = {"quarters": ["2024Q3", "2024Q4", "2025Q1", "2025Q2", "2025Q3"], "metro": [{"name": "全国", "q3": 23.18, "city": false, "trend": [26.7, 25.6, 24.9, 23.8, 23.2], "bu": 26.1, "dbu": -2.9, "winner": null, "wms": null, "other": null, "oms": null}, {"name": "北区", "q3": 29.73, "city": false, "trend": [34.1, 30.2, 34.5, 30.7, 29.7], "bu": null, "dbu": null, "winner": null, "wms": null, "other": null, "oms": null}, {"name": "北京市", "q3": 30.75, "city": true, "trend": [36.9, 33.6, 32.5, 29.8, 30.7], "bu": 40.0, "dbu": -9.2, "winner": "联舒同", "wms": 68.2, "other": "杰醇", "oms": 1.0}, {"name": "天津市", "q3": 24.24, "city": true, "trend": [27.1, 21.4, 42.4, 35.5, 24.2], "bu": 21.6, "dbu": 2.7, "winner": "锐齐宁", "wms": 75.76, "other": null, "oms": null}, {"name": "东区", "q3": 33.62, "city": false, "trend": [34.5, 35.7, 34.1, 33.0, 33.6], "bu": null, "dbu": null, "winner": null, "wms": null, "other": null, "oms": null}, {"name": "福州市", "q3": 12.68, "city": true, "trend": [18.9, 16.4, 15.7, 12.1, 12.7], "bu": 12.7, "dbu": 0, "winner": "欣尼可", "wms": 87.28, "other": null, "oms": null}, {"name": "杭州市", "q3": 31.2, "city": true, "trend": [32.0, 33.8, 31.9, 27.9, 31.2], "bu": 31.2, "dbu": 0.0, "winner": "普美茵", "wms": 68.8, "other": null, "oms": null}, {"name": "宁波市", "q3": 29.39, "city": true, "trend": [30.9, 35.5, 27.9, 30.1, 29.4], "bu": 25.0, "dbu": 4.4, "winner": "普美茵", "wms": 70.61, "other": null, "oms": null}, {"name": "上海市", "q3": 42.31, "city": true, "trend": [42.6, 41.2, 44.4, 44.1, 42.3], "bu": 56.5, "dbu": -14.2, "winner": "锐齐宁", "wms": 57.62, "other": null, "oms": null}, {"name": "中区", "q3": 12.18, "city": false, "trend": [16.5, 14.1, 13.4, 13.2, 12.2], "bu": null, "dbu": null, "winner": null, "wms": null, "other": null, "oms": null}, {"name": "常州市", "q3": 19.18, "city": true, "trend": [9.3, 9.6, 13.2, 18.7, 19.2], "bu": 6.0, "dbu": 13.2, "winner": "联舒同", "wms": 79.37, "other": null, "oms": null}, {"name": "广州市", "q3": 14.96, "city": true, "trend": [21.7, 19.6, 18.7, 16.9, 15.0], "bu": 24.2, "dbu": -9.2, "winner": "联舒同", "wms": 85.04, "other": null, "oms": null}, {"name": "济南市", "q3": 11.23, "city": true, "trend": [18.9, 12.2, 16.9, 11.7, 11.2], "bu": 21.4, "dbu": -10.2, "winner": "杰醇", "wms": 85.61, "other": "联舒同", "oms": 2.08}, {"name": "南京市", "q3": 15.9, "city": true, "trend": [17.5, 16.1, 16.1, 17.5, 15.9], "bu": 28.9, "dbu": -13.0, "winner": "联舒同", "wms": 84.1, "other": null, "oms": null}, {"name": "青岛市", "q3": 9.25, "city": true, "trend": [19.9, 13.8, 9.5, 9.6, 9.3], "bu": 7.9, "dbu": 1.3, "winner": "杰醇", "wms": 89.31, "other": "联舒同", "oms": 1.43}, {"name": "苏州市", "q3": 11.51, "city": true, "trend": [14.9, 14.3, 12.7, 12.6, 11.5], "bu": 13.5, "dbu": -1.9, "winner": "联舒同", "wms": 86.71, "other": "杰醇", "oms": 0.66}, {"name": "无锡市", "q3": 2.34, "city": true, "trend": [3.7, 4.1, 2.9, 2.3, 2.3], "bu": 13.5, "dbu": -11.1, "winner": "联舒同", "wms": 92.93, "other": null, "oms": null}], "bnames": ["倍他乐克ZOK", "华美克", "杰醇", "联舒同", "琥珀酸美托洛尔缓释片", "琥珀酸美托洛尔缓释胶囊", "锐齐宁", "欣尼可", "普美茵"], "brand": [{"rc": "北区", "city": "北京市", "share": {"倍他乐克ZOK": 30.75, "华美克": 0.06, "杰醇": 1.0, "联舒同": 68.2, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 0, "欣尼可": 0, "普美茵": 0}}, {"rc": null, "city": "天津市", "share": {"倍他乐克ZOK": 24.24, "华美克": 0, "杰醇": 0, "联舒同": 0, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 75.76, "欣尼可": 0, "普美茵": 0}}, {"rc": "东区", "city": "福州市", "share": {"倍他乐克ZOK": 12.68, "华美克": 0, "杰醇": 0.04, "联舒同": 0, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 0, "欣尼可": 87.28, "普美茵": 0}}, {"rc": null, "city": "杭州市", "share": {"倍他乐克ZOK": 31.2, "华美克": 0, "杰醇": 0, "联舒同": 0, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 0, "欣尼可": 0, "普美茵": 68.8}}, {"rc": null, "city": "宁波市", "share": {"倍他乐克ZOK": 29.39, "华美克": 0, "杰醇": 0, "联舒同": 0, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 0, "欣尼可": 0, "普美茵": 70.61}}, {"rc": null, "city": "上海市", "share": {"倍他乐克ZOK": 42.31, "华美克": 0, "杰醇": 0, "联舒同": 0, "琥珀酸美托洛尔缓释片": 0.07, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 57.62, "欣尼可": 0, "普美茵": 0}}, {"rc": "中区", "city": "常州市", "share": {"倍他乐克ZOK": 19.18, "华美克": 0, "杰醇": 0.88, "联舒同": 79.37, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 0, "欣尼可": 0, "普美茵": 0.57}}, {"rc": null, "city": "广州市", "share": {"倍他乐克ZOK": 14.96, "华美克": 0, "杰醇": 0, "联舒同": 85.04, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 0, "欣尼可": 0, "普美茵": 0}}, {"rc": null, "city": "济南市", "share": {"倍他乐克ZOK": 11.23, "华美克": 0, "杰醇": 85.61, "联舒同": 2.08, "琥珀酸美托洛尔缓释片": 0.41, "琥珀酸美托洛尔缓释胶囊": 0.67, "锐齐宁": 0, "欣尼可": 0.0, "普美茵": 0}}, {"rc": null, "city": "南京市", "share": {"倍他乐克ZOK": 15.9, "华美克": 0, "杰醇": 0, "联舒同": 84.1, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 0, "欣尼可": 0, "普美茵": 0}}, {"rc": null, "city": "青岛市", "share": {"倍他乐克ZOK": 9.25, "华美克": 0, "杰醇": 89.31, "联舒同": 1.43, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 0, "欣尼可": 0, "普美茵": 0}}, {"rc": null, "city": "苏州市", "share": {"倍他乐克ZOK": 11.51, "华美克": 0, "杰醇": 0.66, "联舒同": 86.71, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0.03, "锐齐宁": 0, "欣尼可": 0, "普美茵": 1.1}}, {"rc": null, "city": "无锡市", "share": {"倍他乐克ZOK": 2.34, "华美克": 0, "杰醇": 1.15, "联舒同": 92.93, "琥珀酸美托洛尔缓释片": 0, "琥珀酸美托洛尔缓释胶囊": 0, "锐齐宁": 0, "欣尼可": 0, "普美茵": 3.59}}], "clsrc": [{"rank": 1, "yg": -5.8, "hg": 6.5, "cls": "CCB", "qms": 34.7, "dQ": -1.3, "dH": 0.4, "trend": [36.0, 35.7, 35.2, 34.3, 34.7]}, {"rank": 2, "yg": null, "hg": null, "cls": "FDC", "qms": 16.4, "dQ": 0.4, "dH": -0.5, "trend": [16.0, 16.0, 16.7, 16.9, 16.4]}, {"rank": 3, "yg": null, "hg": null, "cls": "ARB", "qms": 15.1, "dQ": 0.5, "dH": -0.1, "trend": [14.6, 15.1, 15.3, 15.2, 15.1]}, {"rank": 4, "yg": null, "hg": null, "cls": "Beta Blocker", "qms": 13.3, "dQ": 1.0, "dH": 0.2, "trend": [12.2, 12.7, 12.6, 13.1, 13.3]}, {"rank": 5, "yg": null, "hg": null, "cls": "ARNI", "qms": 12.8, "dQ": 0.1, "dH": 0.2, "trend": [12.7, 12.6, 12.5, 12.5, 12.8]}, {"rank": 6, "yg": null, "hg": null, "cls": "其他", "qms": 3.5, "dQ": -0.5, "dH": -0.0, "trend": [3.9, 3.6, 3.3, 3.5, 3.5]}, {"rank": 7, "yg": null, "hg": null, "cls": "利尿剂", "qms": 3.1, "dQ": -0.2, "dH": -0.2, "trend": [3.3, 3.2, 3.1, 3.3, 3.1]}, {"rank": 8, "yg": null, "hg": null, "cls": "ACE", "qms": 1.2, "dQ": -0.0, "dH": -0.0, "trend": [1.2, 1.2, 1.3, 1.2, 1.2]}], "clscity": [{"rank": 1, "yg": -3.3, "hg": 8.3, "cls": "CCB", "qms": 35.7, "dQ": -1.0, "dH": 0.4, "trend": [36.6, 37.4, 36.7, 35.3, 35.7]}, {"rank": 2, "yg": null, "hg": null, "cls": "ARB", "qms": 15.6, "dQ": 0.5, "dH": -0.4, "trend": [15.1, 15.8, 16.0, 16.0, 15.6]}, {"rank": 3, "yg": null, "hg": null, "cls": "FDC", "qms": 15.3, "dQ": 0.5, "dH": -0.3, "trend": [14.7, 14.7, 15.4, 15.5, 15.3]}, {"rank": 4, "yg": null, "hg": null, "cls": "ARNI", "qms": 12.8, "dQ": 0.2, "dH": 0.4, "trend": [12.6, 12.3, 12.2, 12.5, 12.8]}, {"rank": 5, "yg": null, "hg": null, "cls": "Beta Blocker", "qms": 12.7, "dQ": 0.8, "dH": 0.2, "trend": [11.9, 11.8, 11.7, 12.5, 12.7]}, {"rank": 6, "yg": null, "hg": null, "cls": "其他", "qms": 3.9, "dQ": -0.7, "dH": -0.1, "trend": [4.6, 4.1, 3.8, 4.0, 3.9]}, {"rank": 7, "yg": null, "hg": null, "cls": "利尿剂", "qms": 2.9, "dQ": -0.4, "dH": -0.2, "trend": [3.3, 2.8, 2.9, 3.1, 2.9]}, {"rank": 8, "yg": null, "hg": null, "cls": "ACE", "qms": 1.2, "dQ": -0.0, "dH": -0.0, "trend": [1.2, 1.2, 1.3, 1.2, 1.2]}], "hot_cities": ["北京市", "天津市", "福州市", "杭州市", "宁波市", "上海市", "常州市", "广州市", "济南市", "南京市", "青岛市", "苏州市", "无锡市"], "heat": {"Beta Blocker MS%": {"label": "Beta Blocker \nMS%", "vals": {"北京市": 16.16, "天津市": 14.76, "福州市": 11.86, "杭州市": 15.77, "宁波市": 13.79, "上海市": 12.71, "常州市": 8.79, "广州市": 16.58, "济南市": 12.37, "南京市": 10.94, "青岛市": 9.16, "苏州市": 11.69, "无锡市": 9.81}}, "美托洛尔 MS%(in BB)": {"label": "美托洛尔\nMS%(in BB)", "vals": {"北京市": 59.43, "天津市": 71.72, "福州市": 54.65, "杭州市": 73.03, "宁波市": 68.81, "上海市": 63.76, "常州市": 80.52, "广州市": 60.52, "济南市": 94.25, "南京市": 86.94, "青岛市": 84.77, "苏州市": 90.27, "无锡市": 81.66}}, "比索洛尔 MS%(in BB)": {"label": "比索洛尔\nMS%(in BB)", "vals": {"北京市": 34.05, "天津市": 25.16, "福州市": 37.47, "杭州市": 24.61, "宁波市": 29.13, "上海市": 27.79, "常州市": 12.08, "广州市": 37.47, "济南市": 4.33, "南京市": 11.24, "青岛市": 13.16, "苏州市": 6.35, "无锡市": 10.88}}, "比索洛尔 ΔMS%(YoY)": {"label": "比索洛尔 \nΔMS%(YoY)", "vals": {"北京市": 0.01, "天津市": 2.8, "福州市": 2.78, "杭州市": -1.04, "宁波市": 5.7, "上海市": 0.7, "常州市": 1.09, "广州市": 3.03, "济南市": -0.05, "南京市": 0.57, "青岛市": -1.21, "苏州市": -0.23, "无锡市": -1.55}}}};
+const D2 = {"rc": [{"rc": "总计", "ra": 70.0, "rb": 72.0, "bu": 60.8, "dpr": 2.0, "dbu": 11.2, "ba": 202.8, "bb": 267.9, "bx": 65.1}, {"rc": "CHC东区", "ra": 78.4, "rb": 80.5, "bu": 65.7, "dpr": 2.1, "dbu": 14.8, "ba": 262.5, "bb": 329.6, "bx": 67.1}, {"rc": "CHC中区", "ra": 61.9, "rb": 63.6, "bu": 57.3, "dpr": 1.7, "dbu": 6.3, "ba": 152.7, "bb": 237.6, "bx": 84.8}, {"rc": "CHC北京", "ra": 84.5, "rb": 87.3, "bu": 70.8, "dpr": 2.8, "dbu": 16.6, "ba": 195.9, "bb": 236.8, "bx": 40.8}], "rep": [{"rc": "CHC北京", "no": 1, "ra": 88.1, "rb": 88.1, "bu": 70.8, "dpr": 0, "dbu": 17.4, "ba": 208.2, "bb": 256.3, "bx": 48.1}, {"rc": "CHC北京", "no": 2, "ra": 79.9, "rb": 84.6, "bu": null, "dpr": 4.7, "dbu": 13.8, "ba": 195.5, "bb": 227.8, "bx": 32.4}, {"rc": "CHC北京", "no": 3, "ra": 86.7, "rb": 90.0, "bu": null, "dpr": 3.3, "dbu": 19.2, "ba": 183.8, "bb": 226.5, "bx": 42.7}, {"rc": "CHC东区", "no": 4, "ra": 83.3, "rb": 88.9, "bu": 60.9, "dpr": 5.6, "dbu": 28.0, "ba": 305.6, "bb": 458.7, "bx": 153.1}, {"rc": "CHC东区", "no": 5, "ra": 95.9, "rb": 98.0, "bu": null, "dpr": 2.0, "dbu": 37.1, "ba": 728.1, "bb": 1073.9, "bx": 345.8}, {"rc": "CHC东区", "no": 6, "ra": 76.4, "rb": 78.6, "bu": 46.5, "dpr": 2.2, "dbu": 32.1, "ba": 517.3, "bb": 564.4, "bx": 47.1}, {"rc": "CHC东区", "no": 7, "ra": 80.2, "rb": 80.2, "bu": 72.3, "dpr": 0, "dbu": 7.9, "ba": 120.6, "bb": 156.7, "bx": 36.2}, {"rc": "CHC东区", "no": 8, "ra": 74.7, "rb": 77.3, "bu": 81.0, "dpr": 2.6, "dbu": -3.8, "ba": 192.5, "bb": 243.4, "bx": 50.8}, {"rc": "CHC中区", "no": 9, "ra": 82.4, "rb": 80.3, "bu": 67.4, "dpr": -2.1, "dbu": 13.0, "ba": 177.1, "bb": 229.6, "bx": 52.5}, {"rc": "CHC中区", "no": 10, "ra": 64.8, "rb": 70.4, "bu": 61.0, "dpr": 5.7, "dbu": 9.4, "ba": 293.5, "bb": 427.2, "bx": 133.7}, {"rc": "CHC中区", "no": 11, "ra": 49.1, "rb": 52.1, "bu": 49.6, "dpr": 3.0, "dbu": 2.5, "ba": 215.6, "bb": 366.6, "bx": 151.0}, {"rc": "CHC中区", "no": 12, "ra": 74.1, "rb": 74.7, "bu": 65.0, "dpr": 0.6, "dbu": 9.6, "ba": 42.3, "bb": 69.4, "bx": 27.1}, {"rc": "CHC中区", "no": 13, "ra": 69.7, "rb": 67.7, "bu": 57.3, "dpr": -2.1, "dbu": 10.4, "ba": 446.0, "bb": 790.5, "bx": 344.5}, {"rc": "CHC中区", "no": 14, "ra": 56.8, "rb": 60.6, "bu": 55.1, "dpr": 3.8, "dbu": 5.5, "ba": 123.9, "bb": 168.2, "bx": 44.2}]};
+const D3 = {"rc": [{"rc": "总计", "pr": 72.2, "r3": 69.4, "bu": 70.9, "dpr": -2.8, "dbu": -1.5, "br": 167.5, "bx": -6.7}, {"rc": "CHC北京", "pr": 86.0, "r3": 85.5, "bu": 77.4, "dpr": -0.5, "dbu": 8.2, "br": 165.6, "bx": -7.1}, {"rc": "CHC东区", "pr": 80.6, "r3": 78.3, "bu": 72.4, "dpr": -2.3, "dbu": 6.0, "br": 225.5, "bx": -1.7}, {"rc": "CHC中区", "pr": 64.1, "r3": 60.7, "bu": 68.0, "dpr": -3.4, "dbu": -7.3, "br": 114.5, "bx": -11.0}], "rep": [{"rc": "CHC北京", "no": 1, "pr": 83.5, "r3": 88.1, "bu": 77.4, "dpr": 4.6, "dbu": 10.8, "br": 186.3, "bx": -7.9}, {"rc": "CHC北京", "no": 2, "pr": 85.2, "r3": 83.2, "bu": 0, "dpr": -2.0, "dbu": 83.2, "br": 158.7, "bx": -8.0}, {"rc": "CHC北京", "no": 3, "pr": 89.5, "r3": 85.8, "bu": 0, "dpr": -3.6, "dbu": 85.8, "br": 151.9, "bx": -5.2}, {"rc": "CHC东区", "no": 4, "pr": 79.5, "r3": 75.8, "bu": 55.6, "dpr": -3.8, "dbu": 20.2, "br": 376.7, "bx": -65.5}, {"rc": "CHC东区", "no": 5, "pr": 83.1, "r3": 88.6, "bu": 66.7, "dpr": 5.5, "dbu": 21.9, "br": 318.0, "bx": 53.7}, {"rc": "CHC东区", "no": 6, "pr": 96.4, "r3": 97.1, "bu": 0, "dpr": 0.6, "dbu": 97.1, "br": 717.4, "bx": 287.5}, {"rc": "CHC东区", "no": 7, "pr": 83.5, "r3": 78.0, "bu": 75.8, "dpr": -5.6, "dbu": 2.1, "br": 102.9, "bx": -6.7}, {"rc": "CHC东区", "no": 8, "pr": 77.2, "r3": 76.4, "bu": 82.8, "dpr": -0.8, "dbu": -6.5, "br": 178.5, "bx": -14.6}, {"rc": "CHC中区", "no": 9, "pr": 84.5, "r3": 76.2, "bu": 71.3, "dpr": -8.3, "dbu": 4.9, "br": 108.3, "bx": -35.8}, {"rc": "CHC中区", "no": 10, "pr": 64.9, "r3": 69.8, "bu": 72.0, "dpr": 4.9, "dbu": -2.2, "br": 212.9, "bx": 2.9}, {"rc": "CHC中区", "no": 11, "pr": 51.3, "r3": 48.8, "bu": 63.6, "dpr": -2.5, "dbu": -14.7, "br": 162.1, "bx": -25.9}, {"rc": "CHC中区", "no": 12, "pr": 80.0, "r3": 71.6, "bu": 68.5, "dpr": -8.4, "dbu": 3.1, "br": 35.5, "bx": 0.1}, {"rc": "CHC中区", "no": 13, "pr": 74.6, "r3": 67.2, "bu": 69.2, "dpr": -7.4, "dbu": -2.1, "br": 381.9, "bx": 8.3}, {"rc": "CHC中区", "no": 14, "pr": 58.4, "r3": 55.9, "bu": 68.1, "dpr": -2.5, "dbu": -12.2, "br": 94.1, "bx": -9.1}]};
+const D4 = {"products": ["Total", "Crestor", "ZOK", "Brilinta", "XZK"], "chc": [{"rc": "CHC北区", "region": "North Total", "item": true, "kids": [{"rc": "", "region": "北京心血管社区1大区", "rep": "代表1", "kids": null, "prod": {"Total": {"con": 13.2, "at": 103.2, "yoy": 5.3}, "Crestor": {"con": 15.9, "at": 115.5, "yoy": 35.9}, "ZOK": {"con": 6.1, "at": 73.9, "yoy": -14.7}, "Brilinta": {"con": 7.8, "at": 111.4, "yoy": 48.4}, "XZK": {"con": 14.0, "at": 87.9, "yoy": -37.9}}}, {"rc": "", "region": "北京心血管社区2大区", "rep": "代表2", "kids": null, "prod": {"Total": {"con": 11.1, "at": 97.7, "yoy": -5.4}, "Crestor": {"con": 13.2, "at": 109.4, "yoy": 16.8}, "ZOK": {"con": 5.1, "at": 70.9, "yoy": -18.0}, "Brilinta": {"con": 7.0, "at": 75.1, "yoy": -16.4}, "XZK": {"con": 12.5, "at": 85.6, "yoy": -38.5}}}, {"rc": "", "region": "津辽吉综合大区", "rep": "代表3", "kids": null, "prod": {"Total": {"con": 12.3, "at": 104.8, "yoy": 31.4}, "Crestor": {"con": 13.1, "at": 111.1, "yoy": 65.1}, "ZOK": {"con": 11.5, "at": 104.2, "yoy": 31.8}, "Brilinta": {"con": 34.4, "at": 89.5, "yoy": 3.6}, "XZK": {"con": 7.4, "at": 88.6, "yoy": -32.7}}}, {"rc": "", "region": "西区综合社区大区", "rep": "代表4", "kids": null, "prod": {"Total": {"con": 7.0, "at": 113.1, "yoy": 2.1}, "Crestor": {"con": 6.9, "at": 126.9, "yoy": 11.6}, "ZOK": {"con": 8.6, "at": 110.7, "yoy": 43.7}, "Brilinta": {"con": 3.7, "at": 57.5, "yoy": -33.0}, "XZK": {"con": 5.7, "at": 88.3, "yoy": -43.1}}}], "prod": {"Total": {"con": 43.6, "at": 103.6, "yoy": 7.7}, "Crestor": {"con": 49.1, "at": 114.0, "yoy": 32.3}, "ZOK": {"con": 31.4, "at": 91.3, "yoy": 11.4}, "Brilinta": {"con": 52.9, "at": 86.4, "yoy": 1.1}, "XZK": {"con": 39.6, "at": 87.3, "yoy": -38.0}}}, {"rc": "CHC东区", "region": "East Total", "item": true, "kids": [{"rc": "", "region": "上海综合社区1大区", "rep": "代表5", "kids": null, "prod": {"Total": {"con": 5.1, "at": 113.7, "yoy": 6.3}, "Crestor": {"con": 5.0, "at": 153.4, "yoy": 69.3}, "ZOK": {"con": 4.6, "at": 90.8, "yoy": -5.1}, "Brilinta": {"con": 7.4, "at": 98.9, "yoy": 18.0}, "XZK": {"con": 5.4, "at": 77.7, "yoy": -46.2}}}, {"rc": "", "region": "上海综合社区2大区", "rep": "代表6", "kids": null, "prod": {"Total": {"con": 5.4, "at": 109.7, "yoy": 2.2}, "Crestor": {"con": 5.5, "at": 135.9, "yoy": 59.0}, "ZOK": {"con": 4.3, "at": 107.0, "yoy": 13.4}, "Brilinta": {"con": 8.0, "at": 95.9, "yoy": 6.2}, "XZK": {"con": 6.2, "at": 74.1, "yoy": -50.6}}}, {"rc": "", "region": "浙南综合社区", "rep": "代表7", "kids": null, "prod": {"Total": {"con": 9.5, "at": 117.4, "yoy": 20.4}, "Crestor": {"con": 10.4, "at": 126.6, "yoy": 41.8}, "ZOK": {"con": 12.6, "at": 112.6, "yoy": 22.0}, "Brilinta": {"con": 2.2, "at": 91.7, "yoy": 20.4}, "XZK": {"con": 3.9, "at": 82.6, "yoy": -48.0}}}, {"rc": "", "region": "福建综合社区大区", "rep": "代表8", "kids": null, "prod": {"Total": {"con": 2.4, "at": 110.8, "yoy": 11.7}, "Crestor": {"con": 1.9, "at": 124.2, "yoy": 33.3}, "ZOK": {"con": 4.1, "at": 118.8, "yoy": 41.6}, "Brilinta": {"con": 0.6, "at": 74.5, "yoy": 7.6}, "XZK": {"con": 2.0, "at": 75.3, "yoy": -44.4}}}, {"rc": "", "region": "浙北综合社区", "rep": "代表9", "kids": null, "prod": {"Total": {"con": 7.2, "at": 104.0, "yoy": 3.7}, "Crestor": {"con": 6.4, "at": 108.6, "yoy": 14.5}, "ZOK": {"con": 12.7, "at": 104.2, "yoy": 7.6}, "Brilinta": {"con": 2.5, "at": 81.0, "yoy": -29.1}, "XZK": {"con": 3.6, "at": 85.5, "yoy": -36.4}}}], "prod": {"Total": {"con": 29.5, "at": 111.3, "yoy": 9.4}, "Crestor": {"con": 29.3, "at": 127.3, "yoy": 40.7}, "ZOK": {"con": 38.4, "at": 106.6, "yoy": 13.7}, "Brilinta": {"con": 20.6, "at": 93.6, "yoy": 5.0}, "XZK": {"con": 21.1, "at": 78.4, "yoy": -46.4}}}, {"rc": "CHC中区", "region": "Central Total", "item": true, "kids": [{"rc": "", "region": "广东综合社区一大区", "rep": "代表10", "kids": null, "prod": {"Total": {"con": 2.5, "at": 94.7, "yoy": -11.9}, "Crestor": {"con": 1.6, "at": 120.0, "yoy": 55.5}, "ZOK": {"con": 1.7, "at": 80.1, "yoy": -22.8}, "Brilinta": {"con": 0.8, "at": 196.4, "yoy": 257.5}, "XZK": {"con": 6.3, "at": 84.7, "yoy": -32.9}}}, {"rc": "", "region": "广东综合社区二大区", "rep": "代表11", "kids": null, "prod": {"Total": {"con": 3.8, "at": 88.2, "yoy": -9.6}, "Crestor": {"con": 3.4, "at": 104.7, "yoy": 23.7}, "ZOK": {"con": 4.0, "at": 84.1, "yoy": -8.1}, "Brilinta": {"con": 1.1, "at": 82.7, "yoy": -3.2}, "XZK": {"con": 4.9, "at": 67.9, "yoy": -43.8}}}, {"rc": "", "region": "江苏综合社区1大区", "rep": "代表12", "kids": null, "prod": {"Total": {"con": 5.7, "at": 102.5, "yoy": 23.1}, "Crestor": {"con": 4.3, "at": 129.1, "yoy": 84.5}, "ZOK": {"con": 7.1, "at": 92.5, "yoy": 37.9}, "Brilinta": {"con": 6.2, "at": 97.0, "yoy": 55.3}, "XZK": {"con": 8.1, "at": 84.0, "yoy": -26.6}}}, {"rc": "", "region": "江苏综合社区2大区", "rep": "代表13", "kids": null, "prod": {"Total": {"con": 4.7, "at": 92.9, "yoy": -19.4}, "Crestor": {"con": 3.9, "at": 116.5, "yoy": 5.4}, "ZOK": {"con": 5.2, "at": 84.7, "yoy": 2.1}, "Brilinta": {"con": 9.9, "at": 67.0, "yoy": -14.3}, "XZK": {"con": 5.9, "at": 76.2, "yoy": -52.8}}}, {"rc": "", "region": "山东河南综合社区大区", "rep": "代表14", "kids": null, "prod": {"Total": {"con": 6.3, "at": 82.2, "yoy": -6.3}, "Crestor": {"con": 5.8, "at": 91.2, "yoy": 24.5}, "ZOK": {"con": 6.9, "at": 69.5, "yoy": -7.2}, "Brilinta": {"con": 5.8, "at": 59.0, "yoy": -13.7}, "XZK": {"con": 7.3, "at": 82.4, "yoy": -40.8}}}, {"rc": "", "region": "江苏心血管综合社区大区", "rep": "代表15", "kids": null, "prod": {"Total": {"con": 3.9, "at": 102.5, "yoy": -8.5}, "Crestor": {"con": 2.6, "at": 138.9, "yoy": 55.6}, "ZOK": {"con": 5.3, "at": 102.4, "yoy": 4.2}, "Brilinta": {"con": 2.7, "at": 99.5, "yoy": 22.7}, "XZK": {"con": 6.7, "at": 78.3, "yoy": -43.5}}}], "prod": {"Total": {"con": 26.9, "at": 92.6, "yoy": -5.6}, "Crestor": {"con": 21.6, "at": 110.8, "yoy": 33.9}, "ZOK": {"con": 30.2, "at": 84.4, "yoy": 3.0}, "Brilinta": {"con": 26.4, "at": 74.6, "yoy": 2.4}, "XZK": {"con": 39.3, "at": 79.3, "yoy": -40.5}}}, {"rc": "", "region": "Total", "item": true, "kids": [], "prod": {"Total": {"con": 100, "at": 102.5, "yoy": 4.2}, "Crestor": {"con": 100, "at": 116.9, "yoy": 35.0}, "ZOK": {"con": 100, "at": 94.2, "yoy": 9.6}, "Brilinta": {"con": 100, "at": 84.2, "yoy": 2.2}, "XZK": {"con": 100, "at": 82.1, "yoy": -40.9}}}], "bbu": [{"rc": "BBU及县北区大区中心", "region": "North Total", "item": true, "kids": [{"rc": "", "region": "BBU及县山西大区", "rep": "代表1", "kids": null, "prod": {"Total": {"con": 6.7, "at": 74.9, "yoy": 4.1}, "Crestor": {"con": 8.2, "at": 72.8, "yoy": 7.5}, "ZOK": {"con": 5.2, "at": 88.2, "yoy": -8.6}, "Brilinta": {"con": 4.8, "at": 72.9, "yoy": 35.1}, "XZK": {"con": 4.5, "at": 70.5, "yoy": -29.5}}}, {"rc": "", "region": "BBU及县蒙黑吉辽大区", "rep": "代表2", "kids": null, "prod": {"Total": {"con": 7.1, "at": 80.2, "yoy": 7.5}, "Crestor": {"con": 9.0, "at": 93.1, "yoy": 45.7}, "ZOK": {"con": 5.6, "at": 85.6, "yoy": 0.4}, "Brilinta": {"con": 4.0, "at": 39.9, "yoy": -48.8}, "XZK": {"con": 5.8, "at": 77.5, "yoy": -40.0}}}, {"rc": "", "region": "BBU及县河北大区", "rep": "代表3", "kids": null, "prod": {"Total": {"con": 4.6, "at": 61.8, "yoy": -26.8}, "Crestor": {"con": 3.1, "at": 52.9, "yoy": -16.9}, "ZOK": {"con": 3.1, "at": 66.6, "yoy": -5.2}, "Brilinta": {"con": 6.3, "at": 75.1, "yoy": 23.0}, "XZK": {"con": 14.3, "at": 63.8, "yoy": -56.4}}}, {"rc": "", "region": "BBU及县陕甘大区", "rep": "代表4", "kids": null, "prod": {"Total": {"con": 6.0, "at": 93.7, "yoy": 18.9}, "Crestor": {"con": 6.3, "at": 96.8, "yoy": 34.4}, "ZOK": {"con": 6.7, "at": 102.0, "yoy": -1.3}, "Brilinta": {"con": 5.7, "at": 74.1, "yoy": 14.9}, "XZK": {"con": 3.1, "at": 114.7, "yoy": -4.1}}}], "prod": {"Total": {"con": 24.4, "at": 77.1, "yoy": 0.1}, "Crestor": {"con": 26.7, "at": 79.9, "yoy": 19.6}, "ZOK": {"con": 20.6, "at": 87.1, "yoy": -3.4}, "Brilinta": {"con": 20.8, "at": 63.6, "yoy": -3.1}, "XZK": {"con": 27.7, "at": 71.0, "yoy": -46.8}}}, {"rc": "BBU及县东区大区中心", "region": "East Total", "item": true, "kids": [{"rc": "", "region": "BBU及县安徽一区", "rep": "代表5", "kids": null, "prod": {"Total": {"con": 3.2, "at": 88.9, "yoy": 8.6}, "Crestor": {"con": 1.9, "at": 77.2, "yoy": -1.6}, "ZOK": {"con": 4.8, "at": 103.5, "yoy": 53.2}, "Brilinta": {"con": 3.3, "at": 151.2, "yoy": 100.7}, "XZK": {"con": 6.7, "at": 62.6, "yoy": -40.9}}}, {"rc": "", "region": "BBU及县安徽二区", "rep": "代表6", "kids": null, "prod": {"Total": {"con": 3.3, "at": 81.5, "yoy": -5.3}, "Crestor": {"con": 2.5, "at": 97.8, "yoy": 14.2}, "ZOK": {"con": 3.3, "at": 78.2, "yoy": 10.7}, "Brilinta": {"con": 5.4, "at": 84.2, "yoy": -9.3}, "XZK": {"con": 3.8, "at": 47.7, "yoy": -50.6}}}, {"rc": "", "region": "BBU及县安徽三区", "rep": "代表7", "kids": null, "prod": {"Total": {"con": 4.9, "at": 92.5, "yoy": -4.7}, "Crestor": {"con": 5.4, "at": 109.1, "yoy": 42.8}, "ZOK": {"con": 5.7, "at": 81.4, "yoy": -14.3}, "Brilinta": {"con": 2.9, "at": 81.1, "yoy": -36.2}, "XZK": {"con": 4.5, "at": 60.1, "yoy": -62.2}}}, {"rc": "", "region": "BBU及县江西一区", "rep": "代表8", "kids": null, "prod": {"Total": {"con": 1.2, "at": 82.6, "yoy": -24.1}, "Crestor": {"con": 0.5, "at": 147.5, "yoy": 88.7}, "ZOK": {"con": 1.7, "at": 74.0, "yoy": -39.2}, "Brilinta": {"con": 1.8, "at": 78.6, "yoy": -31.3}, "XZK": {"con": 2.9, "at": 65.6, "yoy": -35.3}}}, {"rc": "", "region": "BBU及县江西二区", "rep": "代表9", "kids": null, "prod": {"Total": {"con": 0.8, "at": 65.8, "yoy": -40.9}, "Crestor": {"con": 0.2, "at": 80.4, "yoy": -20.6}, "ZOK": {"con": 2.3, "at": 73.8, "yoy": -42.5}, "Brilinta": {"con": 0.5, "at": 37.8, "yoy": -48.2}, "XZK": {"con": 1.5, "at": 62.3, "yoy": -41.7}}}], "prod": {"Total": {"con": 13.4, "at": 85.8, "yoy": -7.6}, "Crestor": {"con": 10.5, "at": 99.5, "yoy": 24.7}, "ZOK": {"con": 17.8, "at": 83.7, "yoy": -8.8}, "Brilinta": {"con": 13.8, "at": 88.2, "yoy": -11.5}, "XZK": {"con": 19.4, "at": 58.8, "yoy": -48.9}}}, {"rc": "BBU及县南区大区中心", "region": "South Total", "item": true, "kids": [{"rc": "", "region": "BBU及县贵州大区", "rep": "代表10", "kids": null, "prod": {"Total": {"con": 0.4, "at": 38.3, "yoy": -47.5}, "Crestor": {"con": 0.1, "at": 18.6, "yoy": -66.1}, "ZOK": {"con": 0.5, "at": 40.4, "yoy": -61.8}, "Brilinta": {"con": 0.2, "at": 75.0, "yoy": 153.6}, "XZK": {"con": 1.9, "at": 55.7, "yoy": -24.7}}}, {"rc": "", "region": "BBU及县云南一区", "rep": "代表11", "kids": null, "prod": {"Total": {"con": 2.7, "at": 80.5, "yoy": 3.7}, "Crestor": {"con": 1.9, "at": 76.8, "yoy": -15.0}, "ZOK": {"con": 2.7, "at": 63.9, "yoy": 8.5}, "Brilinta": {"con": 5.2, "at": 108.7, "yoy": 62.0}, "XZK": {"con": 2.2, "at": 65.3, "yoy": -40.6}}}, {"rc": "", "region": "BBU及县云南二区", "rep": "代表12", "kids": null, "prod": {"Total": {"con": 3.0, "at": 56.2, "yoy": -20.8}, "Crestor": {"con": 1.6, "at": 50.1, "yoy": -4.0}, "ZOK": {"con": 4.9, "at": 59.5, "yoy": -10.0}, "Brilinta": {"con": 3.9, "at": 53.5, "yoy": -30.0}, "XZK": {"con": 4.7, "at": 70.9, "yoy": -45.8}}}, {"rc": "", "region": "BBU及县广西一区", "rep": "代表13", "kids": null, "prod": {"Total": {"con": 0.7, "at": 56.9, "yoy": -41.2}, "Crestor": {"con": 0.1, "at": 50.2, "yoy": 35.3}, "ZOK": {"con": 0.5, "at": 50.7, "yoy": 13.7}, "Brilinta": {"con": 0.6, "at": 54.6, "yoy": -0.0}, "XZK": {"con": 5.1, "at": 60.4, "yoy": -54.7}}}], "prod": {"Total": {"con": 6.7, "at": 62.2, "yoy": -18.3}, "Crestor": {"con": 3.7, "at": 56.8, "yoy": -14.4}, "ZOK": {"con": 8.5, "at": 58.7, "yoy": -11.1}, "Brilinta": {"con": 9.9, "at": 73.5, "yoy": 4.3}, "XZK": {"con": 13.9, "at": 63.6, "yoy": -46.8}}}, {"rc": "BBU及县西区大区中心", "region": "West Total", "item": true, "kids": [{"rc": "", "region": "BBU及县湖南一区", "rep": "代表14", "kids": null, "prod": {"Total": {"con": 1.6, "at": 66.2, "yoy": -8.6}, "Crestor": {"con": 0.9, "at": 66.0, "yoy": 21.3}, "ZOK": {"con": 2.9, "at": 65.7, "yoy": -17.5}, "Brilinta": {"con": 1.9, "at": 88.0, "yoy": 195.6}, "XZK": {"con": 1.8, "at": 44.0, "yoy": -68.4}}}, {"rc": "", "region": "BBU及县湖南二区", "rep": "代表15", "kids": null, "prod": {"Total": {"con": 2.1, "at": 74.0, "yoy": 9.4}, "Crestor": {"con": 1.2, "at": 92.6, "yoy": 72.5}, "ZOK": {"con": 3.7, "at": 56.0, "yoy": -1.2}, "Brilinta": {"con": 0.9, "at": 76.6, "yoy": 4.3}, "XZK": {"con": 6.1, "at": 96.9, "yoy": -14.0}}}, {"rc": "", "region": "BBU及县四川一区", "rep": "代表16", "kids": null, "prod": {"Total": {"con": 1.2, "at": 103.4, "yoy": 14.8}, "Crestor": {"con": 0.6, "at": 84.9, "yoy": 16.9}, "ZOK": {"con": 1.8, "at": 127.2, "yoy": 330.0}, "Brilinta": {"con": 0.4, "at": 99.6, "yoy": -43.0}, "XZK": {"con": 4.7, "at": 103.9, "yoy": -26.7}}}, {"rc": "", "region": "BBU及县四川二区", "rep": "代表17", "kids": null, "prod": {"Total": {"con": 1.2, "at": 95.4, "yoy": -13.5}, "Crestor": {"con": 0.6, "at": 110.3, "yoy": -16.8}, "ZOK": {"con": 2.3, "at": 88.5, "yoy": -17.1}, "Brilinta": {"con": 0.8, "at": 115.9, "yoy": 4.3}, "XZK": {"con": 3.0, "at": 84.7, "yoy": -9.4}}}], "prod": {"Total": {"con": 6.1, "at": 79.6, "yoy": -0.1}, "Crestor": {"con": 3.4, "at": 84.2, "yoy": 22.7}, "ZOK": {"con": 10.7, "at": 71.4, "yoy": 2.7}, "Brilinta": {"con": 4.0, "at": 90.4, "yoy": 32.9}, "XZK": {"con": 15.7, "at": 84.5, "yoy": -30.8}}}, {"rc": "BBU及县中区大区中心", "region": "Central Total", "item": true, "kids": [{"rc": "", "region": "BBU及县湖北一区", "rep": "代表18", "kids": null, "prod": {"Total": {"con": 4.9, "at": 89.3, "yoy": 17.2}, "Crestor": {"con": 4.8, "at": 97.6, "yoy": 37.6}, "ZOK": {"con": 7.1, "at": 103.3, "yoy": 36.4}, "Brilinta": {"con": 3.6, "at": 55.7, "yoy": -30.1}, "XZK": {"con": 2.3, "at": 76.1, "yoy": -34.6}}}, {"rc": "", "region": "BBU及县湖北二区", "rep": "代表19", "kids": null, "prod": {"Total": {"con": 9.8, "at": 89.8, "yoy": 18.8}, "Crestor": {"con": 9.6, "at": 98.9, "yoy": 38.9}, "ZOK": {"con": 12.3, "at": 72.8, "yoy": 14.7}, "Brilinta": {"con": 10.4, "at": 95.9, "yoy": -0.6}, "XZK": {"con": 3.3, "at": 99.8, "yoy": -42.6}}}, {"rc": "", "region": "BBU及县河南一区", "rep": "代表20", "kids": null, "prod": {"Total": {"con": 26.6, "at": 91.8, "yoy": 18.5}, "Crestor": {"con": 31.3, "at": 100.6, "yoy": 38.2}, "ZOK": {"con": 19.4, "at": 91.5, "yoy": 28.8}, "Brilinta": {"con": 27.6, "at": 77.0, "yoy": -16.5}, "XZK": {"con": 13.9, "at": 64.9, "yoy": -23.9}}}, {"rc": "", "region": "BBU及县 河南二区", "rep": "代表21", "kids": null, "prod": {"Total": {"con": 1.2, "at": 62.3, "yoy": -5.4}, "Crestor": {"con": 1.3, "at": 59.4, "yoy": 5.5}, "ZOK": {"con": 0.7, "at": 60.8, "yoy": 7.0}, "Brilinta": {"con": 1.0, "at": 56.3, "yoy": -24.4}, "XZK": {"con": 2.1, "at": 92.8, "yoy": -25.1}}}, {"rc": "", "region": "BBU及县河南三区", "rep": "代表22", "kids": null, "prod": {"Total": {"con": 6.9, "at": 91.9, "yoy": 2.0}, "Crestor": {"con": 8.6, "at": 103.9, "yoy": 32.2}, "ZOK": {"con": 3.0, "at": 61.3, "yoy": -39.2}, "Brilinta": {"con": 8.9, "at": 96.5, "yoy": -6.7}, "XZK": {"con": 1.7, "at": 30.3, "yoy": -76.2}}}], "prod": {"Total": {"con": 49.4, "at": 90.1, "yoy": 15.1}, "Crestor": {"con": 55.6, "at": 98.9, "yoy": 36.3}, "ZOK": {"con": 42.4, "at": 83.3, "yoy": 16.2}, "Brilinta": {"con": 51.4, "at": 80.3, "yoy": -13.5}, "XZK": {"con": 23.4, "at": 65.4, "yoy": -38.0}}}, {"rc": "", "region": "Total", "item": true, "kids": [], "prod": {"Total": {"con": 100, "at": 83.0, "yoy": 4.1}, "Crestor": {"con": 100, "at": 90.2, "yoy": 27.1}, "ZOK": {"con": 100, "at": 79.8, "yoy": 2.8}, "Brilinta": {"con": 100, "at": 76.6, "yoy": -8.4}, "XZK": {"con": 100, "at": 67.5, "yoy": -43.3}}}]};
+
+/* ================= 工具函数 ================= */
+function fmt(n, dp){ if(n===null||n===undefined||n==="") return '<span class="muted">—</span>'; return Number(n).toFixed(dp); }
+function num(n, dp){ return (n===null||n===undefined) ? "—" : Number(n).toFixed(dp); }
+function sign(n, dp){ if(n===null||n===undefined) return "—"; var v=Number(n); return (v>0?"+":"") + v.toFixed(dp); }
+/* 趋势微迁单元格 */
+
+/* ================= Tab1 ================= */
+function colorCls(v){ // Δ类色
+  if(v>0)return '<span class="pos">+'+v.toFixed(1)+'</span>';
+  if(v<0)return '<span class="neg">'+v.toFixed(1)+'</span>';
+  return v.toFixed(1);
+}
+
+function renderMetro(){
+  const t=document.getElementById('metro_tbl');
+  let h='<thead><tr><th class="lv0">RC / 城市</th><th class="lv0">25Q3份额<br>(q3%)</th><th class="lv0">近5季趋势</th><th class="lv0">BU份额<br>(bu%)</th><th class="lv0">ΔvsBU<br>(dbu%)</th><th class="lv0">中标品牌(winner) + MS(wms%)</th><th class="lv0">其他品牌(other) + MS(oms%)</th></tr></thead><tbody>';
+  D1.metro.forEach(function(m){
+    const rowCls = m.name==="全国" ? 'row-total' : (m.city===false ? 'row-region' : 'city-row');
+    const nameCol = m.city===false ? '<td class="col-name">'+m.name+'</td>' : '<td class="col-name">'+m.name+'</td>';
+    h+='<tr class="'+rowCls+'">'+nameCol;
+    h+='<td class="num">'+num(m.q3,2)+'</td>';
+    h+='<td class="spark"><div data-trend="'+JSON.stringify(m.trend)+'"></div></td>';
+    h+='<td class="num">'+(m.bu==null?'—':m.bu.toFixed(1))+'</td>';
+    h+='<td class="num">'+(m.dbu==null?'—':colorSigned(m.dbu,1))+'</td>';
+    let w = m.winner ? m.winner + '<span class="badge">'+m.wms.toFixed(2)+'%</span>' : '—';
+    let o = m.other ? m.other + '<span class="badge">'+m.oms.toFixed(2)+'%</span>' : '—';
+    h+='<td>'+w+'</td><td>'+o+'</td></tr>';
+  });
+  h+='</tbody>';
+  t.innerHTML=h;
+}
+function colorSigned(v,dp){
+  var c = v>0?'pos':(v<0?'neg':'');
+  var s = v>0?'+':'';
+  return '<span class="'+c+'">'+s+v.toFixed(dp)+'</span>';
+}
+
+function renderBrand(){
+  const t=document.getElementById('brand_tbl');
+  let h='<thead><tr><th class="lv0">RC</th><th class="lv0">城市</th>';
+  D1.bnames.forEach(function(b){ h+='<th class="lv0">'+b+'<br>(份额%)</th>'; });
+  h+='</tr></thead><tbody>';
+  // 计算每个大区分组（北区/东区/中区）的行数，用于 rowspan
+  let group=null, groupSpan={};
+  D1.brand.forEach(function(b){
+    if(b.rc){ group=b.rc; groupSpan[b.rc]=(groupSpan[b.rc]||0)+1; }
+    else { groupSpan[group]=(groupSpan[group]||0)+1; }
+  });
+  let cur=null;
+  D1.brand.forEach(function(b){
+    h+='<tr>';
+    if(b.rc){ cur=b.rc; h+='<td class="col-name" rowspan="'+groupSpan[b.rc]+'">'+b.rc+'</td>'; }
+    h+='<td class="col-name">'+b.city+'</td>';
+    D1.bnames.forEach(function(bn){
+      const v=b.share[bn];
+      h+='<td class="num">'+(v===0?'0.00':v.toFixed(2))+'</td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody>';
+  t.innerHTML=h;
+}
+
+function renderClass(kind){
+  const data = kind==='clsrc'?D1.clsrc:D1.clscity;
+  const t=document.getElementById(kind+'_tbl');
+  let h='<thead><tr><th>排名</th><th>同比增速(yg%)</th><th>环比增速(hg%)</th><th>Class(cls)</th><th>MS%(qms)</th><th>Δ同比(dQ)</th><th>Δ环比(dH)</th><th>近5季趋势</th></tr></thead><tbody>';
+  data.forEach(function(r){
+    h+='<tr><td>'+r.rank+'</td>';
+    h+='<td class="num">'+(r.yg==null?'—':colorSigned(r.yg,1))+'</td>';
+    h+='<td class="num">'+(r.hg==null?'—':colorSigned(r.hg,1))+'</td>';
+    h+='<td class="col-name" style="text-align:center">'+r.cls+'</td>';
+    h+='<td class="num">'+r.qms.toFixed(1)+'</td>';
+    h+='<td class="num">'+colorSigned(r.dQ,1)+'</td>';
+    h+='<td class="num">'+colorSigned(r.dH,1)+'</td>';
+    h+='<td class="spark"><div data-trend="'+JSON.stringify(r.trend)+'"></div></td></tr>';
+  });
+  h+='</tbody>';
+  t.innerHTML=h;
+}
+
+function renderHeat(){
+  if(renderHeat._done) return; renderHeat._done=true;
+  const keys=Object.keys(D1.heat);
+  const cities=D1.hot_cities;
+  const vals=[];
+  for(let c=0;c<cities.length;c++){
+    for(let k=0;k<keys.length;k++){
+      vals.push([c,k, D1.heat[keys[k]].vals[cities[c]]]);
+    }
+  }
+  const ck=document.getElementById('heatmap');
+  const chart=echarts.init(ck);
+  chart.setOption({
+    tooltip:{position:'top', formatter:function(p){ return cities[p.value[0]]+' · '+D1.heat[keys[p.value[1]]].label.replace(/\n/g,' ')+'<br>'+'<b>'+p.value[2]+'</b>'; }},
+    grid:{left:110,right:40,top:20,bottom:50},
+    xAxis:{type:'category',data:cities,splitArea:{show:true},axisLabel:{rotate:45,interval:0,fontSize:11}},
+    yAxis:{type:'category',data:keys.map(function(k){return D1.heat[k].label;}),splitArea:{show:true}},
+    visualMap:{min:-5,max:95,calculable:true,orient:'vertical',right:8,top:'center',inRange:{color:['#dbeafe','#7ab3f0','#1668dc','#0e3a75']}},
+    series:[{type:'heatmap',data:vals,label:{show:true,fontSize:10,color:'#123'},emphasis:{itemStyle:{shadowBlur:10,shadowColor:'rgba(0,0,0,.4)'}}}]
+  });
+  window.addEventListener('resize',function(){chart.resize();});
+}
+
+/* ================= Tab2 机构保留 ================= */
+function renderKeep(){
+  renderKeepTable('zok_rc_tbl', D2, 0, true);
+  renderKeepTable('zok_rep_tbl', D2, 1, true);
+  renderKeepTable('cres_rc_tbl', D3, 0, false);
+  renderKeepTable('cres_rep_tbl', D3, 1, false);
+}
+function renderKeepTable(id, D, layer, isZok){
+  const el=document.getElementById(id);
+  if(!el) return;
+  const rows = layer===0 ? D.rc : D.rep;
+  let h='<thead><tr><th>RC</th>'+(layer===1?'<th>代表N(no)</th>':'')+'<th>上期机构保留率(ra%)</th><th>当期机构保留率(rb%)</th><th>BU保留率(bu%)</th><th>▲机构保留率 vs上期(dpr)</th><th>▲机构保留率 vsBU(dbu)</th><th>盒数留存率上期(ba%)</th><th>盒数留存率当期(bb%)</th><th>▲盒数留存率(bx)</th></tr></thead><tbody>';
+  if(!isZok){
+    h='<thead><tr><th>RC</th>'+(layer===1?'<th>代表N(no)</th>':'')+'<th>上期保留率(pr%)</th><th>当期保留率(r3%)</th><th>BU保留率(bu%)</th><th>▲保留率 vs上期(dpr)</th><th>▲保留率 vsBU(dbu)</th><th>当期盒数保留率(br%)</th><th>▲盒数保留率(bx)</th></tr></thead><tbody>';
+  }
+  rows.forEach(function(r){
+    const isTotal = r.rc==='总计';
+    const cls = isTotal?'row-total':(layer===0?'row-region':'');
+    h+='<tr class="'+cls+'"><td class="col-name">'+r.rc+'</td>';
+    if(layer===1) h+='<td class="num">代表'+r.no+'</td>';
+    if(isZok){
+      h+='<td class="num">'+num(r.ra,1)+'</td><td class="num">'+num(r.rb,1)+'</td><td class="num">'+num(r.bu,1)+'</td>';
+      h+='<td class="num">'+colorSigned(r.dpr,1)+'</td><td class="num">'+colorSigned(r.dbu,1)+'</td>';
+      h+='<td class="num">'+num(r.ba,1)+'</td><td class="num">'+num(r.bb,1)+'</td><td class="num">'+colorSigned(r.bx,1)+'</td>';
+    } else {
+      h+='<td class="num">'+num(r.pr,1)+'</td><td class="num">'+num(r.r3,1)+'</td><td class="num">'+num(r.bu,1)+'</td>';
+      h+='<td class="num">'+colorSigned(r.dpr,1)+'</td><td class="num">'+colorSigned(r.dbu,1)+'</td>';
+      h+='<td class="num">'+num(r.br,1)+'</td><td class="num">'+colorSigned(r.bx,1)+'</td>';
+    }
+    h+='</tr>';
+  });
+  h+='</tbody>';
+  el.innerHTML=h;
+}
+
+/* ================= Tab3 DDI ================= */
+function renderDDI(kind){
+  const rows = kind==='chc'?D4.chc:D4.bbu;
+  const t=document.getElementById(kind==='chc'?'chc_tbl':'bbu_tbl');
+  let h='<thead><tr><th class="lv0">大区 / 代表(region)</th>';
+  D4.products.forEach(function(p){ h+='<th class="lv0" colspan="3">'+p+'</th>'; });
+  h+='</tr><tr><th class="lv0">贡献/达成/同比</th>';
+  D4.products.forEach(function(){ h+='<th>贡献(con%)</th><th>达成(at%)</th><th>同比(yoy%)</th>'; });
+  h+='</tr></thead><tbody>';
+  // 合计行置顶
+  rows.forEach(function(r){
+    if(r.region==='Total') h+=renderDDIRow(r, true, true);
+  });
+  rows.forEach(function(r){
+    if(r.region==='Total') return;
+    h+=renderDDIRow(r, true, false);
+    if(r.kids){
+      r.kids.forEach(function(k){ h+=renderDDIRow(k,false,false); });
+    }
+  });
+  h+='</tbody>';
+  t.innerHTML=h;
+
+  function renderDDIRow(r, isItem, isTotal){
+    let label, badge='';
+    if(isTotal){ label='合计'; }
+    else if(isItem){ label = r.rc || regionCN(r.region); }
+    else { label = (r.region||''); badge = r.rep ? '<span class="badge">'+r.rep+'</span>' : ''; }
+    let cls = isTotal?'row-total':(isItem?'row-region':'city-row');
+    let s='<tr class="'+cls+'"><td class="col-name">'+label+badge+'</td>';
+    D4.products.forEach(function(p){
+      const pr=r.prod[p]||{con:null,at:null,yoy:null};
+      s+='<td class="num">'+num(pr.con,1)+'</td>';
+      s+='<td class="num">'+(pr.at==null?'—':'<span class="'+(pr.at>100?'pos':(pr.at<100?'neg':''))+'">'+pr.at.toFixed(1)+'</span>')+'</td>';
+      s+='<td class="num">'+(pr.yoy==null?'—':'<span class="'+(pr.yoy>0?'pos':(pr.yoy<0?'neg':''))+'">'+pr.yoy.toFixed(1)+'</span>')+'</td>';
+    });
+    return s+'</tr>';
+  }
+  function regionCN(en){
+    const map={'North Total':'北区总','East Total':'东区总','Central Total':'中区总','South Total':'南区总','West Total':'西区总','Total':'合计'};
+    return map[en]||en;
+  }
+}
+
+/* ================= 初始化 & 切换 ================= */
+function switchTab(i){
+  for(let x=0;x<3;x++){
+    document.getElementById('panel'+x).classList.toggle('active', x===i);
+    document.getElementById('tab'+x).classList.toggle('active', x===i);
+  }
+  setTimeout(function(){
+    drawSpark();
+    renderHeat();
+  },50);
+}
+/* 机构保留报告切换：报告A(ZOK) / 报告B(Crestor) */
+function switchKeep(idx){
+  document.getElementById('repA').classList.toggle('active', idx===0);
+  document.getElementById('repB').classList.toggle('active', idx===1);
+  const btns=document.querySelectorAll('#m2_card .subtab button');
+  btns.forEach(function(b,i){ b.classList.toggle('active', i===idx); });
+}
+function switchSubTab(grp,idx){
+  if(grp==='ddi'){
+    document.getElementById('sub_chc').classList.toggle('active', idx===0);
+    document.getElementById('sub_bbu').classList.toggle('active', idx===1);
+    const btns=document.querySelectorAll('#panel2 .subtab button');
+    btns.forEach(function(b,i){ b.classList.toggle('active', i===idx); });
+  }
+}
+function drawSpark(){
+  document.querySelectorAll('.spark div[data-trend]').forEach(function(el){
+    if(el._done) return; el._done=true;
+    try{
+      const data=JSON.parse(el.getAttribute('data-trend'));
+      const ch=echarts.init(el);
+      ch.setOption({
+        grid:{left:2,right:2,top:4,bottom:4},
+        xAxis:{type:'category',show:false,boundaryGap:false,data:['1','2','3','4','5']},
+        yAxis:{type:'value',show:false,min:'dataMin',max:'dataMax'},
+        series:[{type:'line',data:data,symbol:'circle',symbolSize:3,lineStyle:{width:1.6,color:'#1668dc'},itemStyle:{color:'#1668dc'},areaStyle:{opacity:0.08,color:'#1668dc'},smooth:true}],
+        animation:false
+      });
+    }catch(e){ el.innerHTML=''; }
+  });
+}
+
+switchTab(0);
+renderMetro();
+renderBrand();
+renderClass('clsrc');
+renderClass('clscity');
+renderHeat();
+renderKeep();
+renderDDI('chc');
+renderDDI('bbu');
+drawSpark();
+</script>
+</body>
+</html>

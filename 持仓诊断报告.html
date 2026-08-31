@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户持仓诊断报告 · 左右对比</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#eef2f8;display:flex;flex-direction:column}
+  header.top{display:flex;align-items:center;gap:14px;padding:10px 18px;background:#16324f;color:#fff;flex:0 0 auto}
+  header.top .back{color:#fff;text-decoration:none;font-size:14px;font-weight:600;background:rgba(255,255,255,.15);padding:7px 14px;border-radius:8px}
+  header.top .back:hover{background:rgba(255,255,255,.28)}
+  header.top .t{font-size:15px;font-weight:700;letter-spacing:.5px;flex:1;text-align:center}
+  header.top .sp{width:70px}
+  .cols{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:0}
+  .col{display:flex;flex-direction:column;min-height:0}
+  .col + .col{border-left:2px solid #16324f}
+  .col .cap{flex:0 0 auto;padding:8px 14px;background:#f9fbfe;border-bottom:1px solid #dbe3ee;font-size:13px;font-weight:700;color:#16324f}
+  .col iframe{flex:1;width:100%;border:none;background:#fff}
+  .hint{position:fixed;right:16px;bottom:16px;background:#16324f;color:#fff;font-size:12px;padding:8px 14px;border-radius:999px;opacity:.9;box-shadow:0 4px 14px rgba(16,60,130,.3);z-index:5}
+  @media(max-width:900px){.cols{grid-template-columns:1fr;grid-template-rows:1fr 1fr}.col + .col{border-left:none;border-top:2px solid #16324f}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="back" href="index.html">← 返回作品集</a>
+  <div class="t">客户持仓诊断报告 · 左右对比查看</div>
+  <div class="sp"></div>
+</header>
+<div class="cols">
+  <div class="col">
+    <div class="cap">全账户持仓诊断 · 陈女士（407.00 万元 · C4积极型）</div>
+    <iframe src="全账户持仓诊断报告_陈女士.html"></iframe>
+  </div>
+  <div class="col">
+    <div class="cap">股票持仓深度诊断 · 张先生</div>
+    <iframe src="股票持仓深度诊断报告_张先生.html"></iframe>
+  </div>
+</div>
+<div class="hint">左右两栏可分别独立滚动</div>
+</body>
+</html>

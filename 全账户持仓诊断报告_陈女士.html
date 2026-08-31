@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全账户持仓诊断报告 - 陈女士</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:#f4f6f9; color:#1f2937; line-height:1.7; }
+  .page { max-width:960px; margin:0 auto; padding:32px 24px 64px; }
+  .card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:24px 28px; margin-bottom:24px; }
+  .sec-title { font-size:19px; font-weight:600; color:#16324f; margin-bottom:6px; display:flex; align-items:center; gap:10px; }
+  .sec-title .no { background:#16324f; color:#fff; border-radius:8px; font-size:13px; padding:3px 10px; }
+  .sec-sub { font-size:13px; color:#6b7280; margin-bottom:18px; }
+  .cover { background:linear-gradient(135deg,#16324f,#2b5d8f); color:#fff; border-radius:16px; padding:36px 36px 30px; margin-bottom:24px; }
+  .cover h1 { font-size:26px; font-weight:700; letter-spacing:1px; }
+  .cover .meta { display:flex; flex-wrap:wrap; gap:24px; margin-top:16px; font-size:14px; opacity:.92; }
+  .cover .meta b { font-size:15px; margin-right:4px; }
+  .kpis { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-bottom:24px; }
+  .kpis.k4 { grid-template-columns:repeat(4,1fr); }
+  .kpis.k3 { grid-template-columns:repeat(3,1fr); }
+  .kpi { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px 10px; text-align:center; }
+  .kpi .v { font-size:20px; font-weight:700; color:#16324f; }
+  .kpi .l { font-size:12px; color:#6b7280; margin-top:2px; }
+  /* 列表式指标（速览/回测/流动性） */
+  .sum-list { border:1px solid #e5e7eb; border-radius:12px; margin-bottom:24px; background:#fff; }
+  .sum-group { padding:8px 22px; background:#f3f6fa; font-size:12px; font-weight:600; color:#16324f; border-bottom:1px solid #e5e7eb; }
+  .sum-row { display:flex; justify-content:space-between; align-items:center; padding:12px 22px; border-bottom:1px solid #f0f2f5; font-size:14px; }
+  .sum-row:last-child { border-bottom:none; }
+  .sum-k { color:#4b5563; }
+  .sum-k .dot { margin-right:8px; }
+  .sum-v { font-weight:600; color:#16324f; font-variant-numeric:tabular-nums; }
+  .notice { background:#fdf6e3; border:1px solid #f0d48a; border-radius:8px; padding:10px 14px; font-size:13px; color:#7c5e10; margin-bottom:16px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { background:#f3f6fa; color:#374151; font-weight:600; padding:8px 10px; text-align:left; border-bottom:1px solid #e5e7eb; }
+  td { padding:8px 10px; border-bottom:1px solid #f0f2f5; }
+  tr:last-child td { border-bottom:none; }
+  .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .tag { display:inline-block; padding:1px 8px; border-radius:6px; font-size:12px; }
+  .tag-ok { background:#e3f5ec; color:#065f46; }
+  .tag-warn { background:#fdf0dc; color:#92400e; }
+  .tag-danger { background:#fde3e3; color:#991b1b; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+  .chart { width:100%; position:relative; }
+  .chart-wrap > img.print-fallback { display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; background:#fff; z-index:5; }
+  #chartSun { height:440px; }
+  #chartCat { height:420px; position:relative; }
+  .chart-wrap { position:relative; }
+  .tabs { display:flex; gap:8px; margin-bottom:14px; }
+  .tab { padding:6px 16px; border-radius:8px; border:1px solid #d1d5db; background:#fff; cursor:pointer; font-size:13px; color:#374151; }
+  .tab.active { background:#16324f; color:#fff; border-color:#16324f; }
+  .pane { display:none; }
+  .pane.active { display:block; }
+  .diag-item { border-left:4px solid #9ca3af; background:#fafbfc; border-radius:0 10px 10px 0; padding:14px 18px; margin-bottom:14px; }
+  .diag-item.ok { border-color:#10b981; } .diag-item.warn { border-color:#f59e0b; } .diag-item.danger { border-color:#ef4444; }
+  .diag-item h4 { font-size:14px; margin-bottom:4px; }
+  .diag-item p { font-size:13px; color:#4b5563; }
+  .risk-list li { font-size:13px; color:#7f1d1d; margin:6px 0 6px 18px; }
+  .muted { color:#6b7280; font-size:12px; }
+  .foot { text-align:center; color:#9ca3af; font-size:12px; margin-top:32px; }
+  h3 { font-size:15px; color:#16324f; margin:18px 0 10px; }  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:760px){ .kpis,.kpis.k4,.kpis.k3{grid-template-columns:repeat(2,1fr);} .two-col{grid-template-columns:1fr;} }
+  @media print {
+    body { background:#fff; }
+    .page { padding:0; max-width:none; }
+    .card, .cover { break-inside:avoid; border-radius:8px; }
+    /* Edge headless 打印 ECharts canvas 有兼容性问题：打印时切换到 Python 预生成的静态 PNG
+       （print-fallback） */
+    .chart canvas { display:none !important; }
+    .chart-wrap > img.print-fallback { display:block; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- 封面 -->
+  <div class="cover">
+    <h1>全账户持仓诊断报告</h1>
+    <div class="meta">
+      <span>客户：<b>陈女士</b></span>
+      <span>年龄：<b>45</b></span>
+      <span>资产规模：<b>407.00 万元</b></span>
+      <span>风险测评：<b>C4积极型</b></span>
+      <span>诊断日期：<b>2026年08月20日</b></span>
+    </div>
+  </div>
+
+  <!-- 01 客户画像 -->
+  <div class="card">
+    <div class="sec-title"><span class="no">01</span>客户画像与市场环境</div>
+    <div class="sec-sub">先看"人"与"大环境"，再看"钱"</div>
+    <h3>客户画像</h3>
+    <table>
+      <tr><td>客户</td><td>陈女士（45 岁）</td></tr>
+      <tr><td>资产规模档位</td><td>300-1000 万中高净值客群</td></tr>
+      <tr><td>风险测评档位</td><td>C4积极型</td></tr>
+      <tr><td>涉及账户</td><td>证券账户、期货账户</td></tr>
+      <tr><td>持仓笔数</td><td>33 笔</td></tr>
+    </table>
+    <h3>市场温度</h3>
+    <table>
+      <tr><td>沪深300点位</td><td>4665.88</td></tr>
+      <tr><td>估值分位（PE_TTM 近5年）</td><td>77.70%（<b>中性偏暖</b>）</td></tr>
+      <tr><td>近1年涨幅</td><td>+11.80%</td></tr>
+      <tr><td>股权风险溢价 ERP</td><td>5.33%（1/PE − 10Y国债 1.69%）</td></tr>
+      <tr><td>DR007（7天资金利率）</td><td>1.38%（政策利率 1.80%）</td></tr>
+      <tr><td>环境解读</td><td>沪深300报4665.88点；滚动市盈率约14.3倍；历史分位约77.7%，处于中偏贵区间；近一年涨幅约+11.80%；股权风险溢价（ERP）约5.33%，处于历史较高，股债性价比较好；DR007约1.38%，显著低于央行7天逆回购政策利率（1.8%），流动性极为宽松。综合判断，当前市场整体呈中性偏暖状态。</td></tr>
+    </table>
+  </div>
+
+  <!-- 02 组合回测分析 -->
+  <div class="card">
+    <div class="sec-title"><span class="no">02</span>组合回测分析</div>
+    <div class="sec-sub">了解组合的收益与波动特征（基于当前持仓的模拟回测）</div>
+    <div class="notice"><b>重要说明：</b>本板块为<b>基于当前持仓配置 × 市场历史行情的模拟回测</b>，并非客户实际交易业绩。实际收益会因买入卖出时点、税费、申赎费用等因素而不同。回测方法：按当前持仓权重，用近 1 年周度市场行情合成组合收益（详见附录）。</div>
+    
+    <div class="sum-list">
+      <div class="sum-row"><div class="sum-k">近1年模拟收益</div><div class="sum-v" style="color:#16a34a">13.81%</div></div>
+      <div class="sum-row"><div class="sum-k">同期沪深300</div><div class="sum-v">13.66%</div></div>
+      <div class="sum-row"><div class="sum-k">相对基准（跑赢/跑输）</div><div class="sum-v" style="color:#dc2626">+0.15%</div></div>
+      <div class="sum-row"><div class="sum-k">年化波动率</div><div class="sum-v">12.76%</div></div>
+      <div class="sum-row"><div class="sum-k">最大回撤</div><div class="sum-v" style="color:#dc2626">-7.39%</div></div>
+      <div class="sum-row"><div class="sum-k">Beta（对沪深300）</div><div class="sum-v">0.87</div></div>
+    </div>
+    <p style="font-size:13px;color:#4b5563;margin-bottom:8px">按当前持仓配置模拟回测近 1 年：组合收益 13.81%，同期沪深300 13.66%，相对基准跑赢 0.15 个百分点；年化波动率 12.76%，最大回撤 -7.39%，Beta 0.87。</p>
+    
+    <p class="muted">组合风险贡献（模拟）：权益 71.65% · 衍生品 26.95% · 商品及另类 0.76% · 固收 0.63% · 货币及现金 0.02%</p>
+    
+    
+  </div>
+
+  <!-- 03 大类资产配置 -->
+  <div class="card">
+    <div class="sec-title"><span class="no">03</span>大类资产配置分析</div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+      <div style="width:480px;min-width:320px;flex-shrink:0"><div class="chart-wrap"><div id="chartSun" class="chart"></div><img class="print-fallback" src="chart_sun.png" alt=""></div></div>
+      <div id="sunLegend" style="flex:1;min-width:200px;font-size:12px;line-height:1.60"></div>
+    </div>
+    <h3>资产类型矩阵</h3>
+    <table>
+      <tr><th>渠道</th><th class="num">权益</th><th class="num">固收</th><th class="num">货币及现金</th><th class="num">商品及另类</th><th class="num">衍生品</th></tr>
+      
+      <tr>
+        <td>场内</td>
+        
+        <td class="num">155.00万<br><span class="muted">38.08%</span></td>
+        
+        <td class="num">22.00万<br><span class="muted">5.41%</span></td>
+        
+        <td class="num">—</td>
+        
+        <td class="num">6.00万<br><span class="muted">1.47%</span></td>
+        
+        <td class="num">57.00万<br><span class="muted">14.00%</span></td>
+        
+      </tr>
+      
+      <tr>
+        <td>场外</td>
+        
+        <td class="num">97.00万<br><span class="muted">23.83%</span></td>
+        
+        <td class="num">8.00万<br><span class="muted">1.97%</span></td>
+        
+        <td class="num">12.00万<br><span class="muted">2.95%</span></td>
+        
+        <td class="num">—</td>
+        
+        <td class="num">50.00万<br><span class="muted">12.29%</span></td>
+        
+      </tr>
+      
+    </table>
+    <p class="muted" style="font-size:12px">数据口径：场内资产为完整口径，场外资产仅含本券商代销部分。</p>
+    <h3>五大类配置与参考区间对比</h3>
+    <table>
+      <tr><th>大类</th><th class="num">金额</th><th class="num">占比</th><th>参考区间(C4积极型)</th><th>状态</th></tr>
+      
+      <tr>
+        <td><span class="dot" style="background:#E24B4A"></span>权益</td>
+        <td class="num">252.00万</td>
+        <td class="num">61.92%</td>
+        <td class="num">40.00%-60.00%</td>
+        <td><span class="tag tag-danger">超配</span></td>
+      </tr>
+      
+      <tr>
+        <td><span class="dot" style="background:#378ADD"></span>固收</td>
+        <td class="num">30.00万</td>
+        <td class="num">7.37%</td>
+        <td class="num">25.00%-45.00%</td>
+        <td><span class="tag tag-warn">低配</span></td>
+      </tr>
+      
+      <tr>
+        <td><span class="dot" style="background:#1D9E75"></span>货币及现金</td>
+        <td class="num">12.00万</td>
+        <td class="num">2.95%</td>
+        <td class="num">3.00%-10.00%</td>
+        <td><span class="tag tag-warn">低配</span></td>
+      </tr>
+      
+      <tr>
+        <td><span class="dot" style="background:#EF9F27"></span>商品及另类</td>
+        <td class="num">6.00万</td>
+        <td class="num">1.47%</td>
+        <td class="num">0.00%-10.00%</td>
+        <td><span class="tag tag-ok">合理</span></td>
+      </tr>
+      
+      <tr>
+        <td><span class="dot" style="background:#7F77DD"></span>衍生品</td>
+        <td class="num">107.00万</td>
+        <td class="num">26.29%</td>
+        <td class="num">0.00%-10.00%</td>
+        <td><span class="tag tag-danger">超配</span></td>
+      </tr>
+      
+    </table>
+    
+    
+  </div>
+
+  <!-- 04 相关性矩阵 -->
+  <div class="card">
+    <div class="sec-title"><span class="no">04</span>大类资产相关性矩阵</div>
+    <div class="sec-sub">近1年周度收益率相关系数：红=同涨同跌，蓝=负相关对冲。资产种类多 ≠ 真分散</div>
+    <div class="chart-wrap"><div id="chartCat" class="chart"></div><img class="print-fallback" src="chart_cat.png" alt=""></div>
+    <p class="muted" style="margin-top:10px">红 = 正相关（同涨同跌）· 蓝 = 负相关（对冲）· 数值为近 1 年周度收益相关系数。<br>顶部色条 = 大类归属；注：无独立行情的小类以代理标的近似（如雪球以挂钩指数、存款以货币基金）。</p>
+  </div>
+
+  <!-- 05 持仓集中度分析 -->
+  <div class="card">
+    <div class="sec-title"><span class="no">05</span>持仓集中度分析</div>
+    <div class="sec-sub">场内 / 场外各五大类下持仓市值前 3 的标的（占比为占投资口径比例）</div>
+    
+    
+    <h3>场内持仓集中度（240.00万）</h3>
+    <table>
+      <tr><th>大类</th><th>第 1 大持仓</th><th>第 2 大持仓</th><th>第 3 大持仓</th></tr>
+      
+      <tr>
+        <td>权益</td>
+        
+        <td>
+          
+          <div>宁德时代</div>
+          <div class="muted" style="font-size:12px">25.00万 · 6.14%</div>
+          
+        </td>
+        
+        <td>
+          
+          <div>比亚迪</div>
+          <div class="muted" style="font-size:12px">18.00万 · 4.42%</div>
+          
+        </td>
+        
+        <td>
+          
+          <div>中芯国际</div>
+          <div class="muted" style="font-size:12px">15.00万 · 3.69%</div>
+          
+        </td>
+        
+      </tr>
+      
+      <tr>
+        <td>固收</td>
+        
+        <td>
+          
+          <div>牧原转债</div>
+          <div class="muted" style="font-size:12px">8.00万 · 1.97%</div>
+          
+        </td>
+        
+        <td>
+          
+          <div>南银转债</div>
+          <div class="muted" style="font-size:12px">5.00万 · 1.23%</div>
+          
+        </td>
+        
+        <td>
+          
+          <div>19华为01</div>
+          <div class="muted" style="font-size:12px">4.00万 · 0.98%</div>
+          
+        </td>
+        
+      </tr>
+      
+      <tr>
+        <td>商品及另类</td>
+        
+        <td>
+          
+          <div>黄金ETF华安</div>
+          <div class="muted" style="font-size:12px">6.00万 · 1.47%</div>
+          
+        </td>
+        
+        <td>
+          —
+        </td>
+        
+        <td>
+          —
+        </td>
+        
+      </tr>
+      
+      <tr>
+        <td>衍生品</td>
+        
+        <td>
+          
+          <div>沪深300股指2609（保证金占用）</div>
+          <div class="muted" style="font-size:12px">25.00万 · 6.14%</div>
+          
+        </td>
+        
+        <td>
+          
+          <div>沪金2612（保证金占用）</div>
+          <div class="muted" style="font-size:12px">20.00万 · 4.91%</div>
+          
+        </td>
+        
+        <td>
+          
+          <div>中证500股指2609（保证金占用）</div>
+          <div class="muted" style="font-size:12px">12.00万 · 2.95%</div>
+          
+        </td>
+        
+      </tr>
+      
+    </table>
+    
+    
+    
+    <h3>场外持仓集中度（167.00万）</h3>
+    <table>
+      <tr><th>大类</th><th>第 1 大持仓</th><th>第 2 大持仓</th><th>第 3 大持仓</th></tr>
+      
+      <tr>
+        <td>权益</td>
+        
+        <td>
+          
+          <div>易方达蓝筹精选混合</div>
+          <div class="muted" style="font-size:12px">25.00万 · 6.14%</div>
+          
+        </td>
+        
+        <td>
+          
+          <div>交银中证海外中国互联网指数(LOF)A</div>
+          <div class="muted" style="font-size:12px">25.00万 · 6.14%</div>
+          
+        </td>
+        
+        <td>
+          
+          <div>中欧医疗健康混合A</div>
+          <div class="muted" style="font-size:12px">15.00万 · 3.69%</div>
+          
+        </td>
+        
+      </tr>
+      
+      <tr>
+        <td>固收</td>
+        
+        <td>
+          
+          <div>招银理财招睿稳健型固定收益类理财</div>
+          <div class="muted" style="font-size:12px">8.00万 · 1.97%</div>
+          
+        </td>
+        
+        <td>
+          —
+        </td>
+        
+        <td>
+          —
+        </td>
+        
+      </tr>
+      
+      <tr>
+        <td>货币及现金</td>
+        
+        <td>
+          
+          <div>海富通货币市场B级</div>
+          <div class="muted" style="font-size:12px">12.00万 · 2.95%</div>
+          
+        </td>
+        
+        <td>
+          —
+        </td>
+        
+        <td>
+          —
+        </td>
+        
+      </tr>
+      
+      <tr>
+        <td>衍生品</td>
+        
+        <td>
+          
+          <div>中证1000指数挂钩雪球结构收益凭证（6个月）</div>
+          <div class="muted" style="font-size:12px">50.00万 · 12.29%</div>
+          
+        </td>
+        
+        <td>
+          —
+        </td>
+        
+        <td>
+          —
+        </td>
+        
+      </tr>
+      
+    </table>
+    
+    
+    <h3>流动性结构</h3>
+    <div class="sum-list">
+      <div class="sum-row"><div class="sum-k"><span class="dot" style="background:#16a34a"></span>可快速变现（现金/股票/场内基金）</div><div class="sum-v" style="color:#16a34a">56.02%</div></div>
+      <div class="sum-row"><div class="sum-k"><span class="dot" style="background:#d97706"></span>数日变现（场外基金）</div><div class="sum-v" style="color:#d97706">17.69%</div></div>
+      <div class="sum-row"><div class="sum-k"><span class="dot" style="background:#dc2626"></span>锁定资产（雪球/期货/期权等衍生品）</div><div class="sum-v" style="color:#dc2626">26.29%</div></div>
+    </div>
+  </div>
+
+  <!-- 06 诊断结论 -->
+  <div class="card">
+    <div class="sec-title"><span class="no">06</span>诊断结论与问题提示</div>
+    <div class="sec-sub">结合客户资产规模、风险档位、当前市场行情与上述分析结果，提示持仓问题</div>
+    <h3>分项问题提示</h3>
+    
+    <div class="diag-item warn">
+      <h4><span class="tag tag-warn">注意</span>&nbsp;权益仓位 61.92% 高于参考区间上限 60.00%</h4>
+      <p>现象：权益类占比 61.92%，高于C4积极型档参考上限 60.00%，超配约 1.92 个百分点。影响：权益敞口高于档位参考，市场波动时组合回撤相应放大。建议：关注仓位与风险承受的匹配，具体调仓由配置优化模块评估。</p>
+    </div>
+    
+    <div class="diag-item warn">
+      <h4><span class="tag tag-warn">注意</span>&nbsp;货币及现金仅 2.95%，流动性偏紧</h4>
+      <p>现象：货币及现金类占比 2.95%。影响：遇市场急跌或临时用款时缺乏缓冲。建议：保留 3-5% 现金或货币基金作为流动性垫。</p>
+    </div>
+    
+    <div class="diag-item warn">
+      <h4><span class="tag tag-warn">注意</span>&nbsp;衍生品 107.00万（26.29%）</h4>
+      <p>现象：衍生品合计 107.00万、占投资口径 26.29%，主要为雪球、期货、期权、CTA 等。影响：衍生品通常有合格投资者/开户门槛，持有本身即具备一定风险承受能力；但雪球存在敲入风险，期货期权自带杠杆可能放大亏损。建议：关注雪球敲入线与剩余期限，明确止损纪律。</p>
+    </div>
+    
+    <div class="diag-item warn">
+      <h4><span class="tag tag-warn">注意</span>&nbsp;商品及另类配置偏低，缺少对冲资产</h4>
+      <p>现象：商品另类（黄金等）占比仅 1.47%，而权益占比 61.92%。影响：黄金与股市长期低相关甚至负相关，是极端行情下的压舱石。建议：可配置 5-10% 黄金资产平滑组合波动。</p>
+    </div>
+    
+    <div class="diag-item warn">
+      <h4><span class="tag tag-warn">注意</span>&nbsp;单只标的持仓集中：中证1000指数挂钩雪球结构收益凭证（6个月） 占 12.29%</h4>
+      <p>现象：共 1 只高风险标的单只占比超过 10%（中证1000指数挂钩雪球结构收益凭证（6个月） 等）。影响：单只标的的黑天鹅事件（业绩暴雷、政策冲击）将直接侵蚀组合。建议：单一标的占比尽量控制在 10% 以内。</p>
+    </div>
+    
+    <div class="diag-item ok">
+      <h4><span class="tag tag-ok">良好</span>&nbsp;流动性结构合理（可快速变现 56.02%）</h4>
+      <p>现象：快速变现资产与锁定资产比例均衡。影响：资金调度从容。建议：维持，定期检视。</p>
+    </div>
+    
+    <div class="diag-item ok">
+      <h4><span class="tag tag-ok">良好</span>&nbsp;模拟回测风险特征在常规范围</h4>
+      <p>现象：按当前配置模拟近 1 年最大回撤 -7.39% 以内、年化波动率 12.76%。影响：风险水平与C4积极型档位匹配。建议：维持。</p>
+    </div>
+    
+    
+    <h3>风险提示</h3>
+    <ul class="risk-list">
+      <li>雪球结构化产品存在敲入风险，敲入后或面临本金损失，需关注挂钩指数点位与剩余期限</li><li>期货、期权自带杠杆，保证金交易可能放大亏损，需明确止损纪律</li><li>当前市场温度中性偏暖（沪深300报4665.88点；滚动市盈率约14.3倍；历史分位约77.7%，处于中偏贵区间；近一年涨幅约+11.80%；股权风险溢价（ERP）约5.33%，处于历史较高，股债性价比较好；DR007约1.38%，显著低于央行7天逆回购政策利率（1.8%），流动性极为宽松。综合判断，当前市场整体呈中性偏暖状态。），若现金流允许，可考虑按纪律分批加大权益配置</li>
+    </ul>
+    
+  </div>
+
+  <!-- 07 附录 -->
+  <div class="card">
+    <div class="sec-title"><span class="no">07</span>附录</div>
+    <h3>全量持仓明细</h3>
+    <table>
+      <tr><th>产品名称</th><th>代码</th><th>类型</th><th>渠道</th><th>大类</th><th>小类</th><th class="num">市值</th></tr>
+      
+      <tr>
+        <td>宁德时代</td><td>300750.SZ</td><td>创业板/科创板/北交所股票</td>
+        <td>场内</td><td>权益</td><td>A股个股</td>
+        <td class="num">25.00万</td>
+      </tr>
+      
+      <tr>
+        <td>比亚迪</td><td>002594.SZ</td><td>A股主板股票</td>
+        <td>场内</td><td>权益</td><td>A股个股</td>
+        <td class="num">18.00万</td>
+      </tr>
+      
+      <tr>
+        <td>中芯国际</td><td>688981.SH</td><td>创业板/科创板/北交所股票</td>
+        <td>场内</td><td>权益</td><td>A股个股</td>
+        <td class="num">15.00万</td>
+      </tr>
+      
+      <tr>
+        <td>立讯精密</td><td>002475.SZ</td><td>A股主板股票</td>
+        <td>场内</td><td>权益</td><td>A股个股</td>
+        <td class="num">8.00万</td>
+      </tr>
+      
+      <tr>
+        <td>东方财富</td><td>300059.SZ</td><td>创业板/科创板/北交所股票</td>
+        <td>场内</td><td>权益</td><td>A股个股</td>
+        <td class="num">7.00万</td>
+      </tr>
+      
+      <tr>
+        <td>贵州茅台</td><td>600519.SH</td><td>A股主板股票</td>
+        <td>场内</td><td>权益</td><td>A股个股</td>
+        <td class="num">5.00万</td>
+      </tr>
+      
+      <tr>
+        <td>沪深300ETF华泰柏瑞</td><td>510300.SH</td><td>宽基股票ETF</td>
+        <td>场内</td><td>权益</td><td>场内权益ETF</td>
+        <td class="num">8.00万</td>
+      </tr>
+      
+      <tr>
+        <td>创业板ETF易方达</td><td>159915.SZ</td><td>宽基股票ETF</td>
+        <td>场内</td><td>权益</td><td>场内权益ETF</td>
+        <td class="num">15.00万</td>
+      </tr>
+      
+      <tr>
+        <td>科创50ETF华夏</td><td>588000.SH</td><td>宽基股票ETF</td>
+        <td>场内</td><td>权益</td><td>场内权益ETF</td>
+        <td class="num">8.00万</td>
+      </tr>
+      
+      <tr>
+        <td>半导体ETF</td><td>512480.SH</td><td>行业/主题ETF</td>
+        <td>场内</td><td>权益</td><td>场内权益ETF</td>
+        <td class="num">15.00万</td>
+      </tr>
+      
+      <tr>
+        <td>酒ETF</td><td>512690.SH</td><td>行业/主题ETF</td>
+        <td>场内</td><td>权益</td><td>场内权益ETF</td>
+        <td class="num">6.00万</td>
+      </tr>
+      
+      <tr>
+        <td>证券ETF国泰</td><td>512880.SH</td><td>行业/主题ETF</td>
+        <td>场内</td><td>权益</td><td>场内权益ETF</td>
+        <td class="num">10.00万</td>
+      </tr>
+      
+      <tr>
+        <td>医疗ETF华宝</td><td>512170.SH</td><td>行业/主题ETF</td>
+        <td>场内</td><td>权益</td><td>场内权益ETF</td>
+        <td class="num">7.00万</td>
+      </tr>
+      
+      <tr>
+        <td>新能源ETF</td><td>516160.SH</td><td>行业/主题ETF</td>
+        <td>场内</td><td>权益</td><td>场内权益ETF</td>
+        <td class="num">8.00万</td>
+      </tr>
+      
+      <tr>
+        <td>19华为01</td><td>155706.SH</td><td>公司债/企业债</td>
+        <td>场内</td><td>固收</td><td>信用债及可转债</td>
+        <td class="num">4.00万</td>
+      </tr>
+      
+      <tr>
+        <td>G16三峡2</td><td>136683.SH</td><td>公司债/企业债</td>
+        <td>场内</td><td>固收</td><td>信用债及可转债</td>
+        <td class="num">3.00万</td>
+      </tr>
+      
+      <tr>
+        <td>牧原转债</td><td>127045.SZ</td><td>可转债/可交债</td>
+        <td>场内</td><td>固收</td><td>信用债及可转债</td>
+        <td class="num">8.00万</td>
+      </tr>
+      
+      <tr>
+        <td>南银转债</td><td>113050.SH</td><td>可转债/可交债</td>
+        <td>场内</td><td>固收</td><td>信用债及可转债</td>
+        <td class="num">5.00万</td>
+      </tr>
+      
+      <tr>
+        <td>国债ETF（5年期）</td><td>511010.SH</td><td>债券ETF</td>
+        <td>场内</td><td>固收</td><td>利率债及债券ETF</td>
+        <td class="num">2.00万</td>
+      </tr>
+      
+      <tr>
+        <td>黄金ETF华安</td><td>518880.SH</td><td>商品黄金ETF</td>
+        <td>场内</td><td>商品及另类</td><td>黄金</td>
+        <td class="num">6.00万</td>
+      </tr>
+      
+      <tr>
+        <td>海富通货币市场B级</td><td>519506.OF</td><td>场外货币基金</td>
+        <td>场外</td><td>货币及现金</td><td>货币基金</td>
+        <td class="num">12.00万</td>
+      </tr>
+      
+      <tr>
+        <td>沪金2612（保证金占用）</td><td>AU2612.SHF</td><td>商品期货</td>
+        <td>场内</td><td>衍生品</td><td>商品期货</td>
+        <td class="num">20.00万</td>
+      </tr>
+      
+      <tr>
+        <td>沪深300股指2609（保证金占用）</td><td>IF2609.CFX</td><td>股指期货</td>
+        <td>场内</td><td>衍生品</td><td>股指期货</td>
+        <td class="num">25.00万</td>
+      </tr>
+      
+      <tr>
+        <td>中证500股指2609（保证金占用）</td><td>IC2609.CFX</td><td>股指期货</td>
+        <td>场内</td><td>衍生品</td><td>股指期货</td>
+        <td class="num">12.00万</td>
+      </tr>
+      
+      <tr>
+        <td>易方达沪深300ETF联接A</td><td>110020.OF</td><td>ETF联接基金</td>
+        <td>场外</td><td>权益</td><td>被动指数基金</td>
+        <td class="num">8.00万</td>
+      </tr>
+      
+      <tr>
+        <td>易方达创业板ETF联接A</td><td>110026.OF</td><td>ETF联接基金</td>
+        <td>场外</td><td>权益</td><td>被动指数基金</td>
+        <td class="num">6.00万</td>
+      </tr>
+      
+      <tr>
+        <td>易方达蓝筹精选混合</td><td>005827.OF</td><td>偏股混合/灵活配置基金</td>
+        <td>场外</td><td>权益</td><td>主动权益基金</td>
+        <td class="num">25.00万</td>
+      </tr>
+      
+      <tr>
+        <td>中欧医疗健康混合A</td><td>003095.OF</td><td>偏股混合/灵活配置基金</td>
+        <td>场外</td><td>权益</td><td>主动权益基金</td>
+        <td class="num">15.00万</td>
+      </tr>
+      
+      <tr>
+        <td>兴全合润混合A</td><td>163406.OF</td><td>偏股混合/灵活配置基金</td>
+        <td>场外</td><td>权益</td><td>主动权益基金</td>
+        <td class="num">10.00万</td>
+      </tr>
+      
+      <tr>
+        <td>交银中证海外中国互联网指数(LOF)A</td><td>164906.OF</td><td>QDII股票基金</td>
+        <td>场外</td><td>权益</td><td>跨境权益</td>
+        <td class="num">25.00万</td>
+      </tr>
+      
+      <tr>
+        <td>华夏全球精选股票(QDII)</td><td>000041.OF</td><td>QDII股票基金</td>
+        <td>场外</td><td>权益</td><td>跨境权益</td>
+        <td class="num">8.00万</td>
+      </tr>
+      
+      <tr>
+        <td>招银理财招睿稳健型固定收益类理财</td><td></td><td>银行固收类理财</td>
+        <td>场外</td><td>固收</td><td>固收理财类</td>
+        <td class="num">8.00万</td>
+      </tr>
+      
+      <tr>
+        <td>中证1000指数挂钩雪球结构收益凭证（6个月）</td><td></td><td>雪球产品</td>
+        <td>场外</td><td>衍生品</td><td>雪球</td>
+        <td class="num">50.00万</td>
+      </tr>
+      
+    </table>
+    <h3>口径说明</h3>
+    <ul class="muted" style="font-size:12px;line-height:2">
+      <li>分类方法：依据《客户持仓资产分类对照表》，按主分类分五类（权益 / 固收 / 货币及现金 / 商品及另类 / 衍生品），场内场外按渠道归组；保障型保险不计入投资口径（单列评估保障缺口），无法按当前分类标准归类的标的归「待分类」并在大类资产配置分析中标注、待人工复核。</li>
+      <li>数据覆盖：本报告基于券商可见资产——场内资产为完整口径，场外资产仅含本券商代销部分；占比与超配/低配均为结构提示，非全账户结论。</li>
+      <li>单标集中度：仅统计高风险大类（权益 / 商品及另类 / 衍生品）的单只持仓；固收与货币类产品（理财、存款、债基等）占比高属配置常态，不纳入单标集中判断。</li>
+      <li>相关性：近 1 年周度收益率 Pearson 相关系数；无行情小类以代理标的近似，仅作参考。</li>
+      <li>回测方法：按当前持仓权重（投资口径），用近 1 年周度市场行情合成组合收益序列；波动率取周收益年化，最大回撤取累计净值峰谷最大跌幅，Beta 为组合与沪深300 周收益的回归系数，风险贡献为各资产对组合方差贡献占比。回测为模拟结果，不代表实际业绩。</li>
+      <li>市场温度：综合沪深300 点位/估值分位（PE_TTM 近5年）/近一年涨幅/股权风险溢价 ERP（1/PE−10Y国债收益率）/DR007 五项指标，合成偏冷至偏暖五档温度；10Y 国债收益率与 DR007 无 Tushare 接口，采用手动维护值，判定规则为经验参考值。</li>
+      <li>数据来源：客户持仓数据 + Tushare 行情数据库；本报告仅供投资参考，不构成投资建议。</li>
+    </ul>
+    
+    <h3>各风险档位超配 / 低配判断标准（参考区间）</h3>
+    <table>
+      <tr><th>风险档位</th><th>权益</th><th>固收</th><th>货币及现金</th><th>商品及另类</th><th>衍生品</th></tr>
+      
+      <tr>
+        <td>C1保守型</td>
+        <td class="num">0.00%-10.00%</td><td class="num">60.00%-85.00%</td>
+        <td class="num">10.00%-25.00%</td><td class="num">0.00%-5.00%</td>
+        <td class="num">0.00%-0.00%</td>
+      </tr>
+      
+      <tr>
+        <td>C2谨慎型</td>
+        <td class="num">10.00%-20.00%</td><td class="num">55.00%-75.00%</td>
+        <td class="num">8.00%-18.00%</td><td class="num">0.00%-5.00%</td>
+        <td class="num">0.00%-3.00%</td>
+      </tr>
+      
+      <tr>
+        <td>C3稳健型</td>
+        <td class="num">20.00%-40.00%</td><td class="num">40.00%-60.00%</td>
+        <td class="num">5.00%-15.00%</td><td class="num">0.00%-10.00%</td>
+        <td class="num">0.00%-5.00%</td>
+      </tr>
+      
+      <tr>
+        <td>C4积极型</td>
+        <td class="num">40.00%-60.00%</td><td class="num">25.00%-45.00%</td>
+        <td class="num">3.00%-10.00%</td><td class="num">0.00%-10.00%</td>
+        <td class="num">0.00%-10.00%</td>
+      </tr>
+      
+      <tr>
+        <td>C5激进型</td>
+        <td class="num">60.00%-80.00%</td><td class="num">10.00%-30.00%</td>
+        <td class="num">3.00%-8.00%</td><td class="num">0.00%-10.00%</td>
+        <td class="num">0.00%-10.00%</td>
+      </tr>
+      
+    </table>
+    <p class="muted" style="font-size:12px">注：参考区间为经验参考值（非权威标准），超配/低配为券商可见资产内的结构提示，非全账户结论。</p>
+    
+    <div class="foot">本报告由「客户全账户持仓深度诊断」系统生成 · 2026年08月20日 · 仅供内部投顾服务使用</div>
+  </div>
+
+</div>
+
+<script>
+var CAT_COLORS = {"\u5546\u54c1\u53ca\u53e6\u7c7b": "#EF9F27", "\u56fa\u6536": "#378ADD", "\u6743\u76ca": "#E24B4A", "\u884d\u751f\u54c1": "#7F77DD", "\u8d27\u5e01\u53ca\u73b0\u91d1": "#1D9E75"};
+var SUN_DATA = [{"children": [{"itemStyle": {"color": "#E24B4A"}, "name": "\u6743\u76ca", "value": 1550000.0}, {"itemStyle": {"color": "#378ADD"}, "name": "\u56fa\u6536", "value": 220000.0}, {"itemStyle": {"color": "#EF9F27"}, "name": "\u5546\u54c1\u53ca\u53e6\u7c7b", "value": 60000.0}, {"itemStyle": {"color": "#7F77DD"}, "name": "\u884d\u751f\u54c1", "value": 570000.0}], "itemStyle": {"color": "#2C3E50"}, "name": "\u573a\u5185", "value": 2400000.0}, {"children": [{"itemStyle": {"color": "#E24B4A"}, "name": "\u6743\u76ca", "value": 970000.0}, {"itemStyle": {"color": "#378ADD"}, "name": "\u56fa\u6536", "value": 80000.0}, {"itemStyle": {"color": "#1D9E75"}, "name": "\u8d27\u5e01\u53ca\u73b0\u91d1", "value": 120000.0}, {"itemStyle": {"color": "#7F77DD"}, "name": "\u884d\u751f\u54c1", "value": 500000.0}], "itemStyle": {"color": "#7F8C8D"}, "name": "\u573a\u5916", "value": 1670000.0}];
+var SUN_LEGEND = [{"cats": [{"color": "#E24B4A", "name": "\u6743\u76ca", "pct": 38.08, "value": 155.0}, {"color": "#378ADD", "name": "\u56fa\u6536", "pct": 5.41, "value": 22.0}, {"color": "#EF9F27", "name": "\u5546\u54c1\u53ca\u53e6\u7c7b", "pct": 1.47, "value": 6.0}, {"color": "#7F77DD", "name": "\u884d\u751f\u54c1", "pct": 14.0, "value": 57.0}], "color": "#2C3E50", "name": "\u573a\u5185", "pct": 58.97, "value": 240.0}, {"cats": [{"color": "#E24B4A", "name": "\u6743\u76ca", "pct": 23.83, "value": 97.0}, {"color": "#378ADD", "name": "\u56fa\u6536", "pct": 1.97, "value": 8.0}, {"color": "#1D9E75", "name": "\u8d27\u5e01\u53ca\u73b0\u91d1", "pct": 2.95, "value": 12.0}, {"color": "#7F77DD", "name": "\u884d\u751f\u54c1", "pct": 12.29, "value": 50.0}], "color": "#7F8C8D", "name": "\u573a\u5916", "pct": 41.03, "value": 167.0}];
+var SUN_TOTAL = SUN_DATA.reduce(function(s,d){return s+d.value;},0);
+var CAT_MAT = [[1.0, 0.19241735988262626, 0.07490990742589655, 0.04104984322580606, 0.6693343083966379], [0.19241735988262626, 1.0, -0.10715971582414362, 0.1692908557534324, 0.2712238240066565], [0.07490990742589655, -0.10715971582414362, 1.0, 0.15526528740193646, 0.0438152339569341], [0.04104984322580606, 0.1692908557534324, 0.15526528740193646, 1.0, 0.5780201328079225], [0.6693343083966379, 0.2712238240066565, 0.0438152339569341, 0.5780201328079225, 1.0]];
+var CAT_LABELS = ["\u6743\u76ca", "\u56fa\u6536", "\u8d27\u5e01\u53ca\u73b0\u91d1", "\u5546\u54c1\u53ca\u53e6\u7c7b", "\u884d\u751f\u54c1"];
+
+/* 相关性矩阵学术配色（低饱和蓝-白-砖红） */
+var AC_MAIN = {权益:'#233a5e',固收:'#3f6b8e',货币及现金:'#5b7c99',商品及另类:'#9a7b4f',衍生品:'#6b5b95'};
+var CAT_COLORS_AC = CAT_LABELS.map(function(c){ return AC_MAIN[c] || CAT_COLORS[c]; });
+
+function heatOption(labelsY, labelsX, mat, colors, groupBorders){
+  var n = labelsX.length;
+  var data = [];
+  for (var i=0;i<n;i++) for (var j=0;j<n;j++) data.push([j, i, mat[i][j]]);
+  var min = 0;
+  data.forEach(function(d){ if (d[2] != null && d[2] < min) min = d[2]; });
+  var strip = [];
+  for (var j=0;j<n;j++) strip.push({value:[j,0,0], itemStyle:{color: colors[j]}});
+  return {
+    grid:[
+      {left:110, right:30, top:8, height:14},
+      {left:110, right:30, top:32, bottom:55}
+    ],
+    xAxis:[
+      {type:'category', gridIndex:0, data:labelsX, axisLabel:{show:false},
+       axisLine:{show:false}, axisTick:{show:false}, splitLine:{show:false}},
+      {type:'category', gridIndex:1, data:labelsX, splitArea:{show:true},
+       axisLabel:{fontSize:11, color:'#374151', rotate: labelsX.length>8?30:0}}
+    ],
+    yAxis:[
+      {type:'category', gridIndex:0, data:['色'], axisLabel:{show:false},
+       axisLine:{show:false}, axisTick:{show:false}, splitLine:{show:false}},
+      {type:'category', gridIndex:1, data:labelsY, splitArea:{show:true},
+       axisLabel:{fontSize:11, color:'#374151'}}
+    ],
+    visualMap:{min:min, max:1, seriesIndex:[0], calculable:true, orient:'horizontal',
+      left:'center', bottom:0, inRange:{color:['#8aa0b4','#ffffff','#9a5148']},
+      text:['1','-1'], textStyle:{fontSize:11}},   // ECharts: text[0] 在右端(max)，text[1] 在左端(min)
+    series:[
+      {name:'主图', type:'heatmap', xAxisIndex:1, yAxisIndex:1, data:data,
+       label:{show:true, fontSize:11, color:'#111827',
+              formatter:function(p){ return p.value[2]==null ? '-' : p.value[2].toFixed(2); }},
+       itemStyle:{borderColor:'#fff', borderWidth:2}},
+      {name:'色条', type:'heatmap', xAxisIndex:0, yAxisIndex:0, data:strip,
+       label:{show:false}, itemStyle:{borderColor:'#fff', borderWidth:1}}
+    ]
+  };
+}
+var sun = echarts.init(document.getElementById('chartSun'), null, {renderer:'canvas', animation:false});
+sun.setOption({
+  tooltip:{formatter:function(p){ return p.data.name + '：' + (p.value/10000).toFixed(2) + '万 · ' + (p.value/SUN_TOTAL*100).toFixed(2) + '%'; }},
+  series:[{type:'sunburst', radius:[0,'72%'], data:SUN_DATA, sort:null,
+    label:{formatter:function(p){ return p.name + '\n' + (p.value/SUN_TOTAL*100).toFixed(2) + '%'; },
+      fontSize:11, minAngle:8, color:'#fff', textBorderColor:'rgba(15,23,42,0.55)', textBorderWidth:2},
+    itemStyle:{borderColor:'#fff', borderWidth:1.5},
+    emphasis:{focus:'ancestor'}, progressive:0}]   // progressive:0 关闭渐进渲染，canvas 一次画完（否则 toDataURL 抓到半透明中间态）
+});
+(function(){
+  var L = document.getElementById('sunLegend');
+  var h = '<div style="font-weight:500;margin-bottom:8px">资产明细（投资口径，单位：万元）</div>';
+  SUN_LEGEND.forEach(function(v){
+    h += '<div style="font-weight:500;margin-top:8px"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+v.color+';margin-right:6px"></span>'+v.name+
+         ' <span style="color:#6b7280">'+v.value.toFixed(2)+'万 · '+v.pct.toFixed(2)+'%</span></div>';
+    v.cats.forEach(function(c){
+      h += '<div style="padding-left:14px;font-weight:500;color:#374151"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+c.color+';margin-right:6px"></span>'+c.name+
+           ' <span style="color:#6b7280">'+c.value.toFixed(2)+'万 · '+c.pct.toFixed(2)+'%</span></div>';
+    });
+  });
+  L.innerHTML = h;
+})();
+var cat = echarts.init(document.getElementById('chartCat'), null, {renderer:'canvas', animation:false});
+cat.setOption(heatOption(CAT_LABELS, CAT_LABELS, CAT_MAT, CAT_COLORS_AC, []));
+window.addEventListener('resize', function(){ sun.resize(); cat.resize(); });
+</script>
+</body>
+</html>

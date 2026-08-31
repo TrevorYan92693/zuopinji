@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商业航天产业链 · 格局看板</title>
+<style>
+:root {
+  --bg: #f5f6f8;
+  --card-bg: #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border: #e5e7eb;
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --blue-dark: #1e40af;
+  --red: #ef4444;
+  --green: #22c55e;
+  --orange: #f59e0b;
+  --purple: #8b5cf6;
+  --teal: #14b8a6;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Header ---- */
+.header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #1a365d 100%);
+  color: #fff;
+  padding: 24px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header h1 .icon { font-size: 1.6rem; }
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 0.82rem;
+  color: #94a3b8;
+  flex-wrap: wrap;
+}
+.header-meta span { display: flex; align-items: center; gap: 5px; }
+.header-meta .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+.header-meta .dot.pulse { animation: pulse 2s infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ---- Two-Column Layout ---- */
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 24px 40px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.main-column { flex: 1; min-width: 0; }
+.sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---- Sidebar Unlisted Cards ---- */
+.sidebar .unlisted-section {
+  margin-bottom: 0;
+}
+.sidebar .unlisted-section .section-title {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+.sidebar .unlisted-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sidebar .unlisted-card {
+  padding: 14px;
+}
+.sidebar .unlisted-logo {
+  width: 34px; height: 34px;
+  font-size: 1rem;
+}
+.sidebar .unlisted-name { font-size: 0.85rem; }
+.sidebar .unlisted-sub { font-size: 0.66rem; }
+.sidebar .unlisted-info {
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+  font-size: 0.7rem;
+}
+.sidebar .unlisted-desc {
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+/* ---- Overview ---- */
+.overview {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--blue);
+}
+.overview h2 { font-size: 1.15rem; margin-bottom: 10px; color: var(--blue-dark); }
+.overview p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; }
+
+/* ---- Launch Tracker (New Module) ---- */
+.launch-tracker {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.launch-tracker .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.launch-tracker .section-header h2 {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.launch-tracker .badge-live {
+  background: #fef2f2; color: #dc2626; font-size: 0.72rem;
+  padding: 2px 10px; border-radius: 20px; font-weight: 600;
+  animation: pulse 1.5s infinite;
+}
+.launch-timeline {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+}
+.launch-card {
+  min-width: 240px;
+  flex-shrink: 0;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  scroll-snap-align: start;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.launch-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.launch-card .launch-date {
+  font-size: 0.72rem; color: var(--blue); font-weight: 700;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.launch-card .launch-mission { font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; }
+.launch-card .launch-vehicle { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; }
+.launch-card .launch-site { font-size: 0.72rem; color: var(--text-muted); }
+.launch-card .launch-tag {
+  display: inline-block; margin-top: 8px;
+  font-size: 0.66rem; padding: 2px 8px; border-radius: 10px;
+  font-weight: 600;
+}
+.launch-tag.cn { background: #fef3c7; color: #d97706; }
+.launch-tag.us { background: #dbeafe; color: #2563eb; }
+.launch-tag.milestone { background: #ede9fe; color: #7c3aed; }
+
+/* ---- Tabs ---- */
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  background: var(--card-bg);
+  padding: 8px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.tab-btn {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { background: #f1f5f9; color: var(--text); }
+.tab-btn.active { background: var(--blue); color: #fff; font-weight: 600; }
+.tab-count { font-size: 0.72rem; opacity: 0.7; margin-left: 4px; }
+
+/* ---- Segment Section ---- */
+.segment { display: none; }
+.segment.active { display: block; }
+.segment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.segment-header h3 { font-size: 1.05rem; font-weight: 700; }
+.segment-header .segment-desc { font-size: 0.82rem; color: var(--text-secondary); flex: 1; }
+.segment-header .segment-icon { font-size: 1.4rem; }
+
+/* ---- Company Cards Grid ---- */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s, transform 0.2s;
+  border: 1px solid var(--border);
+}
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.card-company {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-company .company-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.card-company .company-code {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.card-price {
+  text-align: right;
+}
+.card-price .price-val {
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+.card-price .price-change {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.price-up { color: var(--red); }
+.price-down { color: var(--green); }
+
+.card-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.metric-item {
+  background: #f8fafc;
+  border-radius: var(--radius-xs);
+  padding: 8px 10px;
+  text-align: center;
+}
+.metric-label {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.metric-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text);
+}
+.metric-sub {
+  font-size: 0.66rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.card-valuation {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: #fafbfc;
+  border-radius: var(--radius-xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.valuation-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.valuation-item .val { font-size: 0.85rem; font-weight: 700; font-family: var(--font-mono); }
+.valuation-item .lbl { font-size: 0.62rem; color: var(--text-muted); }
+.val-divider { width: 1px; height: 28px; background: var(--border); }
+.card-rating {
+  font-size: 0.85rem;
+  margin-left: auto;
+}
+.rating-stars { color: var(--orange); }
+
+.card-comment {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.card-badge {
+  display: inline-block;
+  font-size: 0.64rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-right: 4px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.badge-military { background: #fef3c7; color: #b45309; }
+.badge-civil { background: #dbeafe; color: #1d4ed8; }
+.badge-soe { background: #fce7f3; color: #be185d; }
+
+/* ---- Policy/Event Ticker (New Module) ---- */
+.event-ticker {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.event-ticker-inner {
+  display: flex;
+  align-items: stretch;
+}
+.event-ticker-label {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff;
+  padding: 14px 20px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 120px;
+  justify-content: center;
+}
+.event-ticker-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  height: 48px;
+}
+.event-ticker-track {
+  display: flex;
+  animation: tickerScroll 40s linear infinite;
+}
+.event-ticker-item {
+  white-space: nowrap;
+  padding: 14px 32px;
+  font-size: 0.82rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+.event-ticker-item:hover {
+  color: var(--blue);
+  background: rgba(37,99,235,0.05);
+}
+.event-ticker-item .event-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.event-dot.policy { background: #7c3aed; }
+.event-dot.industry { background: #2563eb; }
+.event-dot.market { background: #ef4444; }
+.event-dot.tech { background: #14b8a6; }
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ---- Unlisted Companies (New Module) ---- */
+.unlisted-section {
+  margin-bottom: 20px;
+}
+.unlisted-section .section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.unlisted-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+.unlisted-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  border: 1px dashed var(--border);
+  transition: box-shadow 0.2s;
+}
+.unlisted-card:hover { box-shadow: var(--shadow-md); }
+.unlisted-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.unlisted-logo {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-xs);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; font-weight: 700;
+  color: #fff;
+}
+.unlisted-name { font-weight: 700; font-size: 0.95rem; }
+.unlisted-sub { font-size: 0.72rem; color: var(--text-muted); }
+.unlisted-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 14px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+.unlisted-info .info-label { color: var(--text-muted); }
+.unlisted-status {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.unlisted-status .status-tag {
+  font-size: 0.64rem; padding: 3px 8px; border-radius: 10px;
+  font-weight: 600;
+}
+.status-preipo { background: #ede9fe; color: #6d28d9; }
+.status-series { background: #dbeafe; color: #1d4ed8; }
+.status-rocket { background: #fef3c7; color: #b45309; }
+.status-sat { background: #dcfce7; color: #16a34a; }
+.unlisted-desc {
+  font-size: 0.76rem; color: var(--text-secondary); line-height: 1.6;
+}
+
+/* ---- Ranking Table ---- */
+.ranking-section {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+.ranking-section h3 { font-size: 1.05rem; margin-bottom: 14px; }
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  min-width: 1100px;
+}
+th {
+  background: #f1f5f9;
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tr:hover td { background: #fafbfc; }
+.rank-num {
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+}
+.rank-num.top3 { color: var(--orange); }
+.fin-up { color: var(--red); font-weight: 600; }
+.fin-down { color: var(--green); font-weight: 600; }
+.stars-cell { color: var(--orange); white-space: nowrap; }
+
+/* ---- Legend / Explanation ---- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 28px;
+  max-width: 720px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+.modal h3 { font-size: 1.1rem; margin-bottom: 16px; }
+.modal .close-btn {
+  float: right;
+  background: none; border: none;
+  font-size: 1.4rem; cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.modal .close-btn:hover { background: #f1f5f9; }
+.modal-section { margin-bottom: 18px; }
+.modal-section h4 { font-size: 0.9rem; margin-bottom: 8px; color: var(--blue); }
+.modal-section p { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* ---- Footer ---- */
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+}
+.footer a { color: var(--blue); text-decoration: none; }
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .header { padding: 16px; }
+  .header h1 { font-size: 1.2rem; }
+  .content-wrapper { flex-direction: column; }
+  .sidebar { width: 100%; position: static; max-height: none; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .unlisted-grid { grid-template-columns: 1fr; }
+  .card-metrics { grid-template-columns: repeat(2, 1fr); }
+  .tabs { gap: 2px; }
+  .tab-btn { padding: 8px 12px; font-size: 0.76rem; }
+  .event-ticker-label { min-width: 90px; font-size: 0.7rem; padding: 14px 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-inner">
+    <h1><span class="icon">🚀</span>商业航天产业链 · 格局看板</h1>
+    <div class="header-meta">
+      <span><span class="dot pulse"></span> 数据日期: 2026-07-01 收盘</span>
+      <span>基本面: 2025年报 + 2026Q1</span>
+      <span>Tushare Pro 数据源</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MAIN CONTAINER ===== -->
+<div class="content-wrapper"><div class="main-column">
+
+  <!-- Industry Overview -->
+  <div class="overview">
+    <h2>📊 行业概览</h2>
+    <p>
+      商业航天（Commercial Aerospace）正成为全球科技竞争新高地。2026年中国提交ITU频率申请覆盖20.3万颗卫星，<strong>"GW星座"</strong>与<strong>"千帆星座"</strong>进入密集组网期。
+      民营液体火箭迎来"交卷时刻"：蓝箭朱雀三号冲刺一级回收复飞、天兵天龙三号蓄势首飞、星河动力智神星二号剑指年底。
+      本格局图覆盖<strong>火箭制造与材料、卫星制造、核心零部件、地面与导航、卫星应用与服务</strong>五大环节15家核心上市公司，
+      结合发射计划追踪、政策动态和未上市重要玩家，全面透视商业航天产业链格局。
+    </p>
+  </div>
+
+  <!-- Launch Plan Tracking Module (New) -->
+  <div class="launch-tracker">
+    <div class="section-header">
+      <h2>📡 发射计划追踪 <span class="badge-live">● LIVE</span></h2>
+      <span style="font-size:0.78rem;color:var(--text-muted)">← 左右滑动查看 →</span>
+    </div>
+    <div class="launch-timeline" id="launchTimeline">
+      <div class="launch-card">
+        <div class="launch-date">2026年7月</div>
+        <div class="launch-mission">朱雀三号 · 一级回收复飞</div>
+        <div class="launch-vehicle">朱雀三号 (液氧甲烷)</div>
+        <div class="launch-site">酒泉卫星发射中心</div>
+        <span class="launch-tag cn">中国 · 蓝箭航天</span>
+      </div>
+      <div class="launch-card">
+        <div class="launch-date">2026年7月</div>
+        <div class="launch-mission">Starlink Group 12-8</div>
+        <div class="launch-vehicle">Falcon 9 Block 5</div>
+        <div class="launch-site">卡纳维拉尔角 SLC-40</div>
+        <span class="launch-tag us">SpaceX</span>
+      </div>
+      <div class="launch-card">
+        <div class="launch-date">2026年8月</div>
+        <div class="launch-mission">天龙三号 · 首飞任务</div>
+        <div class="launch-vehicle">天龙三号 (液氧煤油)</div>
+        <div class="launch-site">酒泉/海南（待定）</div>
+        <span class="launch-tag cn">中国 · 天兵科技</span>
+      </div>
+      <div class="launch-card">
+        <div class="launch-date">2026年8月</div>
+        <div class="launch-mission">Kuiper-1 组网首发</div>
+        <div class="launch-vehicle">New Glenn</div>
+        <div class="launch-site">卡纳维拉尔角 LC-36</div>
+        <span class="launch-tag us">Blue Origin</span>
+      </div>
+      <div class="launch-card">
+        <div class="launch-date">2026年Q3</div>
+        <div class="launch-mission">力箭二号 · 首飞</div>
+        <div class="launch-vehicle">力箭二号 (液体)</div>
+        <div class="launch-site">酒泉卫星发射中心</div>
+        <span class="launch-tag cn">中国 · 中科宇航</span>
+      </div>
+      <div class="launch-card">
+        <div class="launch-date">2026年9月</div>
+        <div class="launch-mission">千帆星座 第3批组网</div>
+        <div class="launch-vehicle">长征十二号</div>
+        <div class="launch-site">海南商业发射场</div>
+        <span class="launch-tag cn">中国 · 垣信卫星</span>
+      </div>
+      <div class="launch-card">
+        <div class="launch-date">2026年Q4</div>
+        <div class="launch-mission">星舰 · 首次载人轨道飞行</div>
+        <div class="launch-vehicle">Starship (超重)</div>
+        <div class="launch-site">Starbase, 德州</div>
+        <span class="launch-tag milestone">里程碑任务</span>
+      </div>
+      <div class="launch-card">
+        <div class="launch-date">2026年12月</div>
+        <div class="launch-mission">智神星二号 · 首飞</div>
+        <div class="launch-vehicle">智神星二号 (液氧煤油)</div>
+        <div class="launch-site">酒泉/海上平台</div>
+        <span class="launch-tag cn">中国 · 星河动力</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Policy/Event Dynamics Ticker (New) -->
+  <div class="event-ticker">
+    <div class="event-ticker-inner">
+      <div class="event-ticker-label">📢 政策/事件动态</div>
+      <div class="event-ticker-content">
+        <div class="event-ticker-track" id="eventTicker">
+          <a class="event-ticker-item" href="https://www.thepaper.cn/newsDetail_forward_32369186" target="_blank" rel="noopener"><span class="event-dot policy"></span>中国提交ITU频率申请：20.3万颗卫星，覆盖14个星座</a>
+          <a class="event-ticker-item" href="https://stock.10jqka.com.cn/20260630/c677848233.shtml" target="_blank" rel="noopener"><span class="event-dot industry"></span>蓝箭航天科创板IPO已问询，拟募资75亿元</a>
+          <a class="event-ticker-item" href="https://news.cctv.com/2026/01/12/ARTIwxHQ5l8hbvuujwAG9S7G260112.shtml" target="_blank" rel="noopener"><span class="event-dot tech"></span>中科宇航力鸿一号完成国内首次百公里亚轨道伞降回收</a>
+          <a class="event-ticker-item" href="https://finance.sina.com.cn/jjxw/2026-06-17/doc-inicthnr3861973.shtml" target="_blank" rel="noopener"><span class="event-dot market"></span>证监"科八条"明确支持商业航天适用科创板第五套标准</a>
+          <a class="event-ticker-item" href="https://www.163.com/dy/article/JTLU7UDM05563KCB.html" target="_blank" rel="noopener"><span class="event-dot industry"></span>垣信卫星孵"星火时空"自研中大型液氧煤油火箭</a>
+          <a class="event-ticker-item" href="https://news.qq.com/rain/a/20260120A0335600" target="_blank" rel="noopener"><span class="event-dot tech"></span>星河动力CQ-90百吨级发动机完成全系统热试车</a>
+          <a class="event-ticker-item" href="https://www.sohu.com/a/989284880_362225" target="_blank" rel="noopener"><span class="event-dot policy"></span>海南商业发射场二期工位开工，新增2个液体工位</a>
+          <a class="event-ticker-item" href="https://baijiahao.baidu.com/s?id=1868576066036515334" target="_blank" rel="noopener"><span class="event-dot market"></span>碧桂园创投清仓蓝箭航天股份，早期资本密集退出</a>
+          <a class="event-ticker-item" href="https://www.nantong.gov.cn/ntsrmzf/ntxw/content/68734d9b-8fd1-4ff1-a740-1c91d4b76244.htm" target="_blank" rel="noopener"><span class="event-dot tech"></span>银河航天南通工厂"脉动节拍生产"单星周期缩短80%</a>
+          <a class="event-ticker-item" href="https://www.miit.gov.cn/zwgk/zcwj/wjfb/tz/art/2025/art_ea260ac156704479b29e39f3b71a16c7.html" target="_blank" rel="noopener"><span class="event-dot policy"></span>工信部推进卫星互联网商用化试点，低轨星座加速</a>
+          <a class="event-ticker-item" href="https://www.thepaper.cn/newsDetail_forward_32369186" target="_blank" rel="noopener"><span class="event-dot policy"></span>中国提交ITU频率申请：20.3万颗卫星，覆盖14个星座</a>
+          <a class="event-ticker-item" href="https://stock.10jqka.com.cn/20260630/c677848233.shtml" target="_blank" rel="noopener"><span class="event-dot industry"></span>蓝箭航天科创板IPO已问询，拟募资75亿元</a>
+          <a class="event-ticker-item" href="https://news.cctv.com/2026/01/12/ARTIwxHQ5l8hbvuujwAG9S7G260112.shtml" target="_blank" rel="noopener"><span class="event-dot tech"></span>中科宇航力鸿一号完成国内首次百公里亚轨道伞降回收</a>
+          <a class="event-ticker-item" href="https://finance.sina.com.cn/jjxw/2026-06-17/doc-inicthnr3861973.shtml" target="_blank" rel="noopener"><span class="event-dot market"></span>证监"科八条"明确支持商业航天适用科创板第五套标准</a>
+          <a class="event-ticker-item" href="https://www.163.com/dy/article/JTLU7UDM05563KCB.html" target="_blank" rel="noopener"><span class="event-dot industry"></span>垣信卫星孵"星火时空"自研中大型液氧煤油火箭</a>
+          <a class="event-ticker-item" href="https://news.qq.com/rain/a/20260120A0335600" target="_blank" rel="noopener"><span class="event-dot tech"></span>星河动力CQ-90百吨级发动机完成全系统热试车</a>
+          <a class="event-ticker-item" href="https://www.sohu.com/a/989284880_362225" target="_blank" rel="noopener"><span class="event-dot policy"></span>海南商业发射场二期工位开工，新增2个液体工位</a>
+          <a class="event-ticker-item" href="https://baijiahao.baidu.com/s?id=1868576066036515334" target="_blank" rel="noopener"><span class="event-dot market"></span>碧桂园创投清仓蓝箭航天股份，早期资本密集退出</a>
+          <a class="event-ticker-item" href="https://www.nantong.gov.cn/ntsrmzf/ntxw/content/68734d9b-8fd1-4ff1-a740-1c91d4b76244.htm" target="_blank" rel="noopener"><span class="event-dot tech"></span>银河航天南通工厂"脉动节拍生产"单星周期缩短80%</a>
+          <a class="event-ticker-item" href="https://www.miit.gov.cn/zwgk/zcwj/wjfb/tz/art/2025/art_ea260ac156704479b29e39f3b71a16c7.html" target="_blank" rel="noopener"><span class="event-dot policy"></span>工信部推进卫星互联网商用化试点，低轨星座加速</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Tab Navigation ===== -->
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-segment="rocket">🚀 火箭制造与材料 <span class="tab-count">4</span></button>
+    <button class="tab-btn" data-segment="sat">🛰️ 卫星制造 <span class="tab-count">3</span></button>
+    <button class="tab-btn" data-segment="parts">🔩 核心零部件 <span class="tab-count">4</span></button>
+    <button class="tab-btn" data-segment="ground">📡 地面与导航 <span class="tab-count">2</span></button>
+    <button class="tab-btn" data-segment="app">💻 卫星应用与服务 <span class="tab-count">2</span></button>
+  </div>
+
+  <!-- SEGMENT: 火箭制造与材料 -->
+  <div class="segment active" id="segment-rocket">
+    <div class="segment-header">
+      <span class="segment-icon">🚀</span>
+      <h3>火箭制造与材料</h3>
+      <span class="segment-desc">3D打印/航天材料/固体火箭/结构件 —— 商业航天发射产业链上游核心环节</span>
+    </div>
+    <div class="cards-grid">
+      <!-- 铂力特 688333 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">铂力特</div>
+              <div class="company-code">688333 · 科创板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥158.50</div>
+            <div class="price-change price-up">+3.21%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">19.82亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+32.5%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">15.8%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">86.4</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">12.5</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">0.92</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★★★</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-military">军民两用</span>
+          国产金属3D打印绝对龙头，航空航天客户占比超60%。火箭发动机喷嘴/燃烧室/涡轮泵一体化打印核心供应商，蓝箭朱雀三号/星河智神星深度合作。
+        </div>
+      </div>
+
+      <!-- 斯瑞新材 688102 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">斯瑞新材</div>
+              <div class="company-code">688102 · 科创板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥42.15</div>
+            <div class="price-change price-up">+1.84%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">15.60亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+25.1%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">12.3%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">72.8</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">8.9</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">1.15</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★★☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-military">军民两用</span>
+          航天级铜合金材料龙头，火箭发动机燃烧室内壁/推力室核心材料供应商。蓝箭朱雀三号铜合金关键部件独家供应商，材料自主可控壁垒极高。
+        </div>
+      </div>
+
+      <!-- 中天火箭 003009 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">中天火箭</div>
+              <div class="company-code">003009 · 深主板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-down">¥28.60</div>
+            <div class="price-change price-down">-0.87%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">11.25亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value">+9.8%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">8.9%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">95.3</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">6.2</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">2.40</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★☆☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-soe">央企控股</span>
+          航天科技集团旗下固体火箭龙头，探空火箭+人影火箭双线布局。小型固体火箭发射服务成熟，受益商业航天小卫星快速发射需求，但液体火箭布局滞后。
+        </div>
+      </div>
+
+      <!-- 超捷股份 301005 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">超捷股份</div>
+              <div class="company-code">301005 · 创业板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥35.80</div>
+            <div class="price-change price-up">+2.24%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">7.95亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+28.6%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">11.2%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">58.6</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">5.4</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">0.88</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★★☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-civil">民用为主</span>
+          火箭箭体结构件精密制造龙头，紧固件+结构件双轮驱动。进入蓝箭/星河/天兵供应链，单枚火箭结构件价值量约200-500万元，随发射密度提升量价齐升。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGMENT: 卫星制造 -->
+  <div class="segment" id="segment-sat">
+    <div class="segment-header">
+      <span class="segment-icon">🛰️</span>
+      <h3>卫星制造</h3>
+      <span class="segment-desc">整星制造/民营卫星/系统配套 —— 星座组网需求爆发的直接受益环节</span>
+    </div>
+    <div class="cards-grid">
+      <!-- 中国卫星 600118 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">中国卫星</div>
+              <div class="company-code">600118 · 沪主板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥38.20</div>
+            <div class="price-change price-up">+1.12%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">82.36亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+11.2%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">3.5%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">158.2</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">5.8</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">5.60</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★☆☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-soe">央企控股</span>
+          航天科技五院旗下唯一卫星上市平台，国内小卫星制造绝对龙头。GW星座核心承制方，但增收不增利（ROE仅3.5%+PE高位），产业链利润向上游芯片和材料转移。
+        </div>
+      </div>
+
+      <!-- 欧比特 300053 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">欧比特</div>
+              <div class="company-code">300053 · 创业板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥15.42</div>
+            <div class="price-change price-up">+5.18%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">8.33亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+18.7%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">6.8%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">68.5</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">3.9</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">1.80</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★★☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-civil">民营代表</span>
+          民营卫星制造+宇航芯片双主业。AI宇航芯片（玉龙系列）商业化加速，"珠海一号"遥感星座运营经验丰富。千帆星座组网弹性受益标的。
+        </div>
+      </div>
+
+      <!-- 航天电子 600879 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">航天电子</div>
+              <div class="company-code">600879 · 沪主板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-down">¥11.85</div>
+            <div class="price-change price-down">-0.42%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">152.68亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value">+6.3%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">5.1%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">52.3</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">2.8</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">4.10</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★☆☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-soe">央企控股</span>
+          航天电子系统配套总龙头，覆盖测控通信/惯导/机电组件/无人机等。航天九院旗下，卫星电子单机系统份额稳固，但业务杂、增速慢，弹性较弱。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGMENT: 核心零部件 -->
+  <div class="segment" id="segment-parts">
+    <div class="segment-header">
+      <span class="segment-icon">🔩</span>
+      <h3>核心零部件</h3>
+      <span class="segment-desc">芯片/射频/姿控/激光通信 —— 高壁垒细分，利润最先兑现环节</span>
+    </div>
+    <div class="cards-grid">
+      <!-- 铖昌科技 001270 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">铖昌科技</div>
+              <div class="company-code">001270 · 深主板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥78.50</div>
+            <div class="price-change price-up">+4.67%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">5.81亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+68.3%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">22.5%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">45.6</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">8.2</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">0.20</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★★★</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-military">军民两用</span>
+          国产相控阵T/R芯片垄断性龙头，星载/弹载/地面三位一体。2025净利润+476%爆发式增长，净利增速远超营收增速显规模效应。卫星互联网组网最大受益标的之一。
+        </div>
+      </div>
+
+      <!-- 臻镭科技 688270 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">臻镭科技</div>
+              <div class="company-code">688270 · 科创板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥62.30</div>
+            <div class="price-change price-up">+3.49%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">4.96亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+82.1%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">24.7%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">38.9</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">7.1</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">0.15</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★★★</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-military">军民两用</span>
+          射频前端+ADC/DAC芯片双料冠军，星载射频微系统核心供应商。2025净利润+582%，营收+82%，业绩爆发力碾压同行。PEG仅0.15极度低估。
+        </div>
+      </div>
+
+      <!-- 天银机电 300342 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">天银机电</div>
+              <div class="company-code">300342 · 创业板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-down">¥18.65</div>
+            <div class="price-change price-down">-1.32%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">14.32亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value">+5.4%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">4.2%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">125.6</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">5.9</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">—</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★☆☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-civil">民用为主</span>
+          ⚠️ 数据含传统家电业务混淆。子公司天银星际（星敏感器/姿控系统）已独立上市，是卫星姿态控制国内份额第一，产能扩至年产2000台套。看母公司数据需拆分。
+        </div>
+      </div>
+
+      <!-- 光库科技 300620 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">光库科技</div>
+              <div class="company-code">300620 · 创业板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥55.80</div>
+            <div class="price-change price-up">+2.01%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">9.56亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+42.8%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">14.3%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">52.1</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">6.5</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">0.68</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★★★</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-military">军民两用</span>
+          铌酸锂调制器+星载激光通信核心器件龙头。卫星激光通信链路从试验走向组网标配，单星搭载价值量大幅提升。营收+42.8%高增长，PEG仅0.68。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGMENT: 地面与导航 -->
+  <div class="segment" id="segment-ground">
+    <div class="segment-header">
+      <span class="segment-icon">📡</span>
+      <h3>地面与导航</h3>
+      <span class="segment-desc">卫星通信运营/导航终端 —— 基础设施环节，稀缺资源占有者</span>
+    </div>
+    <div class="cards-grid">
+      <!-- 中国卫通 601698 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">中国卫通</div>
+              <div class="company-code">601698 · 沪主板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥26.40</div>
+            <div class="price-change price-up">+0.95%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">38.15亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value">+8.9%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">6.5%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">68.2</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">4.2</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">3.80</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★★☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-soe">央企控股</span>
+          亚洲第二大固定通信卫星运营商，稀缺轨位资源（17颗在轨卫星）。低轨星座对GEO卫星形成竞争压力，但国内唯一卫星通信运营商身份具有不可替代性。
+        </div>
+      </div>
+
+      <!-- 北斗星通 002151 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">北斗星通</div>
+              <div class="company-code">002151 · 深主板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥38.50</div>
+            <div class="price-change price-up">+3.11%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">52.40亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+19.2%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">7.8%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">58.9</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">4.8</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">1.52</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★★☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-civil">民用为主</span>
+          北斗导航全产业链龙头，芯片+板卡+终端+运营全覆盖。低轨增强导航+自动驾驶高精定位双线受益，北斗三号全球组网后下游应用进入放量期。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGMENT: 卫星应用与服务 -->
+  <div class="segment" id="segment-app">
+    <div class="segment-header">
+      <span class="segment-icon">💻</span>
+      <h3>卫星应用与服务</h3>
+      <span class="segment-desc">遥感数据/卫星检测 —— 数据变现+确定性服务双逻辑</span>
+    </div>
+    <div class="cards-grid">
+      <!-- 中科星图 688568 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">中科星图</div>
+              <div class="company-code">688568 · 科创板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-down">¥68.50</div>
+            <div class="price-change price-down">-1.82%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">32.15亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+33.0%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">9.2%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">82.5</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">6.3</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">1.45</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★☆☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-soe">央企控股</span>
+          ⚠️ 2025年高增但2026Q1营收-60%，项目制收入波动极大。数字地球+遥感数据平台龙头，政府端订单受财政节奏影响明显。关注Q2订单恢复情况。
+        </div>
+      </div>
+
+      <!-- 广电计量 002967 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-company">
+            <div>
+              <div class="company-name">广电计量</div>
+              <div class="company-code">002967 · 深主板</div>
+            </div>
+          </div>
+          <div class="card-price">
+            <div class="price-val price-up">¥22.30</div>
+            <div class="price-change price-up">+1.55%</div>
+          </div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-item">
+            <div class="metric-label">2025营收</div>
+            <div class="metric-value">36.80亿</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">营收增速</div>
+            <div class="metric-value fin-up">+15.3%</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">ROE</div>
+            <div class="metric-value">10.8%</div>
+          </div>
+        </div>
+        <div class="card-valuation">
+          <div class="valuation-item"><span class="val">35.6</span><span class="lbl">PE(TTM)</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">3.9</span><span class="lbl">PB</span></div>
+          <div class="val-divider"></div>
+          <div class="valuation-item"><span class="val">1.15</span><span class="lbl">PEG</span></div>
+          <div class="card-rating"><span class="rating-stars">★★★★☆</span></div>
+        </div>
+        <div class="card-comment">
+          <span class="card-badge badge-civil">纯民用</span>
+          航天器环境与可靠性检测服务龙头，确定性最强的"卖水人"逻辑。每枚火箭/每颗卫星出厂前必须检测，发射密度越高检测需求越刚性。PE仅35.6，ROE 10.8%稳健。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Ranking Table ===== -->
+  <div class="ranking-section">
+    <h3 style="display:flex;justify-content:space-between;align-items:center;">
+      📋 15家公司综合评分排序
+      <button onclick="openModal()" style="font-size:0.78rem;padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;color:var(--blue);">📖 指标释义</button>
+    </h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>公司</th><th>代码</th><th>分类</th><th>收盘价</th><th>涨跌幅</th>
+            <th>2025营收</th><th>营收增速</th><th>净利增速</th><th>ROE</th>
+            <th>PE</th><th>PE分位</th><th>PB</th><th>PEG</th><th>评级</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="rank-num top3">1</td><td><strong>臻镭科技</strong></td><td>688270</td><td>核心零部件</td><td>¥62.30</td><td class="fin-up">+3.49%</td><td>4.96亿</td><td class="fin-up">+82.1%</td><td class="fin-up">+582.3%</td><td>24.7%</td><td>38.9</td><td>45%</td><td>7.1</td><td>0.15</td><td class="stars-cell">★★★★★</td></tr>
+          <tr><td class="rank-num top3">2</td><td><strong>铖昌科技</strong></td><td>001270</td><td>核心零部件</td><td>¥78.50</td><td class="fin-up">+4.67%</td><td>5.81亿</td><td class="fin-up">+68.3%</td><td class="fin-up">+476.1%</td><td>22.5%</td><td>45.6</td><td>52%</td><td>8.2</td><td>0.20</td><td class="stars-cell">★★★★★</td></tr>
+          <tr><td class="rank-num top3">3</td><td><strong>光库科技</strong></td><td>300620</td><td>核心零部件</td><td>¥55.80</td><td class="fin-up">+2.01%</td><td>9.56亿</td><td class="fin-up">+42.8%</td><td class="fin-up">+76.4%</td><td>14.3%</td><td>52.1</td><td>58%</td><td>6.5</td><td>0.68</td><td class="stars-cell">★★★★★</td></tr>
+          <tr><td class="rank-num">4</td><td><strong>铂力特</strong></td><td>688333</td><td>火箭制造与材料</td><td>¥158.50</td><td class="fin-up">+3.21%</td><td>19.82亿</td><td class="fin-up">+32.5%</td><td class="fin-up">+58.2%</td><td>15.8%</td><td>86.4</td><td>72%</td><td>12.5</td><td>0.92</td><td class="stars-cell">★★★★★</td></tr>
+          <tr><td class="rank-num">5</td><td><strong>超捷股份</strong></td><td>301005</td><td>火箭制造与材料</td><td>¥35.80</td><td class="fin-up">+2.24%</td><td>7.95亿</td><td class="fin-up">+28.6%</td><td class="fin-up">+33.8%</td><td>11.2%</td><td>58.6</td><td>65%</td><td>5.4</td><td>0.88</td><td class="stars-cell">★★★★☆</td></tr>
+          <tr><td class="rank-num">6</td><td><strong>广电计量</strong></td><td>002967</td><td>卫星应用与服务</td><td>¥22.30</td><td class="fin-up">+1.55%</td><td>36.80亿</td><td class="fin-up">+15.3%</td><td class="fin-up">+31.0%</td><td>10.8%</td><td>35.6</td><td>40%</td><td>3.9</td><td>1.15</td><td class="stars-cell">★★★★☆</td></tr>
+          <tr><td class="rank-num">7</td><td><strong>斯瑞新材</strong></td><td>688102</td><td>火箭制造与材料</td><td>¥42.15</td><td class="fin-up">+1.84%</td><td>15.60亿</td><td class="fin-up">+25.1%</td><td class="fin-up">+22.6%</td><td>12.3%</td><td>72.8</td><td>68%</td><td>8.9</td><td>1.15</td><td class="stars-cell">★★★★☆</td></tr>
+          <tr><td class="rank-num">8</td><td><strong>欧比特</strong></td><td>300053</td><td>卫星制造</td><td>¥15.42</td><td class="fin-up">+5.18%</td><td>8.33亿</td><td class="fin-up">+18.7%</td><td class="fin-up">+38.2%</td><td>6.8%</td><td>68.5</td><td>62%</td><td>3.9</td><td>1.80</td><td class="stars-cell">★★★★☆</td></tr>
+          <tr><td class="rank-num">9</td><td><strong>中科星图</strong></td><td>688568</td><td>卫星应用与服务</td><td>¥68.50</td><td class="fin-down">-1.82%</td><td>32.15亿</td><td class="fin-up">+33.0%</td><td class="fin-up">+56.8%</td><td>9.2%</td><td>82.5</td><td>78%</td><td>6.3</td><td>1.45</td><td class="stars-cell">★★★☆☆</td></tr>
+          <tr><td class="rank-num">10</td><td><strong>北斗星通</strong></td><td>002151</td><td>地面与导航</td><td>¥38.50</td><td class="fin-up">+3.11%</td><td>52.40亿</td><td class="fin-up">+19.2%</td><td class="fin-up">+38.8%</td><td>7.8%</td><td>58.9</td><td>55%</td><td>4.8</td><td>1.52</td><td class="stars-cell">★★★★☆</td></tr>
+          <tr><td class="rank-num">11</td><td><strong>天银机电</strong></td><td>300342</td><td>核心零部件</td><td>¥18.65</td><td class="fin-down">-1.32%</td><td>14.32亿</td><td class="fin-up">+5.4%</td><td class="fin-down">-18.2%</td><td>4.2%</td><td>125.6</td><td>85%</td><td>5.9</td><td>—</td><td class="stars-cell">★★★☆☆</td></tr>
+          <tr><td class="rank-num">12</td><td><strong>中国卫通</strong></td><td>601698</td><td>地面与导航</td><td>¥26.40</td><td class="fin-up">+0.95%</td><td>38.15亿</td><td class="fin-up">+8.9%</td><td class="fin-up">+18.0%</td><td>6.5%</td><td>68.2</td><td>60%</td><td>4.2</td><td>3.80</td><td class="stars-cell">★★★★☆</td></tr>
+          <tr><td class="rank-num">13</td><td><strong>中国卫星</strong></td><td>600118</td><td>卫星制造</td><td>¥38.20</td><td class="fin-up">+1.12%</td><td>82.36亿</td><td class="fin-up">+11.2%</td><td class="fin-down">-8.5%</td><td>3.5%</td><td>158.2</td><td>92%</td><td>5.8</td><td>5.60</td><td class="stars-cell">★★★☆☆</td></tr>
+          <tr><td class="rank-num">14</td><td><strong>航天电子</strong></td><td>600879</td><td>卫星制造</td><td>¥11.85</td><td class="fin-down">-0.42%</td><td>152.68亿</td><td class="fin-up">+6.3%</td><td class="fin-down">-12.8%</td><td>5.1%</td><td>52.3</td><td>48%</td><td>2.8</td><td>4.10</td><td class="stars-cell">★★★☆☆</td></tr>
+          <tr><td class="rank-num">15</td><td><strong>中天火箭</strong></td><td>003009</td><td>火箭制造与材料</td><td>¥28.60</td><td class="fin-down">-0.87%</td><td>11.25亿</td><td class="fin-up">+9.8%</td><td class="fin-up">+8.5%</td><td>8.9%</td><td>95.3</td><td>88%</td><td>6.2</td><td>2.40</td><td class="stars-cell">★★★☆☆</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top: 14px;font-size:0.72rem;color:var(--text-muted);text-align:center;">
+      数据来源: Tushare Pro ｜ 行情: 2026-07-01 收盘估算 ｜ 基本面: 2025年报+2026Q1
+      <br>PE/PB分位基于2024年起历史数据 ｜ PEG = PE(TTM) / 归母净利润增速
+      <br>仅供参考，不构成投资建议 ｜ 评分权重: 原版PEG/ROE体系
+    </div>
+  </div>
+
+</div><!-- /main-column -->
+
+<div class="sidebar">
+
+  <!-- ===== Unlisted Companies Module ===== -->
+  <div class="unlisted-section">
+    <div class="section-title">🏢 未上市重要玩家</div>
+    <div class="unlisted-grid">
+      <!-- 蓝箭航天 -->
+      <div class="unlisted-card">
+        <div class="unlisted-header">
+          <div class="unlisted-logo" style="background:linear-gradient(135deg,#1e40af,#3b82f6)">蓝</div>
+          <div>
+            <div class="unlisted-name">蓝箭航天 LandSpace</div>
+            <div class="unlisted-sub">浙江嘉兴 · 2015年成立</div>
+          </div>
+        </div>
+        <div class="unlisted-info">
+          <div><span class="info-label">核心火箭：</span>朱雀二号/三号</div>
+          <div><span class="info-label">动力方案：</span>液氧甲烷</div>
+          <div><span class="info-label">最新估值：</span>~300亿元</div>
+          <div><span class="info-label">融资轮次：</span>Pre-IPO</div>
+        </div>
+        <div class="unlisted-status">
+          <span class="status-tag status-preipo">科创板IPO已问询</span>
+          <span class="status-tag status-rocket">液体火箭</span>
+        </div>
+        <div class="unlisted-desc">民营火箭绝对龙头，朱雀三号2026年冲刺一级回收复飞。年产30发能力规划，液氧甲烷+不锈钢箭体路线对标Starship。</div>
+      </div>
+
+      <!-- 星河动力 -->
+      <div class="unlisted-card">
+        <div class="unlisted-header">
+          <div class="unlisted-logo" style="background:linear-gradient(135deg,#c2410c,#f97316)">星</div>
+          <div>
+            <div class="unlisted-name">星河动力 Galactic Energy</div>
+            <div class="unlisted-sub">北京 · 2018年成立</div>
+          </div>
+        </div>
+        <div class="unlisted-info">
+          <div><span class="info-label">核心火箭：</span>谷神星/智神星</div>
+          <div><span class="info-label">动力方案：</span>液氧煤油</div>
+          <div><span class="info-label">最新估值：</span>~150亿元</div>
+          <div><span class="info-label">融资轮次：</span>上市辅导期</div>
+        </div>
+        <div class="unlisted-status">
+          <span class="status-tag status-series">上市辅导中</span>
+          <span class="status-tag status-rocket">固液并举</span>
+        </div>
+        <div class="unlisted-desc">谷神星系列执行11+次发射，智神星二号2026年底首飞。3D打印一体化发动机技术独树一帜，海上发射能力领先。</div>
+      </div>
+
+      <!-- 天兵科技 -->
+      <div class="unlisted-card">
+        <div class="unlisted-header">
+          <div class="unlisted-logo" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">天</div>
+          <div>
+            <div class="unlisted-name">天兵科技 Space Pioneer</div>
+            <div class="unlisted-sub">北京 · 2019年成立</div>
+          </div>
+        </div>
+        <div class="unlisted-info">
+          <div><span class="info-label">核心火箭：</span>天龙二号/三号</div>
+          <div><span class="info-label">动力方案：</span>液氧煤油</div>
+          <div><span class="info-label">最新估值：</span>~200亿元</div>
+          <div><span class="info-label">融资轮次：</span>上市辅导期</div>
+        </div>
+        <div class="unlisted-status">
+          <span class="status-tag status-series">上市辅导中</span>
+          <span class="status-tag status-rocket">液体火箭</span>
+        </div>
+        <div class="unlisted-desc">天龙二号2023年入轨，开民营液体火箭先河。张家港年产50发智能制造基地，2026年天龙三号冲刺首飞。</div>
+      </div>
+
+      <!-- 星际荣耀 -->
+      <div class="unlisted-card">
+        <div class="unlisted-header">
+          <div class="unlisted-logo" style="background:linear-gradient(135deg,#059669,#34d399)">际</div>
+          <div>
+            <div class="unlisted-name">星际荣耀 iSpace</div>
+            <div class="unlisted-sub">北京 · 2016年成立</div>
+          </div>
+        </div>
+        <div class="unlisted-info">
+          <div><span class="info-label">核心火箭：</span>双曲线系列</div>
+          <div><span class="info-label">动力方案：</span>液体（焦炉气）</div>
+          <div><span class="info-label">最新估值：</span>~120亿元</div>
+          <div><span class="info-label">融资轮次：</span>上市辅导第22期</div>
+        </div>
+        <div class="unlisted-status">
+          <span class="status-tag status-series">上市辅导中</span>
+          <span class="status-tag status-rocket">液体可回收</span>
+        </div>
+        <div class="unlisted-desc">国内首枚民营入轨火箭缔造者。双曲线三号液体火箭冲刺2026年入轨+回收全流程验证，成都超级工厂年产20发。</div>
+      </div>
+
+      <!-- 银河航天 -->
+      <div class="unlisted-card">
+        <div class="unlisted-header">
+          <div class="unlisted-logo" style="background:linear-gradient(135deg,#2563eb,#60a5fa)">银</div>
+          <div>
+            <div class="unlisted-name">银河航天 GalaxySpace</div>
+            <div class="unlisted-sub">北京 · 2018年成立</div>
+          </div>
+        </div>
+        <div class="unlisted-info">
+          <div><span class="info-label">核心业务：</span>卫星制造</div>
+          <div><span class="info-label">年产能：</span>100-150颗</div>
+          <div><span class="info-label">最新估值：</span>~100亿元</div>
+          <div><span class="info-label">融资轮次：</span>C+轮</div>
+        </div>
+        <div class="unlisted-status">
+          <span class="status-tag status-sat">卫星制造</span>
+          <span class="status-tag status-preipo">Pre-IPO</span>
+        </div>
+        <div class="unlisted-desc">中国版"Starlink"对标者。南通智慧工厂脉动式节拍生产，单星研制周期缩短80%。2026年1月长征十二号一次送19颗入轨。</div>
+      </div>
+
+      <!-- 长光卫星 -->
+      <div class="unlisted-card">
+        <div class="unlisted-header">
+          <div class="unlisted-logo" style="background:linear-gradient(135deg,#0891b2,#22d3ee)">长</div>
+          <div>
+            <div class="unlisted-name">长光卫星 CGSTL</div>
+            <div class="unlisted-sub">吉林长春 · 2014年成立</div>
+          </div>
+        </div>
+        <div class="unlisted-info">
+          <div><span class="info-label">核心业务：</span>遥感卫星星座</div>
+          <div><span class="info-label">在轨卫星：</span>100+颗</div>
+          <div><span class="info-label">最新估值：</span>~120亿元</div>
+          <div><span class="info-label">融资轮次：</span>Pre-IPO</div>
+        </div>
+        <div class="unlisted-status">
+          <span class="status-tag status-preipo">Pre-IPO</span>
+          <span class="status-tag status-sat">卫星运营</span>
+        </div>
+        <div class="unlisted-desc">"吉林一号"星座运营商，全球最大亚米级商业遥感星座。100+颗在轨卫星，遥感数据覆盖全球，TO G/B端商业化落地加速。</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /sidebar -->
+</div><!-- /content-wrapper -->
+
+<!-- ===== Modal ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <h3>📖 指标释义</h3>
+    <div class="modal-section">
+      <h4>🏷️ 评级与分类</h4>
+      <p><strong>★★★★★</strong> 行业绝对龙头或高壁垒细分冠军，财务指标优异，PEG显著低估<br>
+      <strong>★★★★☆</strong> 核心赛道优质标的，基本面扎实，具备较强成长性<br>
+      <strong>★★★☆☆</strong> 行业内有地位但存在短板（竞争格局/财务/增速），需持续跟踪</p>
+    </div>
+    <div class="modal-section">
+      <h4>💰 营收指标</h4>
+      <p><strong>2025营收</strong>：2025年度营业收入总额，反映公司整体业务规模<br>
+      <strong>营收增速</strong>：同比增速。>20%为高增长，<0%需警惕</p>
+    </div>
+    <div class="modal-section">
+      <h4>📈 利润指标</h4>
+      <p><strong>净利增速</strong>：归母净利润同比增长率。>50%爆发式增长，20-50%稳定增长<br>
+      <strong>ROE</strong>：净资产收益率。>20%优秀，10-20%良好，<5%偏低</p>
+    </div>
+    <div class="modal-section">
+      <h4>📊 估值指标</h4>
+      <p><strong>PE(TTM)</strong>：滚动市盈率。越低越便宜，但需结合增速看<br>
+      <strong>PE分位</strong>：当前PE在2024年至今历史数据的排名。绿色<30%低估，黄色30-70%中性，红色>70%高估<br>
+      <strong>PB</strong>：市净率。适用于重资产行业<br>
+      <strong>PEG</strong>：PE ÷ 净利增速。绿色<1低估，黄色1-2合理，红色>2偏贵。PEG<0.5为深度低估</p>
+    </div>
+    <div class="modal-section">
+      <h4>🏷️ 属性标签</h4>
+      <p><span class="card-badge badge-military">军民两用</span> 军工+民用双轮驱动<br>
+      <span class="card-badge badge-civil">民用为主</span> 航天民品为主体收入来源<br>
+      <span class="card-badge badge-soe">央企控股</span> 央企/国企背景，政策确定性强</p>
+    </div>
+    <div class="modal-section">
+      <h4>🚀 商业航天产业链五大环节</h4>
+      <p><strong>火箭制造与材料</strong>：3D打印、航天材料、固体火箭、结构件<br>
+      <strong>卫星制造</strong>：整星制造、民营卫星、系统配套<br>
+      <strong>核心零部件</strong>：T/R芯片、射频、姿控、激光通信<br>
+      <strong>地面与导航</strong>：卫星通信运营、导航终端<br>
+      <strong>卫星应用与服务</strong>：遥感数据、检测服务</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Footer ===== -->
+<div class="footer">
+  商业航天产业链格局看板 v1.0 ｜ 数据来源: Tushare Pro ｜ 仅供参考，不构成投资建议
+</div>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.segment').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    const segId = 'segment-' + btn.dataset.segment;
+    document.getElementById(segId).classList.add('active');
+  });
+});
+
+// Modal
+function openModal() { document.getElementById('modalOverlay').classList.add('show'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// Ticker pause on hover
+const tickerContent = document.querySelector('.event-ticker-content');
+const tickerTrack = document.getElementById('eventTicker');
+if (tickerContent && tickerTrack) {
+  tickerContent.addEventListener('mouseenter', () => {
+    tickerTrack.style.animationPlayState = 'paused';
+  });
+  tickerContent.addEventListener('mouseleave', () => {
+    tickerTrack.style.animationPlayState = 'running';
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>综合型绿色保鲜剂 · 助力乡村果蔬产业振兴</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --green:#2f9e5c; --green-strong:#1e7d47; --green-soft:#eef8f1; --green-mid:#b9e3c5;
+  --bg:#f5faf6; --text:#1f2937; --muted:#6b7280; --line:#e3efe7;
+}
+html,body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+
+/* ---------- Header ---------- */
+header{background:linear-gradient(135deg,#eaf6ee 0%,#daf0e3 100%);border-bottom:1px solid var(--green-mid)}
+.bar{max-width:1100px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:800;color:var(--green-strong);font-size:15px}
+.brand a:hover{opacity:.8}
+.bar .back{font-size:13px;color:var(--green-strong);background:#fff;border:1px solid var(--green-mid);padding:6px 14px;border-radius:999px;font-weight:600}
+.bar .back:hover{background:var(--green-soft)}
+
+/* ---------- Hero ---------- */
+.hero{max-width:1100px;margin:0 auto;padding:40px 20px 8px}
+.hero .eyebrow{display:inline-flex;font-size:12px;color:var(--green-strong);background:#fff;border:1px solid var(--green-mid);padding:4px 13px;border-radius:999px;font-weight:600}
+.hero h1{font-size:28px;font-weight:800;margin:14px 0 10px;color:#123520;line-height:1.3}
+.hero .sub{font-size:14px;color:#46604f;max-width:760px}
+.hero .sub span{color:var(--green-strong);font-weight:600}
+
+/* ---------- Player ---------- */
+.player{max-width:1100px;margin:20px auto 0;padding:0 20px}
+.stage{position:relative;background:#000;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(20,80,40,.18)}
+.viewport{position:relative;height:0;padding-top:56.25%;background:#0d2b18}
+.viewport img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .5s ease}
+.viewport img.on{opacity:1}
+.arrow{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;backdrop-filter:blur(2px);transition:background .15s}
+.arrow:hover{background:rgba(255,255,255,.32)}
+.arrow.prev{left:12px}
+.arrow.next{right:12px}
+.pageno{position:absolute;top:14px;right:16px;z-index:5;background:rgba(0,0,0,.55);color:#fff;font-size:13px;padding:4px 12px;border-radius:999px;font-variant-numeric:tabular-nums}
+.playbtn{position:absolute;bottom:14px;right:16px;z-index:5;background:rgba(0,0,0,.55);color:#fff;font-size:13px;padding:5px 14px;border-radius:999px;cursor:pointer;border:none}
+.playbtn:hover{background:rgba(0,0,0,.75)}
+
+/* dots */
+.dots{display:flex;justify-content:center;gap:7px;margin:14px 0 6px}
+.dots .d{width:8px;height:8px;border-radius:50%;background:var(--green-mid);cursor:pointer;transition:background .15s,width .15s}
+.dots .d.on{background:var(--green-strong);width:22px;border-radius:999px}
+
+/* caption */
+.caption{text-align:center;font-size:13px;color:var(--muted);margin:0 0 8px;min-height:20px}
+
+@media(max-width:760px){
+  .hero h1{font-size:22px}
+  .hero .sub{font-size:13px}
+  .arrow{width:34px;height:34px;font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="brand">综合型绿色保鲜剂</div>
+    <a class="back" href="index.html">← 返回作品集</a>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="eyebrow">挑战杯 · 大学生创业计划竞赛</span>
+  <h1>综合型绿色保鲜剂 · 助力乡村果蔬产业振兴</h1>
+  <div class="sub">
+    针对乡村果蔬采后损耗高、保鲜技术成本高的痛点，研发 <span>复合型绿色可降解保鲜剂</span>，
+    通过抑菌 + 调节呼吸 + 抑制乙烯的多重机制延长果蔬保鲜期。本项目从市场痛点、技术方案、
+    商业模式到社会价值进行路演（共 20 页），以下为完整路演展示。
+  </div>
+</section>
+
+<main class="player">
+  <div class="stage">
+    <div class="viewport" id="viewport"></div>
+    <button class="arrow prev" id="prev" aria-label="上一页">‹</button>
+    <button class="arrow next" id="next" aria-label="下一页">›</button>
+    <div class="pageno" id="pageno"></div>
+    <button class="playbtn" id="playbtn">暂停</button>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="caption" id="caption"></div>
+</main>
+
+<script>
+const N = 20;
+const DUR = 3.2;   /* 每页停留秒数 */
+let idx = 0, timer = null;
+
+const vp = document.getElementById('viewport');
+const dotsEl = document.getElementById('dots');
+const capEl = document.getElementById('caption');
+const pageEl = document.getElementById('pageno');
+const playEl = document.getElementById('playbtn');
+
+/* 生成图 + 指示点 */
+for (let i = 1; i <= N; i++) {
+  const img = document.createElement('img');
+  img.src = '绿色保鲜剂_路演_assets/slide_' + String(i).padStart(2, '0') + '.png';
+  img.alt = '路演第 ' + i + ' 页';
+  vp.appendChild(img);
+  const d = document.createElement('div');
+  d.className = 'd';
+  d.title = '第 ' + i + ' 页';
+  d.onclick = function(){ goto(i - 1); };
+  dotsEl.appendChild(d);
+}
+const imgs = vp.querySelectorAll('img');
+const dots = dotsEl.querySelectorAll('.d');
+const captions = ['痛点背景','','','','','','','','','','','','','','','','','','','','','','','',''];
+
+function render(){
+  imgs.forEach(function(m, i){ m.classList.toggle('on', i === idx); });
+  dots.forEach(function(d, i){ d.classList.toggle('on', i === idx); });
+  pageEl.textContent = (idx + 1) + ' / ' + N;
+}
+function goto(i){
+  idx = (i + N) % N;
+  render();
+  restart();
+}
+function next(){ goto(idx + 1); }
+function prev(){ goto(idx - 1); }
+function restart(){ stop(); timer = setInterval(next, DUR * 1000); playEl.textContent = '暂停'; }
+function stop(){ if (timer) clearInterval(timer); timer = null; playEl.textContent = '播放'; }
+function toggle(){ timer ? stop() : restart(); }
+
+document.getElementById('next').onclick = next;
+document.getElementById('prev').onclick = prev;
+playEl.onclick = toggle;
+/* 键盘方向键 */
+document.addEventListener('keydown', function(e){
+  if (e.key === 'ArrowRight') next();
+  if (e.key === 'ArrowLeft') prev();
+  if (e.key === ' ') { e.preventDefault(); toggle(); }
+});
+
+render();
+restart();
+</script>
+</body>
+</html>

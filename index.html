@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>闫烨 · 上海财经大学 国际商务硕士 · 作品集</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#2563eb; --blue-strong:#1d4ed8; --blue-soft:#eff6ff; --blue-mid:#bfdbfe;
+  --grad:linear-gradient(135deg,#eaf2fe 0%,#dfeafa 100%);
+  --card:#ffffff; --bg:#f6f9fd; --text:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+  --radius:14px; --shadow:0 1px 3px rgba(16,60,130,.06),0 6px 20px rgba(16,60,130,.05);
+}
+html,body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+/* ---------- Hero ---------- */
+.hero{background:var(--grad);border-bottom:1px solid var(--blue-mid)}
+.hero-inner{max-width:1120px;margin:0 auto;padding:46px 24px 40px}
+.hero .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--blue-strong);background:#fff;border:1px solid var(--blue-mid);padding:5px 14px;border-radius:999px;font-weight:600}
+.hero h1{font-size:30px;line-height:1.25;margin:16px 0 12px;font-weight:800;letter-spacing:.5px}
+.hero .sub{font-size:15px;color:#38506e;max-width:760px}
+.hero .tools{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px}
+.hero .tools .t{font-size:12px;color:#1e3a8a;background:#fff;border:1px solid var(--blue-mid);padding:5px 12px;border-radius:999px;font-weight:600}
+
+/* ---------- Sections ---------- */
+section.exp{margin:42px auto 0}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+.sec-head h2{font-size:21px;font-weight:800;color:#16324f}
+.sec-head .tag{font-size:12px;color:#1e6fb5;background:var(--blue-soft);border:1px solid var(--blue-mid);padding:4px 11px;border-radius:999px;font-weight:600}
+.sec-head .desc{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* ---------- Cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;cursor:pointer}
+a.card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(16,60,130,.1)}
+.card .badge{display:inline-flex;align-self:flex-start;font-size:11px;padding:3px 10px;border-radius:999px;background:var(--blue-soft);color:var(--blue-strong);font-weight:600;margin-bottom:12px}
+.card h3{font-size:16px;font-weight:800;margin-bottom:8px;color:#16324f}
+.card .desc{font-size:13px;color:#475569;flex:1}
+.card .meta{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.7}
+.card .meta b{color:#374151;font-weight:600}
+.card .btn{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:13px;font-weight:600;color:#fff;background:var(--blue);padding:9px 16px;border-radius:10px;align-self:flex-start}
+.card .btn:hover{background:var(--blue-strong)}
+.card .btn.ghost{background:transparent;color:var(--blue-strong);border:1px solid var(--blue-mid)}
+
+/* ---------- Footer ---------- */
+footer{margin:56px 0 0;background:#15304f;color:#cfe0f5;padding:30px 24px;text-align:center;font-size:13px}
+
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.cards{grid-template-columns:1fr}.hero h1{font-size:26px}}
+
+/* ---------- GitHub 弹窗 ---------- */
+.gh-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.gh-mask.open{display:flex}
+.gh-box{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:26px 28px;box-shadow:0 24px 60px rgba(16,60,130,.28);animation:ghIn .18s ease}
+@keyframes ghIn{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.gh-box .gh-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.gh-box .gh-title{font-size:17px;font-weight:800;color:#16324f}
+.gh-box .gh-close{cursor:pointer;border:none;background:#f3f6fa;color:#6b7280;width:28px;height:28px;border-radius:50%;font-size:16px;line-height:1}
+.gh-box .gh-close:hover{background:#e5e7eb;color:#111}
+.gh-box .gh-sub{font-size:13px;color:#6b7280;margin-bottom:14px}
+.gh-box .gh-repo{display:flex;align-items:center;gap:10px;background:#f6f8fc;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.gh-box .gh-repo .gh-path{flex:1;font-family:Consolas,Menlo,monospace;font-size:14px;color:#16324f;font-weight:600;word-break:break-all}
+.gh-box .gh-copy{border:1px solid #d1d5db;background:#fff;color:#374151;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+.gh-box .gh-copy:hover{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+.gh-box .gh-links{display:flex;gap:10px;margin-top:4px}
+.gh-box .gh-desc{font-size:13px;color:#4b5563;line-height:1.7;background:#fafbfc;border-radius:10px;padding:12px 14px;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<!-- Hero：直接式简介 -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">数据分析 · 业务工具 · AI 提效</div>
+    <h1>闫烨 上海财经大学 国际商务硕士</h1>
+    <div class="tools">
+      <span class="t">Excel / Power BI</span>
+      <span class="t">ECharts 可视化</span>
+      <span class="t">HTML 交互页面</span>
+      <span class="t">业务看板搭建</span>
+      <span class="t">AI 编码提效</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 实习产出 -->
+  <section class="exp">
+    <div class="sec-head">
+      <div>
+        <h2>实习产出</h2>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <span class="badge">证券 · 投顾运营</span>
+        <h3>投顾组合绩效归因与评价体系</h3>
+        <div class="desc">为券商渠道营销构建投顾组合的量化评价与分析体系，覆盖多维评分、绩效归因、智能筛选、自选对比与跟投追踪。</div>
+        <div class="meta"><b>归因结果</b> 用 Brinson 把超额收益分解为配置/选股/择时贡献<br><b>评价维度</b> 盈利能力 · 风险控制 · 业绩稳定性<br><b>落地价值</b> 辅助投顾考核与组合运营决策</div>
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <a class="btn" href="https://www.bilibili.com/video/BV1Vptt6uEgy/" target="_blank" rel="noopener">观看录屏演示 →</a>
+          <a class="btn ghost" href="#" onclick="openGh('投顾组合绩效归因与评价体系','Performance_Attribution','https://github.com/TrevorYan92693/Performance_Attribution','面向券商 / 财富管理场景的<b>投顾组合绩效归因分析平台</b>：基于模拟投顾交易流水，提供组合净值计算（每日持仓快照 / 现金 / 分红送转）、收益风险指标、六维风格标签、投顾画像、组合绩效归因，以及<b>超额收益溯源（Brinson 行业归因：配置效应 + 选择效应）</b>，并支持自选投顾对比与组合智能筛选。<br>后端 Python FastAPI + pandas / numpy，前端原生 HTML / JavaScript + ECharts，行情 / 财务数据通过 tushare 拉取并本地缓存。');return false;">GitHub 源码 →</a>
+        </div>
+      </div>
+      <div class="card feature">
+        <span class="badge">证券 · 投顾工具 · AI Skill</span>
+        <h3>客户全账户持仓诊断 Skill</h3>
+        <div class="desc">开发客户全账户持仓诊断 skill：输入任意客户持仓清单，自动产出 HTML / PDF / Word 三件套诊断报告，一次搭建、可对任意客户复用。</div>
+        <div class="meta"><b>能力模块</b> 五大类资产配置 · 相关性矩阵 · 集中度 · 组合回测 · 市场温度 · 诊断规则引擎<br><b>工程化</b> 13 个 Python 模块 · 批量多客户 · 可 import · 封装为 AI Skill</div>
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <a class="btn" href="持仓诊断报告.html" target="_blank">查看报告 →</a>
+          <a class="btn ghost" href="#" onclick="openGh('客户全账户持仓诊断 Skill','Portfolio-diagnosis','https://github.com/TrevorYan92693/Portfolio-diagnosis','面向投资顾问的「客户账户体检」工具集，内含两个互补 skill：<b>portfolio-diagnosis</b> 做全账户大类资产配置诊断（权益 / 固收 / 货币及现金 / 商品及另类 / 衍生品），产出《全账户持仓诊断报告》HTML / PDF / Word 三件套；<b>holding-doctor</b> 聚焦股票专项深析（直接持股 + 股票 ETF 的逐股/组合诊断），产出《股票持仓深度诊断报告》HTML / PDF。<br>输入客户持仓 JSON，自动完成五大类分类归集、相关性矩阵、持仓集中度、组合模拟回测、市场温度与诊断规则判断，交付「体检式」报告；一次搭建可对任意客户复用，支持批量多客户，可直接 import 调用。');return false;">GitHub 源码 →</a>
+        </div>
+      </div>
+      <a class="card" href="ETF统计看板_v2.html" target="_blank">
+        <span class="badge">证券 · 市场研究</span>
+        <h3>全市场 ETF 结构与资金研究</h3>
+        <div class="desc">对全市场 ETF 做规模与结构梳理，回答"资金在往哪些赛道走、市场格局如何演变"等一线投顾最关心的问题。</div>
+        <div class="meta"><b>核心发现</b> 赛道规模反超宽基 · 资金迁徙路径<br><b>研究视角</b> 风格格局 · 业绩表现 · 管理人版图</div>
+        <span class="btn">查看研究报告 →</span>
+      </a>
+      <a class="card" href="commercial-aerospace-dashboard.html" target="_blank">
+        <span class="badge">证券 · 行业研究</span>
+        <h3>商业航天产业链格局梳理</h3>
+        <div class="desc">面向一线投顾整理商业航天赛道：拆解产业链五大环节、梳理核心公司，方便投顾向客户解读行业动态。</div>
+        <div class="meta"><b>产业视角</b> 火箭 · 卫星 · 零部件 · 地面 · 应用<br><b>研究输出</b> 产业链图谱 · 所涉公司清单 · 政策动态</div>
+        <span class="btn">查看行业研究 →</span>
+      </a>
+      <a class="card feature" href="医药市场分析看板.html" target="_blank">
+        <span class="badge">医药 · 中央市场部</span>
+        <h3>核心产品市场销售分析报告</h3>
+        <div class="desc">围绕一款重点产品完成三项市场分析：市场格局与份额地位、客户机构销售保留、区域销售达成评估，为市场策略提供依据。</div>
+        <div class="meta"><b>格局判断</b> 各细分市场市场份额与本品地位<br><b>留存趋势</b> 分大区双期保留率对比与变化原因<br><b>达成评估</b> 分区域达成率 / 增长率 / 贡献占比</div>
+        <span class="btn">查看分析报告 →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- 创业项目 -->
+  <section class="exp">
+    <div class="sec-head">
+      <div>
+        <h2>创业项目</h2>
+      </div>
+    </div>
+    <div class="cards">
+      <a class="card feature" href="创新创业竞赛咨询工作室.html" target="_blank">
+        <span class="badge">创新创业 · 项目咨询工作室</span>
+        <h3>创新创业竞赛咨询工作室</h3>
+        <div class="desc">面向高校双创团队的竞赛咨询服务：设计差异化服务套餐、建立标准化项目管理流程，构建"内容营销—校园KOL推荐—机构渠道合作—客户转介绍"多元获客体系。</div>
+        <div class="meta"><b>获客体系</b> 小红书内容获客 · 校园KOL · 机构渠道 · 转介绍<br><b>合作方</b> 创业导师 · 校友 · 保研辅导机构<br><b>服务成果</b> 服务北大、浙大、中农大等客户，累计 200+ 项目，累计营收超 5 万元</div>
+        <span class="btn">查看工作室与项目视频 →</span>
+      </a>
+      <a class="card" href="绿色保鲜剂_路演.html" target="_blank">
+        <span class="badge">挑战杯 · 创业计划竞赛</span>
+        <h3>综合型绿色保鲜剂 · 创业项目路演</h3>
+        <div class="desc">针对乡村果蔬采后损耗大、保鲜成本高的痛点，提出复合型绿色可降解保鲜剂，从技术方案到商业模式完成一整套创业路演。</div>
+        <div class="meta"><b>项目定位</b> 助力乡村果蔬产业振兴<br><b>路演框架</b> 市场痛点 · 技术方案 · 商业模式 · 社会价值<br><b>获奖</b> 大学生创业计划竞赛参赛项目</div>
+        <span class="btn">查看完整路演 →</span>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<footer>作品内容均已完成脱敏处理 · 数据与口径以各作品内置说明为准 · 仅供参考，不构成任何投资建议</footer>
+
+<!-- GitHub 源码弹窗 -->
+<div class="gh-mask" id="ghMask" onclick="if(event.target===this)closeGh()">
+  <div class="gh-box">
+    <div class="gh-head">
+      <div class="gh-title" id="ghTitle">GitHub 源码</div>
+      <button class="gh-close" onclick="closeGh()">×</button>
+    </div>
+    <div class="gh-sub" id="ghSub">开源仓库 · 可查看源码与使用方式</div>
+    <div class="gh-desc" id="ghDesc"></div>
+    <div class="gh-repo">
+      <span class="gh-path" id="ghPath"></span>
+      <button class="gh-copy" id="ghCopy" onclick="copyGh(this)">复制</button>
+    </div>
+    <div class="gh-links">
+      <a class="btn" id="ghLink" href="#" target="_blank" rel="noopener" style="flex:1;text-align:center">在 GitHub 打开 →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+var ghUrl = '';
+function openGh(name, repo, url, desc){
+  ghUrl = url;
+  document.getElementById('ghTitle').textContent = name;
+  document.getElementById('ghSub').textContent = '开源仓库 · ' + repo;
+  document.getElementById('ghDesc').innerHTML = desc;
+  document.getElementById('ghPath').textContent = 'github.com/' + repo;
+  document.getElementById('ghLink').href = url;
+  document.getElementById('ghMask').classList.add('open');
+}
+function closeGh(){ document.getElementById('ghMask').classList.remove('open'); }
+function copyGh(btn){
+  var t = document.createElement('textarea');
+  t.value = ghUrl;
+  document.body.appendChild(t); t.select();
+  try{ document.execCommand('copy'); btn.textContent = '已复制'; }
+  catch(e){}
+  document.body.removeChild(t);
+  setTimeout(function(){ btn.textContent = '复制'; }, 1600);
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeGh(); });
+</script>
+
+</body>
+</html>
